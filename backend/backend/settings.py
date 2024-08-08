@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,6 +25,23 @@ SECRET_KEY = 'django-insecure-vo%o6ll8zsnlvr6k+4f$w)dwczr#2*^h*j(#f*nuxsv2t*-p)_
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "https://<ngrok-subdomain>.ngrok.io",
+#     # Thêm các domain khác nếu cần
+# ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ví dụ với database backend
+SESSION_COOKIE_AGE = 600  # 10 phut
+# Session sẽ hết hạn khi trình duyệt được đóng
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Lưu lại session trên mỗi yêu cầu
+SESSION_SAVE_EVERY_REQUEST = True
 
 import cloudinary
 import cloudinary.uploader
@@ -37,28 +54,53 @@ cloudinary.config(
     api_secret='_m9UIrPJn3_6VrSV3y9NiCvALng'
 )
 
-AUTH_USER_MODEL = 'OceanHotel.Account'
+AUTH_USER_MODEL = 'userauths.User'
+
+GOOGLE_CLIENT_ID = "1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+
+    # Google
+    "sslserver",
+    "rest_framework.authtoken",
+    # "userauths.apps.UserauthsConfig",
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
     # Custom
+    'userauths',
+    'user_dashboard',
     'OceanHotel',
+    'addon',
     'oauth2_provider',
     'drf_yasg',
-    'rest_framework',
     'corsheaders',
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,6 +108,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Thêm dòng này
 
 ]
 
@@ -102,7 +145,8 @@ DATABASES = {
         'NAME': 'oceanhoteldb',
         'USER': 'root',
         'PASSWORD': 'Abcd1234',  # mk mysql
-        'HOST': ''  # mặc định localhost
+        'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)
+        'PORT': '3306',
     }
 }
 
@@ -149,3 +193,86 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+JAZZMIN_SETTINGS = {
+    'site_header': "OceanHotel",
+    'site_brand': "Welcome to OceanHotel.",
+    'site_logo': "/images/logo.png",
+    'copyright': "All Right Reserved 2023",
+    "welcome_sign": "Welcome to OceanHotel, Login Now.",
+    "topmenu_links": [
+
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Company", "url": "/admin/addons/company/"},
+        {"name": "Users", "url": "/admin/userauths/user/"},
+
+        {"model": "AUTH_USER_MODEL.User"},
+    ],
+
+    "order_with_respect_to": [
+        "OceanHotel",
+        "OceanHotel.Hotel",
+        "OceanHotel.Room",
+        "OceanHotel.Booking",
+        "OceanHotel.BookingDetail",
+        "OceanHotel.Guest",
+        "OceanHotel.RoomServices",
+        "userauths"
+        "addons",
+    ],
+
+    "icons": {
+        "admin.LogEntry": "fas fa-file",
+
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+
+        "userauths.User": "fas fa-user",
+        "userauths.Role": "fas fa-user-cog",
+        "userauths.Profile": "fas fa-address-card",
+
+        "OceanHotel.Branch": "fas fa-th",
+        "OceanHotel.Booking": "fas fa-calendar-week",
+        "OceanHotel.BookingDetail": "fas fa-calendar-alt",
+        "OceanHotel.Guest": "fas fa-user",
+        "OceanHotel.Room": "fas fa-bed",
+        "OceanHotel.RoomServices": "fas fa-user-cog",
+        "OceanHotel.Notification": "fas fa-bell",
+        "OceanHotel.Coupon": "fas fa-tag",
+        "OceanHotel.Bookmark": "fas fa-heart",
+    },
+
+    "show_ui_builder": True
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": True,
+    "brand_small_text": False,
+    "brand_colour": "navbar-indigo",
+    "accent": "accent-olive",
+    "navbar": "navbar-indigo navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": False,
+    "sidebar": "sidebar-dark-indigo",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "cyborg",
+    "dark_mode_theme": "cyborg",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
