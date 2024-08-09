@@ -10,6 +10,7 @@ import { MyDispatchContext } from '../utils/MyContext';
 import loadGoogleScript from '../utils/loadGoogleScripts'; // Import the utility function
 import '../../Login.css';
 import {FaUser, FaLock} from "react-icons/fa"
+import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google"
 
 
 const Login = () => {
@@ -93,47 +94,19 @@ const Login = () => {
 	}
 
 	const handleGoogleLogin = async () => {
-        try {
-            const data = await googleLogin();
-            window.location.href = data.redirect_uri;
-        } catch (error) {
-            setError('Failed to initiate Google login');
-        }
+        // try {
+        //     const data = await googleLogin();
+        //     window.location.href = data.redirect_uri;
+        // } catch (error) {
+        //     setError('Failed to initiate Google login');
+        // }
+		const redirectUri = encodeURIComponent('http://127.0.0.1:8000/auth/google/callback/login');
+		const clientId = '1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com';
+		const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile&access_type=offline&prompt=select_account`;
+
+		window.location.href = authUrl;
     };
 
-    // const handleGoogleLoginCallback = async (code) => {
-    //     try {
-    //         const data = await googleLoginCallback(code);
-    //         // Save token and redirect user
-    //     } catch (error) {
-    //         setError('Failed to complete Google login');
-    //     }
-    // };
-
-	useEffect(() => {
-		const code = searchParams.get("code");
-		if (code) {
-			// Gửi mã xác thực đến server
-			const handleGoogleCallback = async () => {
-				try {
-					const response = await axios.get(`http://127.0.0.1:8000/auth/google/callback/?code=${code}`);
-					cookie.save("token", response.data.token);
-					let userdata = await axios.get("http://127.0.0.1:8000/auth/user/current-user/");
-					cookie.save('user', userdata.data);
-	
-					dispatch({
-						type: "login",
-						payload: userdata.data
-					});
-	
-					navigate(redirectUrl, { replace: true });
-				} catch (error) {
-					setError('Failed to complete Google login');
-				}
-			};
-			handleGoogleCallback();
-		}
-	}, [searchParams, navigate, dispatch]);
 	
 	return (
 		<div className="all">
@@ -194,25 +167,19 @@ const Login = () => {
 				</div>
 
 				<button type="button" onClick={handleGoogleLogin}>
-                            Login with Google
-                        </button>
-				{/* <div id="g_id_onload"
-					data-client_id="1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com"
-					data-context="signin"
-					data-ux_mode="popup"
-					data-login_uri="https://localhost:8000/auth/google/callback/login"
-					data-itp_support="true">
-				</div>
-
-				<div class="g_id_signin"
-					data-type="standard"
-					data-shape="rectangular"
-					data-theme="outline"
-					data-text="signin_with"
-					data-size="large"
-					data-logo_alignment="left">
-				</div> */}
-				{/* <div id="googleSignInButton"></div> */}
+                    Login with Google
+                </button>
+				{/* <GoogleOAuthProvider clientId="1088786597010-31f419alnll7e99mu369uab0aoc07csd.apps.googleusercontent.com">
+					<GoogleLogin onSuccess={credentialResponse => {
+						const token = credentialResponse.accessToken;
+						console.log(credentialResponse);
+					}}
+					onError={() => {
+					console.log('Login Failed');
+					}}
+					/>
+				</GoogleOAuthProvider> */}
+				{/* <div id="google-signin-button"></div> */}
 			</form>
 		</div>
 		</div>

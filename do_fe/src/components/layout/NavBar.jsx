@@ -13,6 +13,7 @@ const NavBar = () => {
 	const handleAccountClick = () => {
 		setShowAccount(!showAccount)
 	}
+	const isUserAdmin = user && user.role && user.role.name === "Admin";
 
 	// const isLoggedIn = localStorage.getItem("token")
 	// const userRole = localStorage.getItem("userRole")
@@ -44,7 +45,7 @@ const NavBar = () => {
 							</NavLink>
 						</li>
 
-						{user && user.role.name === "Admin" && (
+						{isUserAdmin && (
 							<li className="nav-item">
 								<NavLink className="nav-link" aria-current="page" to={"/admin"}>
 									Admin

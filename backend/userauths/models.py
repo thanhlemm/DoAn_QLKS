@@ -13,7 +13,7 @@ class Role(models.Model):
 
 
 class User(AbstractUser):
-    fullname = models.CharField(max_length=100)
+    # fullname = models.CharField(max_length=100)
     avatar = CloudinaryField(null=True)
     DOB = models.DateField(null=True)
     address = models.CharField(max_length=200, null=True, blank=True)

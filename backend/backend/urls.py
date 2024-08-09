@@ -36,7 +36,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('hotel/', include('OceanHotel.urls')),
     path('auth/', include('userauths.urls')),
-    path('auth/', include('allauth.urls')),
     # path('dashboard/', include('user_dashboard.urls')),
     # path('addons/', include('addon.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',

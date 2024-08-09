@@ -25,15 +25,18 @@ SECRET_KEY = 'django-insecure-vo%o6ll8zsnlvr6k+4f$w)dwczr#2*^h*j(#f*nuxsv2t*-p)_
 DEBUG = True
 
 ALLOWED_HOSTS = []
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-#     "https://<ngrok-subdomain>.ngrok.io",
-#     # Thêm các domain khác nếu cần
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+    "https://accounts.google.com",
+
+    # "http://127.0.0.1:8000/auth/login/google/",
+    # Thêm các domain khác nếu cần
+]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ví dụ với database backend
 SESSION_COOKIE_AGE = 600  # 10 phut
@@ -61,9 +64,6 @@ GOOGLE_CLIENT_SECRET = "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"
 GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
-SITE_ID = 1
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -82,11 +82,7 @@ INSTALLED_APPS = [
     "sslserver",
     "rest_framework.authtoken",
     # "userauths.apps.UserauthsConfig",
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+
 
     # Custom
     'userauths',
@@ -108,9 +104,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Thêm dòng này
 
 ]
+
 
 import pymysql
 

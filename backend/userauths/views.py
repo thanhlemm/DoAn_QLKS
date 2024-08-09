@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from .serializers import UserRegisterSerializer, UserSerializer
-from .models import User, UserProfile
+from .models import User, UserProfile, Role
 from django.shortcuts import get_object_or_404
 
 from django.shortcuts import redirect
@@ -15,6 +15,9 @@ from userauths.utils import google_setup
 from userauths.utils import google_callback
 from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from django.conf import settings
 
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -86,9 +89,11 @@ class GoogleOAuth2LoginCallbackView(APIView):
         try:
             user = User.objects.get(username=user_data["email"])
         except User.DoesNotExist:
-            return JsonResponse(
-                {"error": "User does not exist. Please sign up first."}, status=400
-            )
+            # return JsonResponse(
+            #     {"error": "User does not exist. Please sign up first."}, status=400
+            # )
+            signup_url = f"http://127.0.0.1:3000/register?email={user_data['email']}"
+            return redirect(signup_url)
 
         # Create the auth token for the frontend to use.
         token, _ = Token.objects.get_or_create(user=user)
@@ -96,7 +101,10 @@ class GoogleOAuth2LoginCallbackView(APIView):
         # Here we assume that once we are logged in we should send
         # a token to the frontend that a framework like React or Angular
         # can use to authenticate further requests.
-        return JsonResponse({"token": token.key})
+        # return JsonResponse({"token": token.key})
+        # Chuyển hướng về frontend với token trong query parameters
+        redirect_url = f"http://127.0.0.1:3000/?token={token.key}"
+        return redirect(redirect_url)
 
 
 class GoogleOAuth2LoginView(APIView):
@@ -116,7 +124,11 @@ class GoogleOAuth2SignUpCallbackView(APIView):
         # through the sign up route.
         user, _ = User.objects.get_or_create(
             username=user_data["email"],
-            defaults={"first_name": user_data["given_name"]},
+            defaults={"first_name": user_data["given_name"],
+                      "last_name": user_data.get("family_name", ""),
+                      "role": Role.objects.get(id=3)  # Thiết lập role mặc định là khách hàng
+             }
+
         )
 
         # Populate the extended user data stored in UserProfile.

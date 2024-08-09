@@ -5,6 +5,19 @@ export const endpoints = {
     'login': '/o/token/',
 
 };
+export const api = axios.create({
+	baseURL: "http://127.0.0.1:8000"
+})
+
+// Cấu hình Axios instance
+// const axiosInstance = axios.create({
+//     baseURL: 'https://accounts.google.com/o/oauth2/v2/',
+//     timeout: 10000,
+//     headers: {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json',
+//     },
+// });
 
 export const googleLogin = async () => {
     try {
@@ -14,6 +27,24 @@ export const googleLogin = async () => {
         console.error('Error during Google login:', error);
         throw error;
     }
+	// try {
+    //     const response = await axiosInstance.get('auth', {
+    //         params: {
+    //             response_type: 'code',
+    //             client_id: '1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com',
+    //             redirect_uri: 'http://127.0.0.1:8000/auth/google/callback/login',
+    //             scope: 'openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+    //             // state: 'random-state-string',
+    //             access_type: 'offline',
+    //             prompt: 'select_account',
+    //         }
+    //     });
+    //     console.log(response.data);
+    //     return response.data;
+    // } catch (error) {
+    //     console.error('Error during the request:', error);
+    //     throw error;
+    // }
 };
 
 export const googleLoginCallback = async (authCode) => {
@@ -58,9 +89,6 @@ export const authAPI = () => {
     });
 };
 
-export const api = axios.create({
-	baseURL: "http://127.0.0.1:8000"
-})
 
 export const uploadToCloudinary = async (file) => {
     const formData = new FormData();
@@ -109,8 +137,9 @@ export async function deleteUser(userId, token) {
 export async function getUser(userId) {
 	try {
 		const response = await api.get(`/auth/user/${userId}/`, {
-			headers: getHeader()
+			// headers: getHeader()
 		})
+		console.log(response.data)
 		return response.data
 	} catch (error) {
 		throw error

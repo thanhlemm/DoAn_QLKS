@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Role
+from django.contrib.auth.models import AnonymousUser
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -15,7 +16,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'fullname', 'role', 'DOB', 'address', 'phone', 'sex')
+        fields = (
+            'username', 'password', 'password2', 'email', 'first_name', 'last_name', 'role', 'DOB', 'address', 'phone',
+            'sex')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -43,11 +46,23 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'fullname', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex', 'role']
+        fields = ['id', 'username', 'first_name', 'last_name', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex',
+                  'role']
         extra_kwargs = {'password': {'write_only': True}}
+
+    def get_avatar(self, obj):
+        if isinstance(obj, AnonymousUser):
+            return None
+        return obj.avatar.url if obj.avatar else None
+
+    def to_representation(self, instance):
+        if isinstance(instance, AnonymousUser):
+            return {}
+        return super().to_representation(instance)
 
     # def create(self, validated_data):
     #     role_data = validated_data.pop('role')
