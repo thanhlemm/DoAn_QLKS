@@ -137,7 +137,7 @@ export async function deleteUser(userId, token) {
 export async function getUser(userId) {
 	try {
 		const response = await api.get(`/auth/user/${userId}/`, {
-			// headers: getHeader()
+			headers: getHeader()
 		})
 		console.log(response.data)
 		return response.data

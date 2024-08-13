@@ -13,12 +13,12 @@ r.register('user', views.UserViewSet, basename='user')
 
 urlpatterns = [
     path('', include(r.urls)),
-    path("signup/google/", views.GoogleOAuth2SignUpView.as_view(), name="google_signup"),
-    path(
-        "google/callback/signup",
-        views.GoogleOAuth2SignUpCallbackView.as_view(),
-        name="google_signup_callback",
-    ),
+    # path("signup/google/", views.GoogleOAuth2SignUpView.as_view(), name="google_signup"),
+    # path(
+    #     "google/callback/signup",
+    #     views.GoogleOAuth2SignUpCallbackView.as_view(),
+    #     name="google_signup_callback",
+    # ),
     path("login/google/", views.GoogleOAuth2LoginView.as_view(), name="google_login"),
     path(
         "google/callback/login",

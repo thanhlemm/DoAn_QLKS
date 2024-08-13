@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,13 +41,14 @@ CORS_ALLOWED_ORIGINS = [
     # Thêm các domain khác nếu cần
 ]
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ví dụ với database backend
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 600  # 10 phut
 # Session sẽ hết hạn khi trình duyệt được đóng
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 # Lưu lại session trên mỗi yêu cầu
 SESSION_SAVE_EVERY_REQUEST = True
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 import cloudinary
 import cloudinary.uploader
@@ -59,11 +63,10 @@ cloudinary.config(
 
 AUTH_USER_MODEL = 'userauths.User'
 
-GOOGLE_CLIENT_ID = "1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
-
 
 # Application definition
 
@@ -82,7 +85,6 @@ INSTALLED_APPS = [
     "sslserver",
     "rest_framework.authtoken",
     # "userauths.apps.UserauthsConfig",
-
 
     # Custom
     'userauths',
@@ -106,7 +108,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
 ]
-
 
 import pymysql
 

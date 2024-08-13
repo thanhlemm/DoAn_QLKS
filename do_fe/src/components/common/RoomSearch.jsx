@@ -1,13 +1,14 @@
 import React, { useState } from "react"
 import { Form, Button, Row, Col, Container } from "react-bootstrap"
 import moment from "moment"
-import { getAvailableRooms } from "../utils/ApiFunctions"
+import { checkRoomAvailability } from "../utils/ApiFunctions"//  getAvailableRooms,
 import RoomSearchResults from "./RoomSearchResult"
 import RoomTypeSelector from "./RoomTypeSelector"
 import BranchTypeSelector from "./BranchTypeSelector"
 
 const RoomSearch = () => {
 	const [searchQuery, setSearchQuery] = useState({
+		branch: "",
 		checkInDate: "",
 		checkOutDate: "",
 		roomType: ""
@@ -30,9 +31,15 @@ const RoomSearch = () => {
 			return
 		}
 		setIsLoading(true)
-		getAvailableRooms(searchQuery.checkInDate, searchQuery.checkOutDate, searchQuery.roomType)
+		console.log(searchQuery.branch)
+		console.log(searchQuery.roomType)
+		console.log(searchQuery.checkInDate)
+		console.log(searchQuery.checkOutDate)
+		checkRoomAvailability(searchQuery.branch, searchQuery.roomType ,searchQuery.checkInDate, searchQuery.checkOutDate)
 			.then((response) => {
-				setAvailableRooms(response.data)
+				
+				setAvailableRooms(response.available_rooms)
+				console.log(availableRooms.available_rooms)
 				setTimeout(() => setIsLoading(false), 2000)
 			})
 			.catch((error) => {
@@ -54,6 +61,7 @@ const RoomSearch = () => {
 	}
 	const handleClearSearch = () => {
 		setSearchQuery({
+			branch: "",
 			checkInDate: "",
 			checkOutDate: "",
 			roomType: ""

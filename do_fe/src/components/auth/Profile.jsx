@@ -15,10 +15,10 @@ const Profile = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
-    console.log('User from context:', user);
 
     useEffect(() => {
         const fetchUser = async () => {
+            console.log(user.id);
             if (user && user.id) {
                 try {
                     const userData = await getUser(user.id);
@@ -132,14 +132,14 @@ const Profile = () => {
                                         <div className="form-group row">
                                             <label className="col-md-2 col-form-label fw-bold">Full Name:</label>
                                             <div className="col-md-10">
-                                                <p className="card-text">{user.fullname}</p>
+                                                <p className="card-text">{user.firstname}</p>
                                             </div>
                                         </div>
                                         <hr />
                                         <div className="form-group row">
                                             <label className="col-md-2 col-form-label fw-bold">Email:</label>
                                             <div className="col-md-10">
-                                                <p className="card-text">{user.email}</p>
+                                                <p className="card-text">{user.username}</p>
                                             </div>
                                         </div>
                                         <hr />

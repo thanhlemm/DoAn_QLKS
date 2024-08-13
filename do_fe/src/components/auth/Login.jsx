@@ -1,16 +1,13 @@
-import React, { useState, useContext, useEffect  } from "react"
-import {  endpoints, authAPI } from "../utils/ApiFunctions"
-import { googleLogin, googleLoginCallback, googleSignUp, googleSignUpCallback } from '../utils/ApiFunctions';
+import React, { useState, useContext} from "react"
+import { authAPI } from "../utils/ApiFunctions"
 
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 // import { useAuth } from "./AuthProvider";
 import axios from "axios"
 import cookie from "react-cookies";
 import { MyDispatchContext } from '../utils/MyContext';
-import loadGoogleScript from '../utils/loadGoogleScripts'; // Import the utility function
 import '../../Login.css';
 import {FaUser, FaLock} from "react-icons/fa"
-import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google"
 
 
 const Login = () => {
@@ -22,9 +19,9 @@ const Login = () => {
 
 	const navigate = useNavigate()
 	// const auth = useAuth()
-	const location = useLocation()
+	// const location = useLocation()
 	const redirectUrl =  "/";
-	const [searchParams] = useSearchParams(); // Hook to get URL parameters
+	// const [searchParams] = useSearchParams(); // Hook to get URL parameters
 
 
 	const [username, setUsername] = useState('');
@@ -101,7 +98,7 @@ const Login = () => {
         //     setError('Failed to initiate Google login');
         // }
 		const redirectUri = encodeURIComponent('http://127.0.0.1:8000/auth/google/callback/login');
-		const clientId = '1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com';
+		const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 		const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile&access_type=offline&prompt=select_account`;
 
 		window.location.href = authUrl;
@@ -169,17 +166,6 @@ const Login = () => {
 				<button type="button" onClick={handleGoogleLogin}>
                     Login with Google
                 </button>
-				{/* <GoogleOAuthProvider clientId="1088786597010-31f419alnll7e99mu369uab0aoc07csd.apps.googleusercontent.com">
-					<GoogleLogin onSuccess={credentialResponse => {
-						const token = credentialResponse.accessToken;
-						console.log(credentialResponse);
-					}}
-					onError={() => {
-					console.log('Login Failed');
-					}}
-					/>
-				</GoogleOAuthProvider> */}
-				{/* <div id="google-signin-button"></div> */}
 			</form>
 		</div>
 		</div>
