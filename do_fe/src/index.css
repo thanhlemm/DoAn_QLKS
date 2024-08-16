@@ -92,7 +92,7 @@ Navigation bar definitions
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 50vh;
+  height: 30vh;
 }
 
 .header {
@@ -230,7 +230,7 @@ Navigation bar definitions
 }
 
  .footer {
-  /* position: fixed; */
+  position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;

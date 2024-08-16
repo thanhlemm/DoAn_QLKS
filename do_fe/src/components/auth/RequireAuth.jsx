@@ -1,5 +1,6 @@
-import React from "react"
+import React, {useContext} from "react"
 import { Navigate, useLocation } from "react-router-dom"
+import { MyUserContext } from '../utils/MyContext';
 
 const RequireAuth = ({ children }) => {
 	const user = useContext(MyUserContext)

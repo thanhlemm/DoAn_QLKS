@@ -86,6 +86,11 @@ class GoogleOAuth2LoginCallbackView(APIView):
 
         user_data = google_callback(redirect_uri, auth_uri)
 
+        # Lấy URL frontend từ OAuth state
+        frontend_url = request.GET.get('state')
+        
+        if frontend_url is None:
+            return JsonResponse({"error": "State (frontend URL) is missing."}, status=400)
         # try:
         #     user = User.objects.get(username=user_data["email"])
         # except User.DoesNotExist:
@@ -128,7 +133,7 @@ class GoogleOAuth2LoginCallbackView(APIView):
         # can use to authenticate further requests.
         # return JsonResponse({"token": token.key})
         # Chuyển hướng về frontend với token trong query parameters
-        redirect_url = f"http://127.0.0.1:3000/?token={access_token.token}"
+        redirect_url = f"{frontend_url}/?token={access_token.token}"
         return redirect(redirect_url)
 
 

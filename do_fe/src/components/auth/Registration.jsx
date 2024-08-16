@@ -12,11 +12,11 @@ const Registration = () => {
         email: "",
         password: "",
         password2: "",
-        role: 3, // Assuming 1 is the role ID for customers
+        role: 3,
         DOB: "",
         address: "",
         phone: "",
-        sex: 2 // Default to 'Nữ'
+        sex: 2 
     });
 
     const [errorMessage, setErrorMessage] = useState("");

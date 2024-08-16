@@ -1,23 +1,31 @@
 import axios from "axios"
 // import moment from "moment";
 import cookie from "react-cookies";
+
+const BASE_URL="http://127.0.0.1:8000"
+
 export const endpoints = {
     'login': '/o/token/',
-
+	'current_user': '/auth/user/current-user/',
+	'googleCallbackLogin': `${BASE_URL}/auth/google/callback/login`,
 };
+
+
 export const api = axios.create({
-	baseURL: "http://127.0.0.1:8000"
+	baseURL: BASE_URL
 })
 
-// Cấu hình Axios instance
-// const axiosInstance = axios.create({
-//     baseURL: 'https://accounts.google.com/o/oauth2/v2/',
-//     timeout: 10000,
-//     headers: {
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json',
-//     },
-// });
+// Hàm tạo instance axios với Authorization header
+export const authAPI = (accessToken) => {
+    accessToken = cookie.load('token');
+    return axios.create({
+        baseURL: BASE_URL,
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+};
+
 
 export const googleLogin = async () => {
     try {
@@ -27,24 +35,6 @@ export const googleLogin = async () => {
         console.error('Error during Google login:', error);
         throw error;
     }
-	// try {
-    //     const response = await axiosInstance.get('auth', {
-    //         params: {
-    //             response_type: 'code',
-    //             client_id: '1088786597010-8efsh4c7kh2lnkunso0o5qidbc6hcmi6.apps.googleusercontent.com',
-    //             redirect_uri: 'http://127.0.0.1:8000/auth/google/callback/login',
-    //             scope: 'openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-    //             // state: 'random-state-string',
-    //             access_type: 'offline',
-    //             prompt: 'select_account',
-    //         }
-    //     });
-    //     console.log(response.data);
-    //     return response.data;
-    // } catch (error) {
-    //     console.error('Error during the request:', error);
-    //     throw error;
-    // }
 };
 
 export const googleLoginCallback = async (authCode) => {
@@ -77,17 +67,6 @@ export const googleSignUpCallback = async (authCode) => {
     }
 };
 
-const BASE_URL="http://127.0.0.1:8000"
-// Hàm tạo instance axios với Authorization header
-export const authAPI = () => {
-    const token = cookie.load('token');
-    return axios.create({
-        baseURL: BASE_URL,
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-};
 
 
 export const uploadToCloudinary = async (file) => {
@@ -284,7 +263,7 @@ export async function updateRoom(roomId, roomData) {
 /* This function gets a room by Id*/
 export async function getRoomById(roomId) {
 	try {
-		const result = await api.get(`/rooms/room/${roomId}`)
+		const result = await api.get(`/hotel/rooms/${roomId}`)
 		return result.data
 	} catch (error) {
 		throw new Error(`Error fetching room ${error.message}`)

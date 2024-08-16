@@ -14,9 +14,9 @@ import RoomSelection from "./components/room/RoomSelection"
 import RoomListing from "./components/room/RoomListing"
 import RoomSearchResults from "./components/common/RoomSearchResult"
 // import Admin from "./components/admin/Admin"
-// import Checkout from "./components/booking/Checkout"
-// import BookingSuccess from "./components/booking/BookingSuccess"
-// import Bookings from "./components/booking/Bookings"
+import Checkout from "./components/booking/Checkout"
+import BookingSuccess from "./components/booking/BookingSuccess"
+import Bookings from "./components/booking/Bookings"
 import FindBooking from "./components/booking/FindBooking"
 import Login from "./components/auth/Login"
 import MyUserReducer from './components/Myreducer/MyUserReducer';
@@ -24,8 +24,8 @@ import cookie from "react-cookies";
 import { MyDispatchContext, MyUserContext } from './components/utils/MyContext';
 import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
-// import { AuthProvider } from "./components/auth/AuthProvider"
-// import RequireAuth from "./components/auth/RequireAuth"
+import { AuthProvider } from "./components/auth/AuthProvider"
+import RequireAuth from "./components/auth/RequireAuth"
 import GoogleLoginCallback from './components/auth/GoogleLoginCallback';
 import GoogleSignUpCallback from './components/auth/GoogleSignUpCallback';
 
@@ -43,19 +43,19 @@ function App() {
 						{/* <Route path="/existing-rooms" element={<ExistingRooms />} /> */}
 						{/* <Route path="/add-room" element={<AddRoom />} /> */}
 						
-						{/* <Route
+						<Route
 							path="/book-room/:roomId"
 							element={
 								<RequireAuth>
 									<Checkout />
 								</RequireAuth>
 							}
-						/> */}
+						/>
 						<Route path="/browse-all-rooms" element={<RoomListing />} />
 
 						{/* <Route path="/admin" element={<Admin />} /> */}
-						{/* <Route path="/booking-success" element={<BookingSuccess />} /> */}
-						{/* <Route path="/existing-bookings" element={<Bookings />} /> */}
+						<Route path="/booking-success" element={<BookingSuccess />} />
+						<Route path="/existing-bookings" element={<Bookings />} />
 						<Route path="/find-booking" element={<FindBooking />} />
 						<Route path="/hotel/branch/:id"  element={<BranchDetail />}/>
 						<Route path="/hotel/branch/:id/roomtype/roomselection/" element={<RoomSelection />} />
@@ -64,7 +64,7 @@ function App() {
 
 						<Route path="/profile" element={<Profile />} />
 						<Route path="/logout" element={<FindBooking />} />
-						{/* <Route path="/google/callback/login" element={<GoogleLoginCallback />} /> */}
+						<Route path="/auth/google/callback/login" element={<GoogleLoginCallback />} />
                 	{/* <Route path="/google/callback/signup" element={<GoogleSignUpCallback />} /> */}
 					</Routes>
 					<Footer/>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useContext } from "react"
 import moment from "moment"
 import { useState } from "react"
 import { Form, FormControl, Button } from "react-bootstrap"
@@ -6,18 +6,20 @@ import BookingSummary from "./BookingSummary"
 import { bookRoom, getRoomById } from "../utils/ApiFunctions"
 import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "../auth/AuthProvider"
+import { MyUserContext } from '../utils/MyContext';
 
 const BookingForm = () => {
 	const [validated, setValidated] = useState(false)
 	const [isSubmitted, setIsSubmitted] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("")
 	const [roomPrice, setRoomPrice] = useState(0)
-
-const currentUser = localStorage.getItem("userId")
+	const user = useContext(MyUserContext);
+// const currentUser = localStorage.getItem("userId")
 
 	const [booking, setBooking] = useState({
-		guestFullName: "",
-		guestEmail: currentUser,
+		guestFirstName: user.first_name,
+		guestLasttName: user.last_name,
+		guestEmail: user.username,
 		checkInDate: "",
 		checkOutDate: "",
 		numOfAdults: "",
@@ -37,7 +39,7 @@ const currentUser = localStorage.getItem("userId")
 	const getRoomPriceById = async (roomId) => {
 		try {
 			const response = await getRoomById(roomId)
-			setRoomPrice(response.roomPrice)
+			setRoomPrice(response.price)
 		} catch (error) {
 			throw new Error(error)
 		}
@@ -75,7 +77,7 @@ const currentUser = localStorage.getItem("userId")
 	const handleSubmit = (e) => {
 		e.preventDefault()
 		const form = e.currentTarget
-		if (form.checkValidity() === false || !isGuestCountValid() || !isCheckOutDateValid()) {
+		if (form.checkValidity() === false || !isCheckOutDateValid()) {
 			e.stopPropagation()
 		} else {
 			setIsSubmitted(true)
@@ -106,21 +108,39 @@ const currentUser = localStorage.getItem("userId")
 							<Form noValidate validated={validated} onSubmit={handleSubmit}>
 								<Form.Group>
 									<Form.Label htmlFor="guestFullName" className="hotel-color">
-										Fullname
+										FirstName
 									</Form.Label>
 									<FormControl
 										required
 										type="text"
 										id="guestFullName"
 										name="guestFullName"
-										value={booking.guestFullName}
+										value={booking.guestFirstName}
 										placeholder="Enter your fullname"
 										onChange={handleInputChange}
 									/>
 									<Form.Control.Feedback type="invalid">
-										Please enter your fullname.
+										Please enter your firstname.
 									</Form.Control.Feedback>
 								</Form.Group>
+								<Form.Group>
+									<Form.Label htmlFor="guestFullName" className="hotel-color">
+										LastName
+									</Form.Label>
+									<FormControl
+										required
+										type="text"
+										id="guestFullName"
+										name="guestFullName"
+										value={booking.guestLasttName}
+										placeholder="Enter your fullname"
+										onChange={handleInputChange}
+									/>
+									<Form.Control.Feedback type="invalid">
+										Please enter your lastname.
+									</Form.Control.Feedback>
+								</Form.Group>
+
 
 								<Form.Group>
 									<Form.Label htmlFor="guestEmail" className="hotel-color">
@@ -185,47 +205,7 @@ const currentUser = localStorage.getItem("userId")
 									</div>
 								</fieldset>
 
-								<fieldset style={{ border: "2px" }}>
-									<legend>Number of Guest</legend>
-									<div className="row">
-										<div className="col-6">
-											<Form.Label htmlFor="numOfAdults" className="hotel-color">
-												Adults
-											</Form.Label>
-											<FormControl
-												required
-												type="number"
-												id="numOfAdults"
-												name="numOfAdults"
-												value={booking.numOfAdults}
-												min={1}
-												placeholder="0"
-												onChange={handleInputChange}
-											/>
-											<Form.Control.Feedback type="invalid">
-												Please select at least 1 adult.
-											</Form.Control.Feedback>
-										</div>
-										<div className="col-6">
-											<Form.Label htmlFor="numOfChildren" className="hotel-color">
-												Children
-											</Form.Label>
-											<FormControl
-												required
-												type="number"
-												id="numOfChildren"
-												name="numOfChildren"
-												value={booking.numOfChildren}
-												placeholder="0"
-												min={0}
-												onChange={handleInputChange}
-											/>
-											<Form.Control.Feedback type="invalid">
-												Select 0 if no children
-											</Form.Control.Feedback>
-										</div>
-									</div>
-								</fieldset>
+								
 
 								<div className="fom-group mt-2 mb-2">
 									<button type="submit" className="btn btn-hotel">

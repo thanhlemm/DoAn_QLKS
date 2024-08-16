@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Form, Button, Row, Col, Container } from "react-bootstrap"
 import moment from "moment"
-import { checkRoomAvailability } from "../utils/ApiFunctions"//  getAvailableRooms,
+import { checkRoomAvailability, getRoomTypesByBranchId } from "../utils/ApiFunctions"//  getAvailableRooms,
 import RoomSearchResults from "./RoomSearchResult"
 import RoomTypeSelector from "./RoomTypeSelector"
 import BranchTypeSelector from "./BranchTypeSelector"
@@ -17,6 +17,7 @@ const RoomSearch = () => {
 	const [errorMessage, setErrorMessage] = useState("")
 	const [availableRooms, setAvailableRooms] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
+	const [roomTypes, setRoomTypes] = useState([]) // State để lưu trữ room types
 
 	const handleSearch = (e) => {
 		e.preventDefault()
@@ -50,6 +51,19 @@ const RoomSearch = () => {
 			})
 	}
 
+	// const handleBranchChange = (branch) => {
+	// 	setSearchQuery({ ...searchQuery, branch })
+	// 	console.log(searchQuery)
+	// 	getRoomTypesByBranchId(branch.id) // Gọi API để lấy room types theo branch
+	// 		.then((roomTypes) => {
+	// 			setRoomTypes(roomTypes) // Cập nhật room types vào state
+	// 			setSearchQuery({ ...searchQuery, roomType: "" }) // Reset roomType khi thay đổi chi nhánh
+	// 		})
+	// 		.catch((error) => {
+	// 			console.log(error)
+	// 		})
+	// }
+
 	const handleInputChange = (e) => {
 		const { name, value } = e.target
 		setSearchQuery({ ...searchQuery, [name]: value })
@@ -75,11 +89,11 @@ const RoomSearch = () => {
 				<Form onSubmit={handleSearch}>
 					<Row className="justify-content-center">
 						<Col xs={12} md={3}>
-							<Form.Group controlId="roomType">
+							<Form.Group controlId="branch">
 								<Form.Label>Branch</Form.Label>
 								
 									<BranchTypeSelector
-										handleBranchInputChange={handleInputChange}
+										handleBranchInputChange={handleInputChange}//handleBranchChange
 										newBranch={searchQuery}
 									/>
 							</Form.Group>
@@ -113,6 +127,7 @@ const RoomSearch = () => {
 								<Form.Label>Room Type</Form.Label>
 								<div className="d-flex">
 									<RoomTypeSelector
+										roomTypes={roomTypes}
 										handleRoomInputChange={handleInputChange}
 										newRoom={searchQuery}
 									/>

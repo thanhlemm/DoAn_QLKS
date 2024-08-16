@@ -36,7 +36,6 @@ const Home = () => {
 
                     // Lưu thông tin người dùng vào cookie
                     cookie.save('user', userdata.data);
-                    console.log(userdata.data)
                     // Cập nhật trạng thái người dùng trong Redux store
                     dispatch({
                         type: "login",

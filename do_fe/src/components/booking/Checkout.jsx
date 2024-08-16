@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react"
 import BookingForm from "../booking/BookingForm"
-import {
-	FaUtensils,
-	FaWifi,
-	FaTv,
-	FaWineGlassAlt,
-	FaParking,
-	FaCar,
-	FaTshirt
-} from "react-icons/fa"
+// import {
+// 	FaUtensils,
+// 	FaWifi,
+// 	FaTv,
+// 	FaWineGlassAlt,
+// 	FaParking,
+// 	FaCar,
+// 	FaTshirt
+// } from "react-icons/fa"
 
 import { useParams } from "react-router-dom"
 import { getRoomById } from "../utils/ApiFunctions"
@@ -19,7 +19,7 @@ const Checkout = () => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [roomInfo, setRoomInfo] = useState({
 		photo: "",
-		roomType: "",
+		room_type: "",
 		roomPrice: ""
 	})
 
@@ -51,7 +51,7 @@ const Checkout = () => {
 						) : (
 							<div className="room-info">
 								<img
-									src={`data:image/png;base64,${roomInfo.photo}`}
+									src={roomInfo.room_type?.image.replace("image/upload/", "")}
 									alt="Room photo"
 									style={{ width: "100%", height: "200px" }}
 								/>
@@ -59,16 +59,16 @@ const Checkout = () => {
 									<tbody>
 										<tr>
 											<th>Room Type:</th>
-											<td>{roomInfo.roomType}</td>
+											<td>{roomInfo.room_type?.type}</td>
 										</tr>
 										<tr>
 											<th>Price per night:</th>
-											<td>${roomInfo.roomPrice}</td>
+											<td>${roomInfo.price}</td>
 										</tr>
 										<tr>
 											<th>Room Service:</th>
 											<td>
-												<ul className="list-unstyled">
+												{/* <ul className="list-unstyled">
 													<li>
 														<FaWifi /> Wifi
 													</li>
@@ -90,7 +90,7 @@ const Checkout = () => {
 													<li>
 														<FaTshirt /> Laundry
 													</li>
-												</ul>
+												</ul> */}
 											</td>
 										</tr>
 									</tbody>
