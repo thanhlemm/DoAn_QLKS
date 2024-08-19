@@ -31,7 +31,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user = User(
             username=validated_data['username'],
             email=validated_data['email'],
-            fullname=validated_data['fullname'],
+            first_name=validated_data['first_name'],
             role=validated_data['role'],
             avatar=validated_data.get('avatar'),
             DOB=validated_data.get('DOB'),

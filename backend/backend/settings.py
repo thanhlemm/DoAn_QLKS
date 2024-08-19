@@ -68,6 +68,10 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
+FACEBOOK_CLIENT_ID = os.environ.get("FACEBOOK_CLIENT_ID")
+FACEBOOK_CLIENT_SECRET = os.environ.get("FACEBOOK_CLIENT_SECRET")
+FACEBOOK_REDIRECT_URI = "http://127.0.0.1:8000/oauth/facebook/callback/"
+
 # Application definition
 
 INSTALLED_APPS = [

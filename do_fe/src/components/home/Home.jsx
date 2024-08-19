@@ -8,7 +8,7 @@ import PopularBranch from "../common/PopularBranch"
 import { useLocation, useNavigate } from "react-router-dom"
 import cookie from "react-cookies";
 import { MyDispatchContext } from '../utils/MyContext';
-import { authAPI } from "../utils/ApiFunctions"
+import { authAPI,endpoints } from "../utils/ApiFunctions"
 
 
 
@@ -31,8 +31,7 @@ const Home = () => {
 
                 try {
                     // Yêu cầu thông tin người dùng từ API
-                    let userdata = await authAPI().get("http://127.0.0.1:8000/auth/user/current-user/", {
-                    });
+                    let userdata = await authAPI(token).get(endpoints['current_user']);
 
                     // Lưu thông tin người dùng vào cookie
                     cookie.save('user', userdata.data);

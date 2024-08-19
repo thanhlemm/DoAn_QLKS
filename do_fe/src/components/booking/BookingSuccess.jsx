@@ -6,6 +6,7 @@ const BookingSuccess = () => {
 	const location = useLocation()
 	const message = location.state?.message
 	const error = location.state?.error
+	
 	return (
 		<div className="container">
 			<Header title="Booking Success" />
@@ -13,13 +14,12 @@ const BookingSuccess = () => {
 				{message ? (
 					<div>
 						<h3 className="text-success"> Booking Success!</h3>
-						<p className="text-success">{message}</p>
+						<p className="text-success">{typeof message === 'object' ? JSON.stringify(message) : message}</p>
 					</div>
 				) : (
 					<div>
 						<h3 className="text-danger"> Error Booking Room!</h3>
-						<p className="text-danger">{error}</p>
-						
+						<p className="text-danger">{typeof error === 'object' ? JSON.stringify(error) : error}</p>
 					</div>
 				)}
 			</div>

@@ -4,12 +4,13 @@ import Button from "react-bootstrap/Button"
 import { useNavigate } from "react-router-dom"
 
 const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
-	const checkInDate = moment(booking.checkInDate)
-	const checkOutDate = moment(booking.checkOutDate)
+	const checkInDate = moment(booking.check_in_date)
+	const checkOutDate = moment(booking.check_out_date)
 	const numberOfDays = checkOutDate.diff(checkInDate, "days")
 	const [isBookingConfirmed, setIsBookingConfirmed] = useState(false)
 	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 	const navigate = useNavigate()
+	
 
 	const handleConfirmBooking = () => {
 		setIsProcessingPayment(true)
@@ -32,19 +33,16 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 			<div className="card card-body mt-5">
 				<h4 className="card-title hotel-color">Reservation Summary</h4>
 				<p>
-					First Name: <strong>{booking.guestFirstName}</strong>
+					Email: <strong>{booking.email}</strong>
 				</p>
 				<p>
-					Last Name: <strong>{booking.guestLastName}</strong>
+					Phone: <strong>{booking.phone}</strong>
 				</p>
 				<p>
-					Email: <strong>{booking.guestEmail}</strong>
+					Check-in Date: <strong>{moment(booking.check_in_date).format("MMM Do YYYY")}</strong>
 				</p>
 				<p>
-					Check-in Date: <strong>{moment(booking.checkInDate).format("MMM Do YYYY")}</strong>
-				</p>
-				<p>
-					Check-out Date: <strong>{moment(booking.checkOutDate).format("MMM Do YYYY")}</strong>
+					Check-out Date: <strong>{moment(booking.check_out_date).format("MMM Do YYYY")}</strong>
 				</p>
 				<p>
 					Number of Days Booked: <strong>{numberOfDays}</strong>

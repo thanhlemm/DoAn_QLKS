@@ -33,8 +33,8 @@ class User(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     google_id = models.CharField(max_length=255, unique=True, null=True)
-    github_id = models.CharField(max_length=255, unique=True, null=True)
+    facebook_id = models.CharField(max_length=255, unique=True, null=True)
 
     def clean(self):
-        if self.google_id is None and self.github_id is None:
-            raise ValidationError("One of google_id or github_id must be set.")
+        if self.google_id is None and self.facebook_id is None:
+            raise ValidationError("One of google_id or facebook_id must be set.")

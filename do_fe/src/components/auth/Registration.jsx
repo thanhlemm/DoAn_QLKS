@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { registerUser } from "../utils/ApiFunctions";
-import { googleSignUp, googleSignUpCallback  } from "../utils/ApiFunctions"; // Import the Google sign-up function
+import { registerUser, endpoints } from "../utils/ApiFunctions";
 import { Link } from "react-router-dom";
 import '../../Login.css';
 
@@ -8,7 +7,7 @@ import '../../Login.css';
 const Registration = () => {
     const [registration, setRegistration] = useState({
         username: "",
-        fullname: "",
+        first_name: "",
         email: "",
         password: "",
         password2: "",
@@ -34,7 +33,7 @@ const Registration = () => {
             setErrorMessage("");
             setRegistration({
                 username: "",
-                fullname: "",
+                first_name: "",
                 email: "",
                 password: "",
                 password2: "",
@@ -54,14 +53,20 @@ const Registration = () => {
         }, 5000);
     };
 
-    const handleGoogleSignUp = async () => {
-        try {
-            const data = await googleSignUp();
-            window.location.href = data.redirect_uri;
-        } catch (error) {
-            setErrorMessage('Failed to initiate Google sign-up');
-        }
+    const handleGoogleLogin = async () => {
+        const googleCallbackLogin = endpoints['googleCallbackLogin'];
+		const redirectUri = encodeURIComponent(googleCallbackLogin);
+
+		const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+		// Lấy URL frontend hiện tại để truyền qua backend
+		const currentFrontendUrl = encodeURIComponent(window.location.origin);
+
+		const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile&access_type=offline&prompt=select_account&state=${currentFrontendUrl}`;
+
+		window.location.href = authUrl;
     };
+
 
     return (
         <div className="all">
@@ -86,12 +91,12 @@ const Registration = () => {
                 <div className="input-box">
                     {/* <label htmlFor="fullname" className="col-sm-2 col-form-label">Fullname</label> */}
                         <input
-                            id="fullname"
-                            name="fullname"
+                            id="first_name"
+                            name="first_name"
                             type="text"
                             className="form-control"
-                            placeholder="Fullname"
-                            value={registration.fullname}
+                            placeholder="first_name"
+                            value={registration.first_name}
                             onChange={handleInputChange}
                         />
                 </div>
@@ -192,7 +197,7 @@ const Registration = () => {
                     <p>Or sign up with</p>
 
                 </div>
-                <button type="button" onClick={handleGoogleSignUp}>Sign Up with Google</button>
+                <button type="button" onClick={handleGoogleLogin}>Sign Up with Google</button>
             </form>
         </div>
         </div>

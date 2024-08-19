@@ -3,8 +3,9 @@ from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
-from .models import Branch, RoomType, Room
-from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer
+from .models import Branch, RoomType, Room, Booking
+from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
+    BookingSerializer
 from rest_framework.response import Response
 import logging
 
@@ -64,12 +65,13 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
                 room_type_id=room_type_id,
                 is_available=True
             ).exclude(
-                Q(booking__check_in_date__lt=checkout,
-                  booking__check_out_date__lte=checkout) |  # Phòng đã được đặt và kết thúc trước khi hoặc đúng thời gian bạn check-out.
-                Q(booking__check_in_date__gte=checkin,
-                  booking__check_out_date__gt=checkin) |  # Phòng đã được đặt bắt đầu sau thời gian bạn check-in hoặc kéo dài qua thời gian bạn check-in.
-                Q(booking__check_in_date__lte=checkin, booking__check_out_date__gte=checkout)
-                # Phòng đã được đặt bao phủ toàn bộ khoảng thời gian bạn yêu cầu.
+                # Q(booking__check_in_date__lt=checkout,
+                #   booking__check_out_date__lte=checkout) |  # Phòng đã được đặt và kết thúc trước khi hoặc đúng thời gian bạn check-out.
+                # Q(booking__check_in_date__gte=checkin,
+                #   booking__check_out_date__gt=checkin) |  # Phòng đã được đặt bắt đầu sau thời gian bạn check-in hoặc kéo dài qua thời gian bạn check-in.
+                # Q(booking__check_in_date__lte=checkin, booking__check_out_date__gte=checkout)
+                # # Phòng đã được đặt bao phủ toàn bộ khoảng thời gian bạn yêu cầu.
+                Q(booking__check_in_date__lt=checkout, booking__check_out_date__gt=checkin)
             ).distinct()
 
             # Serialize danh sách các phòng có sẵn
@@ -81,98 +83,43 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='add-to-selection')
-    def add_to_selection(self, request):
-        # data = request.data
-        # print(f"Received data: {data}")  # Log dữ liệu nhận được
-        #
-        # try:
-        #     # Kiểm tra kiểu dữ liệu và đảm bảo dữ liệu được cung cấp đúng định dạng
-        #     room_selection = {}
-        #     room_selection[str(data['id'])] = {
-        #         'branch_id': data['branch'],  # Sử dụng branch_id
-        #         'branch_name': Branch.objects.get(id=data['branch']).name,  # Lấy tên chi nhánh từ database
-        #         'price': data['price'],
-        #         'number_of_beds': data['number_of_beds'],
-        #         'room_number': data['room_number'],
-        #         'room_type': RoomType.objects.get(id=data['room_type']).type,  # Lấy loại phòng từ database
-        #         'room_id': data['room_id'],
-        #         'checkout': data['checkout'],
-        #         'checkin': data['checkin'],
-        #     }
-        # except TypeError as e:
-        #     print(f"TypeError: {e}")  # Log lỗi nếu có
-        #
-        # if 'selection_data_obj' in request.session:
-        #     selection_data = request.session['selection_data_obj']
-        #     if str(data['id']) in selection_data:
-        #         pass
-        #     else:
-        #         selection_data = request.session['selection_data_obj']
-        #         selection_data.update(room_selection)
-        #         request.session['selection_data_obj'] = selection_data
-        # else:
-        #     request.session['selection_data_obj'] = room_selection
-        #
-        # response_data = {
-        #     "data": request.session['selection_data_obj'],
-        #     "fruit": "banana",
-        #     "name": "Thanh Lam",
-        #     "total_selected_items": len(request.session['selection_data_obj'])
-        # }
-        #
-        # return Response(response_data)
-        data = request.data
-        print(f"Received data: {data}")  # Log dữ liệu nhận được
 
-        try:
-            # Khởi tạo đối tượng chứa dữ liệu phòng được chọn
-            room_selection = {}
+class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
+                     generics.RetrieveAPIView,
+                     generics.ListAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
 
-            # Lấy đối tượng Branch từ ID
-            branch = Branch.objects.get(id=data['branch'])
-            # Lấy đối tượng RoomType từ ID
-            room_type = RoomType.objects.get(id=data['room_type'])
+    def get_queryset(self):
+        return Booking.objects.all()
 
-            # Tạo dữ liệu phòng được chọn
-            room_selection[str(data['id'])] = {
-                'branch_id': branch.id,
-                'branch_name': branch.name,
-                'price': data['price'],
-                'number_of_beds': data['number_of_beds'],
-                'room_number': data['room_number'],
-                'room_type': room_type.type,
-                'room_id': data['room_id'],
-                'checkout': data['checkout'],
-                'checkin': data['checkin'],
-            }
-        except Branch.DoesNotExist:
-            return Response({"error": "Branch not found"}, status=404)
-        except RoomType.DoesNotExist:
-            return Response({"error": "RoomType not found"}, status=404)
-        except TypeError as e:
-            print(f"TypeError: {e}")  # Log lỗi nếu có
-            return Response({"error": "Invalid data type"}, status=400)
+    @action(detail=False, methods=['post'])
+    def book(self, request):
+        data = request.data.copy()
 
-        # Log dữ liệu trước khi cập nhật
-        print(f"Before update: {request.session.get('selection_data_obj', {})}")
+        # Lấy danh sách room_id từ dữ liệu yêu cầu
+        room_ids = data.get('room')
 
-        # Cập nhật dữ liệu trong session
-        if 'selection_data_obj' in request.session:
-            selection_data = request.session['selection_data_obj']
-            selection_data.update(room_selection)
-            request.session['selection_data_obj'] = selection_data
-        else:
-            request.session['selection_data_obj'] = room_selection
+        if not room_ids:
+            return Response({"error": "Room IDs not provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Log dữ liệu sau khi cập nhật
-        print(f"After update: {request.session.get('selection_data_obj', {})}")
+        # Kiểm tra xem room_ids có phải là danh sách không
+        if not isinstance(room_ids, list):
+            return Response({"error": "Room IDs must be a list."}, status=status.HTTP_400_BAD_REQUEST)
 
-        response_data = {
-            "data": request.session['selection_data_obj'],
-            "fruit": "banana",
-            "name": "Thanh Lam",
-            "total_selected_items": len(request.session['selection_data_obj'])
-        }
+        # Lấy các phòng dựa trên danh sách room_ids
+        rooms = Room.objects.filter(id__in=room_ids)
+        if rooms.count() != len(room_ids):
+            return Response({"error": "One or more rooms not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(response_data)
+        # Thêm danh sách các phòng vào dữ liệu yêu cầu
+        data['room'] = room_ids
+
+        # Tạo serializer với dữ liệu yêu cầu
+        serializer = BookingSerializer(data=data)
+        if serializer.is_valid():
+            booking = serializer.save()
+            booking.room.set(rooms)  # Gán các phòng vào booking
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

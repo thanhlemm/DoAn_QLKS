@@ -91,8 +91,7 @@ PAYMENT_STATUS = (
 
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS)
-    full_name = models.CharField(max_length=1000)
+    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, null=True, blank=True)
     email = models.EmailField(max_length=1000)
     phone = models.CharField(max_length=1988)
     branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True)

@@ -13,17 +13,15 @@ r.register('user', views.UserViewSet, basename='user')
 
 urlpatterns = [
     path('', include(r.urls)),
-    # path("signup/google/", views.GoogleOAuth2SignUpView.as_view(), name="google_signup"),
-    # path(
-    #     "google/callback/signup",
-    #     views.GoogleOAuth2SignUpCallbackView.as_view(),
-    #     name="google_signup_callback",
-    # ),
-    path("login/google/", views.GoogleOAuth2LoginView.as_view(), name="google_login"),
     path(
         "google/callback/login",
         views.GoogleOAuth2LoginCallbackView.as_view(),
         name="google_login_callback",
+    ),
+    path(
+        "facebook/callback/login",
+        views.FacebookLoginCallbackView.as_view(),
+        name="facebook_login_callback",
     ),
 
     # path('o/', include('oauth2_provider.urls', namespace='oauth2_provider'))

@@ -8,6 +8,7 @@ export const endpoints = {
     'login': '/o/token/',
 	'current_user': '/auth/user/current-user/',
 	'googleCallbackLogin': `${BASE_URL}/auth/google/callback/login`,
+	'facebookCallbackLogin': `${BASE_URL}/auth/facebook/callback/login`,
 };
 
 
@@ -177,22 +178,6 @@ export const checkRoomAvailability = async (branch_id, room_type_id, checkin, ch
 	}
   };
 
-  export const addRoomToSelection = async (data) => {
-    try {
-        // Gửi dữ liệu đến API
-        const response = await api.post('/hotel/rooms/add-to-selection/', data, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        // Trả về dữ liệu phản hồi từ API
-        return response.data;
-    } catch (error) {
-        // Xử lý lỗi nếu có
-        throw new Error('Error adding room to selection: ' + error.message);
-    }
-};
-
 
 
 
@@ -271,9 +256,9 @@ export async function getRoomById(roomId) {
 }
 
 /* This function saves a new booking to the database */
-export async function bookRoom(roomId, booking) {
+export async function bookRoom( booking) {
 	try {
-		const response = await api.post(`/bookings/room/${roomId}/booking`, booking)
+		const response = await api.post(`/hotel/booking/book/`, booking)
 		return response.data
 	} catch (error) {
 		if (error.response && error.response.data) {

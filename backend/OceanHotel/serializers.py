@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Branch, RoomType, Room
+from .models import Branch, RoomType, Room, Booking
 from userauths.serializers import UserSerializer
+from userauths.models import User
 
 
 class BranchSerializer(serializers.ModelSerializer):
@@ -41,3 +42,35 @@ class RoomAvailabilitySerializer(serializers.Serializer):
     room_type_id = serializers.IntegerField()
     checkin = serializers.DateField()
     checkout = serializers.DateField()
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    room = serializers.PrimaryKeyRelatedField(many=True, queryset=Room.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
+    room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+
+    class Meta:
+        model = Booking
+        fields = [
+            'id',
+            'user',
+            'payment_status',
+            'email',
+            'phone',
+            'branch',
+            'room_type',
+            'room',
+            'before_discount',
+            'total',
+            'saved',
+            'check_in_date',
+            'check_out_date',
+            'total_days',
+            'checked_in',
+            'checked_out',
+            'is_active',
+            'checked_in_tracker',
+            'checked_out_tracker',
+            'date',
+        ]

@@ -8,7 +8,6 @@ import Home from "./components/home/Home"
 // import AddRoom from "./components/room/AddRoom"
 import NavBar from "./components/layout/NavBar"
 import Footer from "./components/layout/Footer"
-import Layout from "./components/layout/Layout"
 import BranchDetail from "./components/branch/branchdetail"
 import RoomSelection from "./components/room/RoomSelection"
 import RoomListing from "./components/room/RoomListing"
@@ -24,15 +23,12 @@ import cookie from "react-cookies";
 import { MyDispatchContext, MyUserContext } from './components/utils/MyContext';
 import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
-import { AuthProvider } from "./components/auth/AuthProvider"
 import RequireAuth from "./components/auth/RequireAuth"
-import GoogleLoginCallback from './components/auth/GoogleLoginCallback';
-import GoogleSignUpCallback from './components/auth/GoogleSignUpCallback';
+
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
 	return (
-		//  <AuthProvider>
 			<BrowserRouter>
 			<MyUserContext.Provider value={user}>
 				<MyDispatchContext.Provider value={dispatch}>
@@ -64,14 +60,12 @@ function App() {
 
 						<Route path="/profile" element={<Profile />} />
 						<Route path="/logout" element={<FindBooking />} />
-						<Route path="/auth/google/callback/login" element={<GoogleLoginCallback />} />
-                	{/* <Route path="/google/callback/signup" element={<GoogleSignUpCallback />} /> */}
+						
 					</Routes>
 					<Footer/>
 				</MyDispatchContext.Provider>
 			</MyUserContext.Provider>
 			</BrowserRouter>
-		// </AuthProvider>
 
 	)
 }

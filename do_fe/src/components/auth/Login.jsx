@@ -1,13 +1,14 @@
 import React, { useState, useContext} from "react"
 import { authAPI, api, endpoints } from "../utils/ApiFunctions"
 
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 // import { useAuth } from "./AuthProvider";
-import axios from "axios"
 import cookie from "react-cookies";
 import { MyDispatchContext } from '../utils/MyContext';
 import '../../Login.css';
 import {FaUser, FaLock} from "react-icons/fa"
+import FacebookLogin from 'react-facebook-login';
+
 
 
 const Login = () => {
@@ -94,7 +95,60 @@ const Login = () => {
 		window.location.href = authUrl;
     };
 
+	const handleFacebookLogin = async () => {
+		const facebookCallbackLogin = endpoints['facebookCallbackLogin'];
+		const redirectUri = encodeURIComponent(facebookCallbackLogin);
 	
+		const clientId = process.env.REACT_APP_FACEBOOK_APP_ID;
+	
+		// Lấy URL frontend hiện tại để truyền qua backend
+		const currentFrontendUrl = encodeURIComponent(window.location.origin);
+	
+		// URL OAuth của Facebook để yêu cầu người dùng đăng nhập
+		const authUrl = `https://www.facebook.com/v9.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&state=${currentFrontendUrl}&scope=email,public_profile`;
+	
+		window.location.href = authUrl;
+	};
+	
+
+	// const responseFacebook = (response) => {
+	// 	console.log(response);
+	//   }
+	const handleSuccess = async (response) => {
+		if (!response || !response.authResponse) {
+			alert('Đăng nhập thất bại. Không nhận được phản hồi từ Facebook.');
+			return;
+		}
+        try {
+			const accessToken = response.authResponse.accessToken;
+			const res = await api.post(endpoints['facebookCallbackLogin'], {
+                access_token: accessToken
+            });
+
+            const token  = res.data;
+            cookie.save("token", token);
+
+                try {
+                    // Yêu cầu thông tin người dùng từ API
+                    let userdata = await authAPI(token).get(endpoints['current_user']);
+
+                    // Lưu thông tin người dùng vào cookie
+                    cookie.save('user', userdata.data);
+                    // Cập nhật trạng thái người dùng trong Redux store
+                    dispatch({
+                        type: "login",
+                        payload: userdata.data
+                    });
+                } catch (error) {
+                    console.error("Lỗi khi lấy thông tin người dùng:", error);
+                }
+
+                navigate('/');
+        } catch (error) {
+            console.error(error);
+            alert(`Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.\nDetails: ${error}`);
+        }
+    };
 	return (
 		<div className="all">
 		<div className="wrapper">
@@ -135,9 +189,21 @@ const Login = () => {
 					<p>Or with</p>
 				</div>
 
-				<button type="button" onClick={handleGoogleLogin}>
+				<button type="button" onClick={handleGoogleLogin} style={{ marginBottom: "10px" }}>
                     Login with Google
                 </button>
+				{/* <button type="button" onClick={handleFacebookLogin} style={{ marginTop: "10px" }}>
+                    Facebook
+                </button> */}
+				<FacebookLogin
+					appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+					autoLoad={false}
+					scope="public_profile,email"
+					fields="name,email,picture"
+					// callback={responseFacebook}
+					callback={handleSuccess}
+					cssClass="my-facebook-button-class"
+				/>
 			</form>
 		</div>
 		</div>

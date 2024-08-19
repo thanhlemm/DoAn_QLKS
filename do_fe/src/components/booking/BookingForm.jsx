@@ -5,7 +5,6 @@ import { Form, FormControl, Button } from "react-bootstrap"
 import BookingSummary from "./BookingSummary"
 import { bookRoom, getRoomById } from "../utils/ApiFunctions"
 import { useNavigate, useParams } from "react-router-dom"
-import { useAuth } from "../auth/AuthProvider"
 import { MyUserContext } from '../utils/MyContext';
 
 const BookingForm = () => {
@@ -13,17 +12,24 @@ const BookingForm = () => {
 	const [isSubmitted, setIsSubmitted] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("")
 	const [roomPrice, setRoomPrice] = useState(0)
+	const [isLoading, setIsLoading] = useState(true)
+	const [roomInfo, setRoomInfo] = useState({
+		photo: "",
+		room_type: "",
+		roomPrice: ""
+	})
+
 	const user = useContext(MyUserContext);
-// const currentUser = localStorage.getItem("userId")
 
 	const [booking, setBooking] = useState({
-		guestFirstName: user.first_name,
-		guestLasttName: user.last_name,
-		guestEmail: user.username,
-		checkInDate: "",
-		checkOutDate: "",
-		numOfAdults: "",
-		numOfChildren: ""
+		user: user.id,
+		email: user.email,
+		phone: "",
+		branch:"",
+		room_type:"",
+		room:[],
+		check_in_date: "",
+		check_out_date: "",
 	})
 
 	const { roomId } = useParams()
@@ -31,41 +37,66 @@ const BookingForm = () => {
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target
-		setBooking({ ...booking, [name]: value })
-		setErrorMessage("")
+		if (name === 'room') {
+			// Handle room as an array
+			setBooking({ ...booking, room: [value] }) // Push the roomId to the array
+		} else {
+			setBooking({ ...booking, [name]: value })
+		}		setErrorMessage("")
+
+		setBooking(prevState => ({
+			...prevState,
+			[name]: value, // This will correctly update booking.phone when name is "phone"
+		  }));
 	}
 
 
-	const getRoomPriceById = async (roomId) => {
-		try {
-			const response = await getRoomById(roomId)
-			setRoomPrice(response.price)
-		} catch (error) {
-			throw new Error(error)
-		}
-	}
+	// const getRoomPriceById = async (roomId) => {
+	// 	try {
+	// 		const response = await getRoomById(roomId)
+	// 		setRoomPrice(response.price)
+	// 	} catch (error) {
+	// 		throw new Error(error)
+	// 	}
+	// }
 
 	useEffect(() => {
-		getRoomPriceById(roomId)
+		const fetchRoomData = async () => {
+			try {
+				const response = await getRoomById(roomId);
+				setRoomPrice(response.price);
+	
+				// Extract only the IDs for room_type and branch
+				const roomTypeId = response.room_type.id;
+				const branchId = response.branch.id;
+	
+				setBooking(prevState => ({
+					...prevState,
+					room_type: roomTypeId, // Set only the ID of the room type
+					branch: branchId,      // Set only the ID of the branch
+					room: [roomId]         // Set roomId as an array
+				}));
+	
+				setIsLoading(false);
+			} catch (error) {
+				setErrorMessage(error);
+				setIsLoading(false);
+			}
+		};
+	
+		fetchRoomData();
 	}, [roomId])
 
 	const calculatePayment = () => {
-		const checkInDate = moment(booking.checkInDate)
-		const checkOutDate = moment(booking.checkOutDate)
+		const checkInDate = moment(booking.check_in_date)
+		const checkOutDate = moment(booking.check_out_date)
 		const diffInDays = checkOutDate.diff(checkInDate, "days")
 		const paymentPerDay = roomPrice ? roomPrice : 0
 		return diffInDays * paymentPerDay
 	}
 
-	const isGuestCountValid = () => {
-		const adultCount = parseInt(booking.numOfAdults)
-		const childrenCount = parseInt(booking.numOfChildren)
-		const totalCount = adultCount + childrenCount
-		return totalCount >= 1 && adultCount >= 1
-	}
-
 	const isCheckOutDateValid = () => {
-		if (!moment(booking.checkOutDate).isSameOrAfter(moment(booking.checkInDate))) {
+		if (!moment(booking.check_out_date).isSameOrAfter(moment(booking.check_in_date))) {
 			setErrorMessage("Check-out date must be after check-in date")
 			return false
 		} else {
@@ -73,8 +104,10 @@ const BookingForm = () => {
 			return true
 		}
 	}
+	
 
 	const handleSubmit = (e) => {
+
 		e.preventDefault()
 		const form = e.currentTarget
 		if (form.checkValidity() === false || !isCheckOutDateValid()) {
@@ -86,8 +119,10 @@ const BookingForm = () => {
 	}
 
 	const handleFormSubmit = async () => {
+		console.log(booking)
 		try {
-			const confirmationCode = await bookRoom(roomId, booking)
+			const confirmationCode = await bookRoom( booking)
+			console.log(confirmationCode)
 			setIsSubmitted(true)
 			navigate("/booking-success", { state: { message: confirmationCode } })
 		} catch (error) {
@@ -103,19 +138,19 @@ const BookingForm = () => {
 				<div className="row">
 					<div className="col-md-6">
 						<div className="card card-body mt-5">
-							<h4 className="card-title">Reserve Room</h4>
+							<h4 className="card-title">Booking</h4>
 
 							<Form noValidate validated={validated} onSubmit={handleSubmit}>
 								<Form.Group>
-									<Form.Label htmlFor="guestFullName" className="hotel-color">
+									<Form.Label htmlFor="guestFirstName" className="hotel-color">
 										FirstName
 									</Form.Label>
 									<FormControl
 										required
 										type="text"
-										id="guestFullName"
-										name="guestFullName"
-										value={booking.guestFirstName}
+										id="guestFirstName"
+										name="guestFirstName"
+										value={user.first_name}
 										placeholder="Enter your fullname"
 										onChange={handleInputChange}
 									/>
@@ -124,16 +159,16 @@ const BookingForm = () => {
 									</Form.Control.Feedback>
 								</Form.Group>
 								<Form.Group>
-									<Form.Label htmlFor="guestFullName" className="hotel-color">
+									<Form.Label htmlFor="guestLasttName" className="hotel-color">
 										LastName
 									</Form.Label>
 									<FormControl
 										required
 										type="text"
-										id="guestFullName"
-										name="guestFullName"
-										value={booking.guestLasttName}
-										placeholder="Enter your fullname"
+										id="guestLasttName"
+										name="guestLasttName"
+										value={user.last_name}
+										placeholder="Enter your lastname"
 										onChange={handleInputChange}
 									/>
 									<Form.Control.Feedback type="invalid">
@@ -151,7 +186,7 @@ const BookingForm = () => {
 										type="email"
 										id="guestEmail"
 										name="guestEmail"
-										value={booking.guestEmail}
+										value={booking.email}
 										placeholder="Enter your email"
 										onChange={handleInputChange}
 										// disabled
@@ -160,20 +195,37 @@ const BookingForm = () => {
 										Please enter a valid email address.
 									</Form.Control.Feedback>
 								</Form.Group>
+								<Form.Group>
+									<Form.Label htmlFor="guestPhone" className="hotel-color">
+										Phone
+									</Form.Label>
+									<FormControl
+										required
+										type="text"
+										id="guestPhone"
+										name="phone"
+										value={booking.phone}
+										placeholder="Enter your phone number"
+										onChange={handleInputChange}
+									/>
+									<Form.Control.Feedback type="invalid">
+										Please enter your phonennumber.
+									</Form.Control.Feedback>
+								</Form.Group>
 
 								<fieldset style={{ border: "2px" }}>
-									<legend>Lodging Period</legend>
+									<legend>Time</legend>
 									<div className="row">
 										<div className="col-6">
-											<Form.Label htmlFor="checkInDate" className="hotel-color">
+											<Form.Label htmlFor="check_in_date" className="hotel-color">
 												Check-in date
 											</Form.Label>
 											<FormControl
 												required
 												type="date"
-												id="checkInDate"
-												name="checkInDate"
-												value={booking.checkInDate}
+												id="check_in_date"
+												name="check_in_date"
+												value={booking.check_in_date}
 												placeholder="check-in-date"
 												min={moment().format("MMM Do, YYYY")}
 												onChange={handleInputChange}
@@ -184,15 +236,15 @@ const BookingForm = () => {
 										</div>
 
 										<div className="col-6">
-											<Form.Label htmlFor="checkOutDate" className="hotel-color">
+											<Form.Label htmlFor="check_out_date" className="hotel-color">
 												Check-out date
 											</Form.Label>
 											<FormControl
 												required
 												type="date"
-												id="checkOutDate"
-												name="checkOutDate"
-												value={booking.checkOutDate}
+												id="check_out_date"
+												name="check_out_date"
+												value={booking.check_out_date}
 												placeholder="check-out-date"
 												min={moment().format("MMM Do, YYYY")}
 												onChange={handleInputChange}

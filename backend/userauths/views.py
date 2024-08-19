@@ -11,13 +11,14 @@ from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import redirect
 from django.urls import reverse
-from userauths.utils import google_setup, upload_image_from_url
+from userauths.utils import  upload_image_from_url, facebook_callback
 
 from userauths.utils import google_callback
 from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
-from oauth2_provider.models import AccessToken, RefreshToken, Application
+from oauth2_provider.models import AccessToken, Application
 from oauthlib.common import generate_token
+import requests
 
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -91,21 +92,14 @@ class GoogleOAuth2LoginCallbackView(APIView):
         
         if frontend_url is None:
             return JsonResponse({"error": "State (frontend URL) is missing."}, status=400)
-        # try:
-        #     user = User.objects.get(username=user_data["email"])
-        # except User.DoesNotExist:
-        #     # return JsonResponse(
-        #     #     {"error": "User does not exist. Please sign up first."}, status=400
-        #     # )
-        #     signup_url = f"http://127.0.0.1:3000/register?email={user_data['email']}"
-        #     return redirect(signup_url)
+
         user_picture = user_data.get('picture')
-        # Use get_or_create since an existing user may end up signing in
-        # through the sign up route.
+
         user, _ = User.objects.get_or_create(
             username=user_data["email"],
             defaults={"first_name": user_data["given_name"],
                       "last_name": user_data.get("family_name", ""),
+                      'email': user_data["email"],
                       "role": Role.objects.get(id=3),  # Thiết lập role mặc định là khách hàng
                       'avatar': upload_image_from_url(user_picture)
                       }
@@ -137,8 +131,49 @@ class GoogleOAuth2LoginCallbackView(APIView):
         return redirect(redirect_url)
 
 
-class GoogleOAuth2LoginView(APIView):
-    def get(self, request):
-        redirect_uri = request.build_absolute_uri(reverse("google_login_callback"))
-        return redirect(google_setup(redirect_uri))
+class FacebookLoginCallbackView(APIView):
+    def post(self, request):
+        access_token = request.data.get('accessToken')
+        print(access_token)
+        if not access_token:
+            return Response({'error': 'Access token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        facebook_url = f'https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email,picture'
+
+        response = requests.get(facebook_url)
+        if response.status_code != 200:
+            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_data = response.json()
+        user_email = user_data.get('email')
+        user_name = user_data.get('name')
+        user_picture = user_data.get('picture', {}).get('data', {}).get('url')
+
+        if not user_email:
+            return Response({'error': 'Email not found in access token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user, created = User.objects.get_or_create(
+            username=user_name,
+            defaults={'first_name': user_name, 'email': user_email, "role": Role.objects.get(id=3),
+                      'avatar': upload_image_from_url(user_picture)})
+
+        # Cập nhật thông tin mở rộng trong UserProfile
+        UserProfile.objects.get_or_create(
+            user=user, defaults={"facebook_id": user_data["id"]}
+        )
+
+        # access_token, refresh_token = utils.create_user_token(user=user)
+        # Tạo Access Token
+        expires = timezone.now() + timedelta(seconds=36000)
+        access_token = AccessToken.objects.create(
+            user=user,
+            scope='read write',
+            expires=expires,
+            token=generate_token(),
+            application=get_object_or_404(Application, name="hotel")
+        )
+
+        return Response({
+                'access_token': access_token.token,
+        })
 
