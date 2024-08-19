@@ -7,7 +7,7 @@ import cookie from "react-cookies";
 import { MyDispatchContext } from '../utils/MyContext';
 import '../../Login.css';
 import {FaUser, FaLock} from "react-icons/fa"
-import FacebookLogin from 'react-facebook-login';
+// import FacebookLogin from 'react-facebook-login';
 
 
 
@@ -195,7 +195,7 @@ const Login = () => {
 				{/* <button type="button" onClick={handleFacebookLogin} style={{ marginTop: "10px" }}>
                     Facebook
                 </button> */}
-				<FacebookLogin
+				{/* <FacebookLogin
 					appId={process.env.REACT_APP_FACEBOOK_APP_ID}
 					autoLoad={false}
 					scope="public_profile,email"
@@ -203,7 +203,7 @@ const Login = () => {
 					// callback={responseFacebook}
 					callback={handleSuccess}
 					cssClass="my-facebook-button-class"
-				/>
+				/> */}
 			</form>
 		</div>
 		</div>
