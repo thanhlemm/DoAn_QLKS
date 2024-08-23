@@ -14,6 +14,8 @@ const NavBar = () => {
 		setShowAccount(!showAccount)
 	}
 	const isUserAdmin = user && user.role && user.role.name === "Admin";
+	const cartItemCount = 5; // Thay thế bằng state thực tế hoặc context
+
 
 	// const isLoggedIn = localStorage.getItem("token")
 	// const userRole = localStorage.getItem("userRole")
@@ -59,6 +61,17 @@ const NavBar = () => {
 							<NavLink className="nav-link" to={"/find-booking"}>
 								Find my booking
 							</NavLink>
+						</li>
+						<li className="nav-item">
+
+						<NavLink className="nav-link position-relative" to={"/cart"}>
+							<i className="fa fa-shopping-cart"></i> Cart
+							{cartItemCount > 0 && (
+							<span className="badge bg-danger position-absolute top-0 start-100 translate-middle">
+								{cartItemCount}
+							</span>
+							)}
+						</NavLink>
 						</li>
 
 						<li className="nav-item dropdown">

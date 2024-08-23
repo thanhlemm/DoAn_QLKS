@@ -88,19 +88,19 @@ const RoomSelection = () => {
     }));
   };
 
-  const handleCheckAvailability = async() => {
-    const { checkin, checkout, roomType } = bookingDetails;
+  // const handleCheckAvailability = async() => {
+  //   const { checkin, checkout, roomType } = bookingDetails;
 
-    if (id && roomType && checkin && checkout) {
-      try {
-        await fetchAvailableRooms()
-      } catch (error) {
-        alert('Failed to check room availability');
-      }
-    } else {
-      alert('Please fill in all fields');
-    }
-  };
+  //   if (id && roomType && checkin && checkout) {
+  //     try {
+  //       await fetchAvailableRooms()
+  //     } catch (error) {
+  //       alert('Failed to check room availability');
+  //     }
+  //   } else {
+  //     alert('Please fill in all fields');
+  //   }
+  // };
 
   
   const loadSelectionData = () => {
@@ -191,10 +191,6 @@ const isRoomInSelection = (room_id) => {
     return <div>Loading available rooms...</div>;
   }
   
-  if (!rooms.length) {
-    return <div>Loading available rooms...</div>;
-  }
-
   const isCheckOutDateValid = () => {
 		if (!moment(booking.check_out_date).isSameOrAfter(moment(booking.check_in_date))) {
 			setErrorMessage("Check-out date must be after check-in date")
@@ -228,7 +224,7 @@ const isRoomInSelection = (room_id) => {
         room: roomIds  // Gửi danh sách các room_id
     }));
     console.log(booking)
-
+    navigate('/cart', { state: { booking, payment: calculatePayment(), validated } });
 	}
   const calculatePayment = () => {
 		const checkInDate = moment(booking.check_in_date)

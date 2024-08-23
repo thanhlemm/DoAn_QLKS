@@ -47,6 +47,8 @@ function App() {
 								</RequireAuth>
 							}
 						/>
+						<Route path="/cart" element={<Checkout/>} />
+
 						<Route path="/browse-all-rooms" element={<RoomListing />} />
 
 						{/* <Route path="/admin" element={<Admin />} /> */}
@@ -54,7 +56,7 @@ function App() {
 						<Route path="/existing-bookings" element={<Bookings />} />
 						<Route path="/find-booking" element={<FindBooking />} />
 						<Route path="/hotel/branch/:id"  element={<BranchDetail />}/>
-						<Route path="/hotel/branch/:id/roomtype/roomselection/" element={<RoomSelection />} />
+						<Route path="/hotel/branch/:id/roomtype/:roomname" element={<RoomSelection />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/register" element={<Registration />} />
 

@@ -17,6 +17,7 @@ import RoomCarousel from "../common/RoomCarousel"
 const Checkout = () => {
 	const [error, setError] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
+	const [roomsInfo, setRoomsInfo] = useState([])
 	const [roomInfo, setRoomInfo] = useState({
 		photo: "",
 		room_type: "",
@@ -26,17 +27,56 @@ const Checkout = () => {
 	const { roomId } = useParams()
 
 	useEffect(() => {
-		setTimeout(() => {
-			getRoomById(roomId)
-				.then((response) => {
-					setRoomInfo(response)
-					setIsLoading(false)
-				})
-				.catch((error) => {
-					setError(error)
-					setIsLoading(false)
-				})
-		}, 1000)
+		// if(roomId){
+		// setTimeout(() => {
+		// 	getRoomById(roomId)
+		// 		.then((response) => {
+		// 			setRoomInfo(response)
+		// 			setIsLoading(false)
+		// 		})
+		// 		.catch((error) => {
+		// 			setError(error)
+		// 			setIsLoading(false)
+		// 		})
+		// }, 1000)
+		// } else {
+		// 	const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+		// 	const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+			
+		// 	const roomPromises = roomIds.map(roomId => getRoomById(roomId));
+			
+		// 	Promise.all(roomPromises)
+		// 		.then(rooms => {
+		// 			setRoomsInfo(rooms)
+		// 			setIsLoading(false)
+		// 		})
+		// 		.catch((error) => {
+		// 			setError(error.message || "An error occurred");
+		// 			setIsLoading(false)
+		// 		})
+		// }
+		const fetchRooms = async () => {
+			try {
+			  if (roomId) {
+				const response = await getRoomById(roomId);
+				setRoomInfo(response);
+				setIsLoading(false);
+			  } else {
+				const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+				const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+				const roomPromises = roomIds.map(id => getRoomById(id));
+				const rooms = await Promise.all(roomPromises);
+				setRoomsInfo(rooms);
+				setIsLoading(false);
+			  }
+			} catch (err) {
+				console.error("Fetch Error:", err); // In lỗi ra console
+				setError(new Error(err.message || "An error occurred"));
+				setIsLoading(false);
+			}
+		  };
+	  
+		  fetchRooms();
 	}, [roomId])
 
 	return (
@@ -47,11 +87,14 @@ const Checkout = () => {
 						{isLoading ? (
 							<p>Loading room information...</p>
 						) : error ? (
-							<p>{error}</p>
+							<p>Error: {error.message || "An error occurred"}</p>
+						  
 						) : (
-							<div className="room-info">
+							roomsInfo.length > 0 ? (
+							roomsInfo.map((room, index) => (
+								<div key={index} className="room-info mb-4">
 								<img
-									src={roomInfo.room_type?.image.replace("image/upload/", "")}
+									src={room.room_type?.image.replace("image/upload/", "")}
 									alt="Room photo"
 									style={{ width: "100%", height: "200px" }}
 								/>
@@ -59,11 +102,11 @@ const Checkout = () => {
 									<tbody>
 										<tr>
 											<th>Room Type:</th>
-											<td>{roomInfo.room_type?.type}</td>
+											<td>{room.room_type?.type}</td>
 										</tr>
 										<tr>
 											<th>Price per night:</th>
-											<td>${roomInfo.price}</td>
+											<td>${room.price}</td>
 										</tr>
 										<tr>
 											<th>Room Service:</th>
@@ -96,7 +139,11 @@ const Checkout = () => {
 									</tbody>
 								</table>
 							</div>
-						)}
+							))
+							) : (
+								<p>No rooms found.</p>
+							  )
+							)}
 					</div>
 					<div className="col-md-8">
 						<BookingForm />

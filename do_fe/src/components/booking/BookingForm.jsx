@@ -13,11 +13,8 @@ const BookingForm = () => {
 	const [errorMessage, setErrorMessage] = useState("")
 	const [roomPrice, setRoomPrice] = useState(0)
 	const [isLoading, setIsLoading] = useState(true)
-	const [roomInfo, setRoomInfo] = useState({
-		photo: "",
-		room_type: "",
-		roomPrice: ""
-	})
+	const [roomInfo, setRoomInfo] = useState({});
+	const [roomsInfo, setRoomsInfo] = useState([]);
 
 	const user = useContext(MyUserContext);
 
@@ -63,21 +60,34 @@ const BookingForm = () => {
 	useEffect(() => {
 		const fetchRoomData = async () => {
 			try {
-				const response = await getRoomById(roomId);
-				setRoomPrice(response.price);
-	
-				// Extract only the IDs for room_type and branch
-				const roomTypeId = response.room_type.id;
-				const branchId = response.branch.id;
-	
-				setBooking(prevState => ({
-					...prevState,
-					room_type: roomTypeId, // Set only the ID of the room type
-					branch: branchId,      // Set only the ID of the branch
-					room: [roomId]         // Set roomId as an array
-				}));
-	
-				setIsLoading(false);
+					const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+					const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+					const roomPromises = roomIds.map(id => getRoomById(id));
+					const rooms = await Promise.all(roomPromises);
+					setRoomsInfo(rooms);
+					if (roomId) {
+						const response = await getRoomById(roomId);
+						setRoomPrice(response.price);
+						setRoomInfo(response);
+
+						const roomTypeId = response.room_type.id;
+						const branchId = response.branch.id;
+			
+						setBooking(prevState => ({
+							...prevState,
+							room_type: roomTypeId, 
+							branch: branchId,      
+							room: [roomId]         
+						}));
+					}else{
+						setBooking(prevState => ({
+							...prevState,
+							room: [roomIds],
+							room_type: rooms[0]?.room_type.id, // Giả định là lấy room_type từ phòng đầu tiên
+							branch: rooms[0]?.branch.id // Giả định là lấy branch từ phòng đầu tiên
+						}));
+					}
+					setIsLoading(false);
 			} catch (error) {
 				setErrorMessage(error);
 				setIsLoading(false);
@@ -256,8 +266,6 @@ const BookingForm = () => {
 										{errorMessage && <p className="error-message text-danger">{errorMessage}</p>}
 									</div>
 								</fieldset>
-
-								
 
 								<div className="fom-group mt-2 mb-2">
 									<button type="submit" className="btn btn-hotel">
