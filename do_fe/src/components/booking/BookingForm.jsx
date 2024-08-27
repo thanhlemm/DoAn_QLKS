@@ -3,7 +3,7 @@ import moment from "moment"
 import { useState } from "react"
 import { Form, FormControl, Button } from "react-bootstrap"
 import BookingSummary from "./BookingSummary"
-import { bookRoom, getRoomById } from "../utils/ApiFunctions"
+import { bookRoom, getRoomById, api, endpoints } from "../utils/ApiFunctions"
 import { useNavigate, useParams } from "react-router-dom"
 import { MyUserContext } from '../utils/MyContext';
 
@@ -80,12 +80,31 @@ const BookingForm = () => {
 							room: [roomId]         
 						}));
 					}else{
-						setBooking(prevState => ({
-							...prevState,
-							room: [roomIds],
-							room_type: rooms[0]?.room_type.id, // Giả định là lấy room_type từ phòng đầu tiên
-							branch: rooms[0]?.branch.id // Giả định là lấy branch từ phòng đầu tiên
-						}));
+						// setBooking(prevState => ({
+						// 	...prevState,
+						// 	room: roomIds,
+						// 	room_type: rooms[0]?.room_type.id, // Giả định là lấy room_type từ phòng đầu tiên
+						// 	branch: rooms[0]?.branch.id // Giả định là lấy branch từ phòng đầu tiên
+						// }));
+						// Kiểm tra tính đồng nhất của room_type và branch
+						const allSameRoomType = rooms.every(room => room.room_type.id === rooms[0].room_type.id);
+						const allSameBranch = rooms.every(room => room.branch.id === rooms[0].branch.id);
+
+						if (allSameRoomType && allSameBranch) {
+							// Nếu tất cả các phòng đều có cùng room_type và branch
+							const firstRoomPrice = rooms[0]?.price || 0;
+							setRoomPrice(firstRoomPrice);
+
+							setBooking(prevState => ({
+								...prevState,
+								room: roomIds,
+								room_type: rooms[0]?.room_type.id,
+								branch: rooms[0]?.branch.id
+							}));
+						} else {
+							// Nếu các phòng có room_type hoặc branch khác nhau, hiển thị lỗi
+							setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
+						}
 					}
 					setIsLoading(false);
 			} catch (error) {
@@ -126,13 +145,23 @@ const BookingForm = () => {
 			setIsSubmitted(true)
 		}
 		setValidated(true)
+		console.log(booking)
 	}
 
 	const handleFormSubmit = async () => {
 		console.log(booking)
 		try {
-			const confirmationCode = await bookRoom( booking)
+			const confirmationCode = await bookRoom(booking)
 			console.log(confirmationCode)
+			// Tạo dữ liệu email
+			const emailData = {
+				subject: 'Booking Confirmation',
+				message: `Your booking is confirmed. Your confirmation code is ${confirmationCode}`,
+				recipient: booking.email,
+			  };
+		  
+			  // Gửi email xác nhận
+			  await api.post(endpoints['send_email'], emailData);
 			setIsSubmitted(true)
 			navigate("/booking-success", { state: { message: confirmationCode } })
 		} catch (error) {

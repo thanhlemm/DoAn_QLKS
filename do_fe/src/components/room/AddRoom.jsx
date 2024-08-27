@@ -108,7 +108,7 @@ const AddRoom = () => {
 								{imagePreview && (
 									<img
 										src={imagePreview}
-										alt="Preview  room photo"
+										alt="Preview room in the hotel"
 										style={{ maxWidth: "400px", maxHeight: "400px" }}
 										className="mb-3"></img>
 								)}

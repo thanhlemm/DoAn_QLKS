@@ -9,6 +9,7 @@ export const endpoints = {
 	'current_user': '/auth/user/current-user/',
 	'googleCallbackLogin': `${BASE_URL}/auth/google/callback/login`,
 	'facebookCallbackLogin': `${BASE_URL}/auth/facebook/callback/login`,
+	'send_email': '/hotel/sendemail/'
 };
 
 
@@ -125,6 +126,49 @@ export async function getUser(userId) {
 		throw error
 	}
 }
+export const checkPasswordStatus = async () => {
+	const token = cookie.load('token');
+    try {
+        const response = await api.get('/auth/user/password_status/', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching password status:', error);
+        throw error;
+    }
+}; 
+
+export const NewPassword = async (newPassword, confirmNewPassword, token) => {
+    if (newPassword !== confirmNewPassword) {
+        throw new Error('Passwords do not match.');
+    }
+
+    const response = await api.post(`/auth/user/set_password/`, { newPassword }, {
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${cookie.load('token')}`, // Sử dụng token nếu cần
+		},
+	});
+
+    return response.data;
+};
+export const changePassword = async (oldPassword, newPassword, token) => {
+    const response = await api.post('/auth/user/change_password/', {
+        oldPassword,
+        newPassword
+    }, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    return response.data;
+};
+
+
 
 export async function getAllBranches() {
 	try {
@@ -346,10 +390,11 @@ export async function getUserProfile(userId, token) {
 
 
 /* This is the function to get user bookings by the user id */
-export async function getBookingsByUserId(userId, token) {
+export async function getBookingsByUserId(userId) {
 	try {
-		const response = await api.get(`/bookings/user/${userId}/bookings`, {
-			headers: getHeader()
+		const response = await api.get(`/hotel/booking/bookings_by_userid/`, {
+			// headers: getHeader()
+			params: { user_id: userId }
 		})
 		return response.data
 	} catch (error) {

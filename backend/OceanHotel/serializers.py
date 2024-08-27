@@ -49,6 +49,7 @@ class BookingSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
     room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+    # room_type = RoomTypeSerializer()
 
     class Meta:
         model = Booking

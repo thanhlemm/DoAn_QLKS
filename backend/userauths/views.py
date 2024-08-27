@@ -79,6 +79,54 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
         except User.DoesNotExist:
             return Response({"error": "User account not found."}, status=status.HTTP_404_NOT_FOUND)
 
+    # Check tài khoản có mật khẩu chưa
+    @action(detail=False, methods=['get'])
+    def password_status(self, request):
+        user = request.user
+
+        if user.is_authenticated:
+            # Kiểm tra xem người dùng có mật khẩu không
+            has_password = user.password and  user.password.startswith('pbkdf2_sha256$')
+            message = 'Password exists' if has_password else 'Password not set'
+            return Response({'message': message}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    @action(detail=False, methods=['post'])
+    def set_password(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        new_password = request.data.get('newPassword')
+        if not new_password:
+            return Response({'detail': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password set successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        old_password = request.data.get('oldPassword')
+        new_password = request.data.get('newPassword')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Old password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not new_password:
+            return Response({'detail': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password changed successfully'}, status=status.HTTP_200_OK)
+
 
 class GoogleOAuth2LoginCallbackView(APIView):
     def get(self, request):

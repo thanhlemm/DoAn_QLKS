@@ -1,13 +1,15 @@
+from django.core.mail import send_mail
 from django.db.models import Q
 from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from .models import Branch, RoomType, Room, Booking
+from .sendEmail import send_confirmation_email
 from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
     BookingSerializer
 from rest_framework.response import Response
-import logging
+from django.conf import settings
 
 
 class BranchViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -120,6 +122,41 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         if serializer.is_valid():
             booking = serializer.save()
             booking.room.set(rooms)  # Gán các phòng vào booking
+            # Gửi email xác nhận
+            # send_confirmation_email(booking)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def bookings_by_userid(self, request):
+        user_id = request.query_params.get('user_id')
+
+        if not user_id:
+            return Response({'detail': 'User ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            bookings = Booking.objects.filter(user_id=user_id)
+            serializer = BookingSerializer(bookings, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Booking.DoesNotExist:
+            return Response({'detail': 'Bookings not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SendEmailViewSet(viewsets.ViewSet):
+    def create(self, request):
+        subject = request.data.get('subject')
+        message = request.data.get('message')
+        recipient = [request.data.get('recipient')]
+        sender = settings.EMAIL_HOST_USER
+
+        if not subject or not message or not recipient:
+            return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # recipient_list = [recipient]
+
+        try:
+            send_mail(subject, message, sender, recipient)
+            return Response({'success': True})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

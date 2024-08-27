@@ -1,10 +1,7 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useState, useEffect } from "react"; 
 import { NavLink, Link } from "react-router-dom"
 import Logout from "../auth/Logout"
 import { MyUserContext } from '../utils/MyContext';
-
-
-
 
 const NavBar = () => {
 	const [showAccount, setShowAccount] = useState(false)
@@ -14,8 +11,13 @@ const NavBar = () => {
 		setShowAccount(!showAccount)
 	}
 	const isUserAdmin = user && user.role && user.role.name === "Admin";
-	const cartItemCount = 5; // Thay thế bằng state thực tế hoặc context
+	const [cartItemCount, setCartItemCount] = useState(0);
 
+	useEffect(() => {
+		const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+		const roomIds = Object.keys(selectionData).filter(key => !isNaN(key));
+		setCartItemCount(roomIds.length);
+	}, []);
 
 	// const isLoggedIn = localStorage.getItem("token")
 	// const userRole = localStorage.getItem("userRole")
@@ -75,16 +77,14 @@ const NavBar = () => {
 						</li>
 
 						<li className="nav-item dropdown">
-							<a
+							<button
 								className={`nav-link dropdown-toggle ${showAccount ? "show" : ""}`}
-								href="#"
-								role="button"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-								onClick={handleAccountClick}>
-								{" "}
+								type="button"
+								onClick={handleAccountClick}
+								aria-expanded={showAccount}
+							>
 								Account
-							</a>
+							</button>
 
 							<ul
 								className={`dropdown-menu ${showAccount ? "show" : ""}`}

@@ -9,6 +9,8 @@ import BookingForm from "../booking/BookingForm"
 // 	FaCar,
 // 	FaTshirt
 // } from "react-icons/fa"
+import { FaTrash } from "react-icons/fa" 
+
 
 import { useParams } from "react-router-dom"
 import { getRoomById } from "../utils/ApiFunctions"
@@ -27,34 +29,6 @@ const Checkout = () => {
 	const { roomId } = useParams()
 
 	useEffect(() => {
-		// if(roomId){
-		// setTimeout(() => {
-		// 	getRoomById(roomId)
-		// 		.then((response) => {
-		// 			setRoomInfo(response)
-		// 			setIsLoading(false)
-		// 		})
-		// 		.catch((error) => {
-		// 			setError(error)
-		// 			setIsLoading(false)
-		// 		})
-		// }, 1000)
-		// } else {
-		// 	const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
-		// 	const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
-			
-		// 	const roomPromises = roomIds.map(roomId => getRoomById(roomId));
-			
-		// 	Promise.all(roomPromises)
-		// 		.then(rooms => {
-		// 			setRoomsInfo(rooms)
-		// 			setIsLoading(false)
-		// 		})
-		// 		.catch((error) => {
-		// 			setError(error.message || "An error occurred");
-		// 			setIsLoading(false)
-		// 		})
-		// }
 		const fetchRooms = async () => {
 			try {
 			  if (roomId) {
@@ -79,6 +53,17 @@ const Checkout = () => {
 		  fetchRooms();
 	}, [roomId])
 
+	const handleRemoveRoom = (id) => {
+		// Lấy dữ liệu từ localStorage
+		const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+		// Xóa phòng khỏi đối tượng selectionData
+		delete selectionData[id];
+		// Cập nhật lại localStorage
+		localStorage.setItem('selection_data_obj', JSON.stringify(selectionData));
+		// Cập nhật lại roomsInfo sau khi xóa
+		setRoomsInfo(prevRooms => prevRooms.filter(room => room.id !== id));
+	}
+
 	return (
 		<div>
 			<section className="container">
@@ -89,13 +74,39 @@ const Checkout = () => {
 						) : error ? (
 							<p>Error: {error.message || "An error occurred"}</p>
 						  
-						) : (
+						) : roomId ? (
+								<div className="room-info mb-4">
+									<img
+										src={roomInfo.room_type?.image.replace("image/upload/", "")}
+										alt="Room in the hotel"
+										style={{ width: "100%", height: "200px" }}
+									/>
+									<table className="table table-bordered">
+										<tbody>
+											<tr>
+												<th>Room Type:</th>
+												<td>{roomInfo.room_type?.type}</td>
+											</tr>
+											<tr>
+												<th>Price per night:</th>
+												<td>${roomInfo.price}</td>
+											</tr>
+											<tr>
+												<th>Room Service:</th>
+												<td>
+													{/* Các dịch vụ phòng hiển thị tại đây */}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							) : (
 							roomsInfo.length > 0 ? (
 							roomsInfo.map((room, index) => (
 								<div key={index} className="room-info mb-4">
 								<img
 									src={room.room_type?.image.replace("image/upload/", "")}
-									alt="Room photo"
+									alt="Room in the hotel"
 									style={{ width: "100%", height: "200px" }}
 								/>
 								<table className="table table-bordered">
@@ -134,6 +145,16 @@ const Checkout = () => {
 														<FaTshirt /> Laundry
 													</li>
 												</ul> */}
+											</td>
+										</tr>
+										<tr>
+											<td colSpan="2">
+												<button
+													className="btn btn-danger btn-sm"
+													onClick={() => handleRemoveRoom(room.id)}
+												>
+													<FaTrash />
+												</button>
 											</td>
 										</tr>
 									</tbody>

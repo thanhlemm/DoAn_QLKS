@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from userauths.models import User
+import uuid
 
 
 class BaseModel(models.Model):
@@ -109,6 +110,12 @@ class Booking(models.Model):
     checked_in_tracker = models.BooleanField(default=False)
     checked_out_tracker = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
+    confirmationCode = models.CharField(max_length=36, unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.confirmationCode:
+            self.confirmationCode = str(uuid.uuid4())
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Booking ID: {self.id}"

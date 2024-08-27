@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { deleteUser, getBookingsByUserId, getUser } from '../utils/ApiFunctions';
+import { deleteUser, getBookingsByUserId, getUser, changePassword, checkPasswordStatus, NewPassword } from '../utils/ApiFunctions';
 import { useNavigate } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
 import moment from 'moment';
 import { MyUserContext } from '../utils/MyContext';
 import cookie from "react-cookies";
@@ -13,6 +14,14 @@ const Profile = () => {
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [passwordStatus, setPasswordStatus] = useState(null);
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
 
     useEffect(() => {
@@ -46,6 +55,20 @@ const Profile = () => {
         fetchBookings();
     }, [user]);
 
+    useEffect(() => {
+        const fetchPasswordStatus = async () => {
+            try {
+                const status = await checkPasswordStatus();
+                setPasswordStatus(status.message);
+            } catch (error) {
+                setErrorMessage('Error checking password status.');
+            }
+        };
+
+        fetchPasswordStatus();
+    }, []);
+
+
 	const handleDeleteAccount = async () => {
 		if (user && user.id) {
 			const confirmed = window.confirm(
@@ -74,12 +97,41 @@ const Profile = () => {
 		}
 	};
 	
+    const handleChangePassword = async () => {
+        if (user && user.id) {
+            try {
+                const token = cookie.load("token"); // Lấy token từ cookie
+                if (passwordStatus === 'Password not set') {
+                    // Xử lý tạo mật khẩu mới nếu chưa có mật khẩu
+                    if (newPassword === confirmNewPassword) {
+                        // Call API to set new password (implement this API call in ApiFunctions)
+                        const status = await NewPassword(newPassword, confirmNewPassword, token);
+                        setPasswordStatus(status.message);
+                    } else {
+                        setErrorMessage('Passwords do not match.');
+                    }
+                } else {
+                    // Xử lý thay đổi mật khẩu nếu đã có mật khẩu
+                    if (oldPassword && newPassword === confirmNewPassword) {
+                        // Call API to change password (implement this API call in ApiFunctions)
+                        await changePassword(oldPassword, newPassword, token);
+                        setMessage('Password changed successfully.');
+                    } else {
+                        setErrorMessage('Invalid password or passwords do not match.');
+                    }
+                }
+            } catch (error) {
+                setErrorMessage('Error changing password.');
+            }
+        }
+    };
 
     if (!user) {
         return <p>Loading user data...</p>;
     }
 
     return (
+        <>
         <div className="container">
             {errorMessage && <p className="text-danger">{errorMessage}</p>}
             {message && <p className="text-danger">{message}</p>}
@@ -151,7 +203,6 @@ const Profile = () => {
                                         <th scope="col">Room Type</th>
                                         <th scope="col">Check In Date</th>
                                         <th scope="col">Check Out Date</th>
-                                        <th scope="col">Confirmation Code</th>
                                         <th scope="col">Status</th>
                                     </tr>
                                 </thead>
@@ -159,17 +210,16 @@ const Profile = () => {
                                     {bookings.map((booking, index) => (
                                         <tr key={index}>
                                             <td>{booking.id}</td>
-                                            <td>{booking.room.id}</td>
-                                            <td>{booking.room.roomType}</td>
+                                            <td>{booking.room}</td>
+                                            <td>{booking.room_type?.type}</td>
                                             <td>
-                                                {moment(booking.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}
+                                                {moment(booking.check_in_date).subtract(1, 'month').format('MMM Do, YYYY')}
                                             </td>
                                             <td>
-                                                {moment(booking.checkOutDate)
+                                                {moment(booking.check_out_date)
                                                     .subtract(1, 'month')
                                                     .format('MMM Do, YYYY')}
                                             </td>
-                                            <td>{booking.bookingConfirmationCode}</td>
                                             <td className="text-success">On-going</td>
                                         </tr>
                                     ))}
@@ -185,11 +235,95 @@ const Profile = () => {
                                     Close account
                                 </button>
                             </div>
+                            <div className="mx-2">
+                            <button className="btn btn-warning btn-sm" onClick={handleShow}>
+                                Change Password
+                            </button>
+                            <Modal show={show} onHide={handleClose}>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Change Password</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    {passwordStatus === 'Password not set' ? (
+                                        <>
+                                            <div className="form-group">
+                                                <label htmlFor="newPassword">New Password:</label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    id="newPassword"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="confirmNewPassword">Confirm New Password:</label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    id="confirmNewPassword"
+                                                    value={confirmNewPassword}
+                                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="form-group">
+                                                <label htmlFor="oldPassword">Old Password:</label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    id="oldPassword"
+                                                    value={oldPassword}
+                                                    onChange={(e) => setOldPassword(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="newPassword">New Password:</label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    id="newPassword"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="confirmNewPassword">Confirm New Password:</label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    id="confirmNewPassword"
+                                                    value={confirmNewPassword}
+                                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {errorMessage && <div className="text-danger mt-2">{errorMessage}</div>}
+                                    {message && <div className="text-success mt-2">{message}</div>}
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={handleClose}>
+                                        Close
+                                    </Button>
+                                    <Button variant="primary" onClick={handleChangePassword}>
+                                        Save Changes
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        
+</>
+
     );
 };
 
