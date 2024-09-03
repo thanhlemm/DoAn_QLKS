@@ -353,7 +353,7 @@ export async function getAllBookings() {
 /* This is the function to cancel user booking */
 export async function cancelBooking(bookingId) {
 	try {
-		const result = await api.delete(`/bookings/booking/${bookingId}/delete`)
+		const result = await api.delete(`/hotel/booking/${bookingId}`)
 		return result.data
 	} catch (error) {
 		throw new Error(`Error cancelling booking :${error.message}`)
