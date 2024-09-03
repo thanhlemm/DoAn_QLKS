@@ -146,26 +146,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oceanhoteldb',
-        'USER': 'root',
-        'PASSWORD': 'Abcd1234',  # mk mysql
-        'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)
-        'PORT': '3306',
-    }
-}
-# PYTHONANYWHERE
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'oceanhotel$oceanhoteldb',
-#         'USER': 'oceanhotel',
-#         'PASSWORD': 'Abcd@1234',
-#         'HOST': 'oceanhotel.mysql.pythonanywhere-services.com',
+#         'NAME': 'oceanhoteldb',
+#         'USER': 'root',
+#         'PASSWORD': 'Abcd1234',  # mk mysql
+#         'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)
+#         'PORT': '3306',
 #     }
 # }
+# PYTHONANYWHERE
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'oceanhotel$oceanhoteldb',
+        'USER': 'oceanhotel',
+        'PASSWORD': 'Abcd@1234',
+        'HOST': 'oceanhotel.mysql.pythonanywhere-services.com',
+    }
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
