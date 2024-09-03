@@ -14,7 +14,7 @@ const Sidebar = () => {
             {isOpen ? <IoIosArrowBack/> : <IoIosArrowForward />}
         </div>
         <div className={isOpen ? "sidebar open":"sidebar"}>
-            <div className="sidebar--logo">Ocean Hotel Admin</div>
+            <div className="sidebar--logo">Ocean Admin</div>
             <Menu />
         </div>
       
