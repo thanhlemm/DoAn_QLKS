@@ -156,6 +156,16 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+# PYTHONANYWHERE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'oceanhotel$oceanhoteldb',
+#         'USER': 'oceanhotel',
+#         'PASSWORD': 'Abcd@1234',
+#         'HOST': 'oceanhotel.mysql.pythonanywhere-services.com',
+#     }
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

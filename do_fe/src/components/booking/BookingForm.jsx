@@ -156,10 +156,11 @@ const BookingForm = () => {
 			// Tạo dữ liệu email
 			const emailData = {
 				subject: 'Booking Confirmation',
-				message: `Your booking is confirmed. Your confirmation code is ${confirmationCode}`,
+				message: `Your booking is confirmed. Your confirmation code is ${confirmationCode.confirmationCode}`,
+
 				recipient: booking.email,
 			  };
-		  
+			  console.log(emailData)
 			  // Gửi email xác nhận
 			  await api.post(endpoints['send_email'], emailData);
 			setIsSubmitted(true)

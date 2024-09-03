@@ -131,6 +131,7 @@ const ExistingRooms = () => {
               <thead>
                 <tr className="text-center">
                   <th>ID</th>
+                  <th>Branch</th>
                   <th>Room Type</th>
                   <th>Room Price</th>
                   <th>Actions</th>
@@ -141,8 +142,9 @@ const ExistingRooms = () => {
                 {currentRooms.map((room) => (
                   <tr key={room.id} className="text-center">
                     <td>{room.id}</td>
-                    <td>{room.roomType}</td>
-                    <td>{room.roomPrice}</td>
+                    <td>{room.branch?.name}</td>
+                    <td>{room.room_type?.type}</td>
+                    <td>{room.price}</td>
                     <td className="gap-2">
                       <Link to={`/edit-room/${room.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">

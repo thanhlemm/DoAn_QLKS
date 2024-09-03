@@ -1,16 +1,20 @@
 import { parseISO } from "date-fns";
 import React, { useState, useEffect } from "react";
 import DateSlider from "../common/DateSlider";
+import { getUser, getRoomById } from '../utils/ApiFunctions';
+
 
 const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const [filteredBookings, setFilteredBookings] = useState(bookingInfo);
+    const [userNames, setUserNames] = useState({});
+    const [room, setRoom] = useState("")
 
     const filterBookings = (startDate, endDate) => {
         let filtered = bookingInfo;
         if (startDate && endDate) {
             filtered = bookingInfo.filter((booking) => {
-                const bookingStartDate = parseISO(booking.checkInDate);
-                const bookingEndDate = parseISO(booking.checkOutDate);
+                const bookingStartDate = parseISO(booking.check_in_date);
+                const bookingEndDate = parseISO(booking.check_out_date);
                 return (
                     bookingStartDate >= startDate &&
                     bookingEndDate <= endDate &&
@@ -23,7 +27,42 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
 
     useEffect(() => {
         setFilteredBookings(bookingInfo);
+        const fetchUserNamesAndRooms = async () => {
+            const userNamesMap = {};
+            const roomNumbersMap = {};
+
+            for (const booking of bookingInfo) {
+                // Fetch user name if not already fetched
+                if (!userNamesMap[booking.user]) {
+                    const response = await getUser(booking.user);
+                    userNamesMap[booking.user] = response.last_name;
+                }
+
+                if (Array.isArray(booking.room)) {
+                    for (const roomId of booking.room) {
+                        if (!roomNumbersMap[roomId]) {
+                            const roomResponse = await getRoomById(roomId);
+                            roomNumbersMap[roomId] = roomResponse.room_number;
+                        }
+                    }
+                } else {
+                    if (!roomNumbersMap[booking.room]) {
+                        const roomResponse = await getRoomById(booking.room);
+                        roomNumbersMap[booking.room] = roomResponse.room_number;
+                    }
+                }
+            }
+
+            setUserNames(userNamesMap);
+            setRoom(roomNumbersMap);
+        };
+
+        fetchUserNamesAndRooms();
+        
     }, [bookingInfo]);
+
+    const getGuestName = (user) => userNames[user] || 'Loading...';
+    const getRoom= (roomId) => room[roomId] || 'Loading...';
 
     return (
         <section className="bookings-table-container">
@@ -34,15 +73,12 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                         <tr>
                             <th>S/N</th>
                             <th>Booking ID</th>
-                            <th>Room ID</th>
+                            <th>Room Number</th>
                             <th>Room Type</th>
                             <th>Check-In Date</th>
                             <th>Check-Out Date</th>
                             <th>Guest Name</th>
                             <th>Guest Email</th>
-                            <th>Adults</th>
-                            <th>Children</th>
-                            <th>Total Guest</th>
                             <th>Confirmation Code</th>
                             <th>Actions</th>
                         </tr>
@@ -52,16 +88,13 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                             <tr key={booking.id}>
                                 <td>{index + 1}</td>
                                 <td>{booking.id}</td>
-                                <td>{booking.room.id}</td>
-                                <td>{booking.room.roomType}</td>
-                                <td>{booking.checkInDate}</td>
-                                <td>{booking.checkOutDate}</td>
-                                <td>{booking.guestName}</td>
-                                <td>{booking.guestEmail}</td>
-                                <td>{booking.numOfAdults}</td>
-                                <td>{booking.numOfChildren}</td>
-                                <td>{booking.totalNumOfGuests}</td>
-                                <td>{booking.bookingConfirmationCode}</td>
+                                <td>{Array.isArray(booking.room) ? booking.room.map(id => getRoom(id)).join(', ') : getRoom(booking.room)}</td>
+                                <td>{booking.room_type}</td>
+                                <td>{booking.check_in_date}</td>
+                                <td>{booking.check_out_date}</td>
+                                <td>{getGuestName(booking.user)}</td>
+                                <td>{booking.email}</td>
+                                <td>{booking.confirmationCode}</td>
                                 <td>
                                     <button
                                         className="btn btn-danger btn-sm"

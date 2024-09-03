@@ -13,6 +13,7 @@ import RoomSelection from "./components/room/RoomSelection"
 import RoomListing from "./components/room/RoomListing"
 // import RoomSearchResults from "./components/common/RoomSearchResult"
 import Admin from "./components/admin/Admin"
+import Sidebar from "./components/admin/Sidebar"
 import Checkout from "./components/booking/Checkout"
 import BookingSuccess from "./components/booking/BookingSuccess"
 import Bookings from "./components/booking/Bookings"
@@ -24,17 +25,19 @@ import { MyDispatchContext, MyUserContext } from './components/utils/MyContext';
 import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
 import RequireAuth from "./components/auth/RequireAuth"
-
+import MainLayout from './components/layout/MainLayout';
+import AdminLayout from './components/layout/AdminLayout';
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
+
 	return (
 			<BrowserRouter>
 			<MyUserContext.Provider value={user}>
 				<MyDispatchContext.Provider value={dispatch}>
-					<NavBar/>
+					{/* <NavBar/>
 					<Routes>
-						<Route path="/" element={<Home />} /> 
+						<Route path="/" element={<MainLayout><Home /></MainLayout>} /> 
 						<Route path="/edit-room/:roomId" element={<EditRoom />} />
 						<Route path="/existing-rooms" element={<ExistingRooms />} />
 						<Route path="/add-room" element={<AddRoom />} />
@@ -52,6 +55,8 @@ function App() {
 						<Route path="/browse-all-rooms" element={<RoomListing />} />
 
 						<Route path="/admin" element={<Admin />} />
+						<Route path="/admin1" element={<Sidebar />} />
+
 						<Route path="/booking-success" element={<BookingSuccess />} />
 						<Route path="/existing-bookings" element={<Bookings />} />
 						<Route path="/find-booking" element={<FindBooking />} />
@@ -64,7 +69,35 @@ function App() {
 						<Route path="/logout" element={<FindBooking />} />
 						
 					</Routes>
-					<Footer/>
+					<Footer/> */}
+					<Routes>
+						{/* Routes sử dụng MainLayout */}
+						<Route path="/" element={<MainLayout><Home /></MainLayout>} />
+						<Route path="/edit-room/:roomId" element={<MainLayout><EditRoom /></MainLayout>} />
+						<Route path="/existing-rooms" element={<AdminLayout><ExistingRooms /></AdminLayout>} />
+						<Route path="/add-room" element={<AdminLayout><AddRoom /></AdminLayout>} />
+						<Route path="/browse-all-rooms" element={<MainLayout><RoomListing /></MainLayout>} />
+						<Route path="/booking-success" element={<MainLayout><BookingSuccess /></MainLayout>} />
+						<Route path="/existing-bookings" element={<AdminLayout><Bookings /></AdminLayout>} />
+						<Route path="/find-booking" element={<MainLayout><FindBooking /></MainLayout>} />
+						<Route path="/hotel/branch/:id" element={<MainLayout><BranchDetail /></MainLayout>} />
+						<Route path="/hotel/branch/:id/roomtype/:roomname" element={<MainLayout><RoomSelection /></MainLayout>} />
+						<Route path="/login" element={<MainLayout><Login /></MainLayout>} />
+						<Route path="/register" element={<MainLayout><Registration /></MainLayout>} />
+						<Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+						<Route path="/logout" element={<MainLayout><FindBooking /></MainLayout>} />
+
+						{/* Routes sử dụng AdminLayout */}
+							<Route path="/admin" element={<AdminLayout><Admin /></AdminLayout>} />
+
+						{/* Các route yêu cầu xác thực */}
+						<Route path="/book-room/:roomId" element={
+						<RequireAuth>
+							<MainLayout><Checkout /></MainLayout>
+						</RequireAuth>
+						} />
+						<Route path="/cart" element={<MainLayout><Checkout /></MainLayout>} />
+					</Routes>
 				</MyDispatchContext.Provider>
 			</MyUserContext.Provider>
 			</BrowserRouter>

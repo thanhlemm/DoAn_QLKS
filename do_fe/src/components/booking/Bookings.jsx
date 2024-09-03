@@ -34,7 +34,9 @@ const Bookings = () => {
 
 	return (
 		<section style={{ backgroundColor: "whitesmoke" }}>
-			<Header title={"Existing Bookings"} />
+			<div className="d-flex justify-content-between mb-3 mt-5">
+              <h2>Existing Bookings</h2>
+            </div>
 			{error && <div className="text-danger">{error}</div>}
 			{isLoading ? (
 				<div>Loading existing bookings</div>

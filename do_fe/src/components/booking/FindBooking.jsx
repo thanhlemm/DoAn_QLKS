@@ -1,24 +1,23 @@
 import React, { useState } from "react"
 import moment from "moment"
-import { cancelBooking, getBookingByConfirmationCode } from "../utils/ApiFunctions"
+import { cancelBooking, getBookingByConfirmationCode, endpoints, authAPI, getRoomById } from "../utils/ApiFunctions"
 
 const FindBooking = () => {
 	const [confirmationCode, setConfirmationCode] = useState("")
 	const [error, setError] = useState(null)
 	const [successMessage, setSuccessMessage] = useState("")
 	const [isLoading, setIsLoading] = useState(false)
+	const [roomType, setRoomType] = useState("")
+	const [room, setRoom] = useState("")
+
 	const [bookingInfo, setBookingInfo] = useState({
 		id: "",
-		bookingConfirmationCode: "",
-		room: { id: "", roomType: "" },
-		roomNumber: "",
-		checkInDate: "",
-		checkOutDate: "",
-		guestName: "",
-		guestEmail: "",
-		numOfAdults: "",
-		numOfChildren: "",
-		totalNumOfGuests: ""
+		confirmationCode: "",
+		room: "",
+		room_type: "",
+		check_in_date: "",
+		check_out_date: "",
+		email: "",
 	})
 
 	const emptyBookingInfo = {
@@ -46,8 +45,31 @@ const FindBooking = () => {
 
 		try {
 			const data = await getBookingByConfirmationCode(confirmationCode)
+			console.log('Booking Data:', data);
+
 			setBookingInfo(data)
 			setError(null)
+
+			const rt = await authAPI().get(endpoints.roomtypeById(data.room_type))
+			setRoomType(rt.data)
+
+			// const rooms = data.rooms || [];
+			// const roomDetails = await Promise.all(rooms.map(roomId => getRoomById(roomId)));
+        	// setRoom(roomDetails);
+			const roomIds = Array.isArray(data.room) ? data.room : [data.room]
+
+			const fetchRooms = async (roomIds) => {
+				const rooms = await Promise.all(roomIds.map(async id => {
+					const response = await getRoomById(id);
+					return response;
+				}));
+				return rooms;
+			};
+			
+
+			const roomsData = await fetchRooms(roomIds);
+			setRoom(roomsData);
+			console.log(roomsData);
 		} catch (error) {
 			setBookingInfo(emptyBookingInfo)
 			if (error.response && error.response.status === 404) {
@@ -103,25 +125,27 @@ const FindBooking = () => {
 					<div>Finding your booking...</div>
 				) : error ? (
 					<div className="text-danger">Error: {error}</div>
-				) : bookingInfo.bookingConfirmationCode ? (
+				) : bookingInfo.confirmationCode ? (
 					<div className="col-md-6 mt-4 mb-5">
 						<h3>Booking Information</h3>
-						<p className="text-success">Confirmation Code: {bookingInfo.bookingConfirmationCode}</p>
-						<p>Room Number: {bookingInfo.room.id}</p>
-						<p>Room Type: {bookingInfo.room.roomType}</p>
+						<p className="text-success">Confirmation Code: {bookingInfo.confirmationCode}</p>
+						{Array.isArray(room) && room.length > 0 && room.map((roomDetail, index) => (
+							<div key={index}>
+								<p>Room {index + 1} Number: {roomDetail.room_number}</p>
+							</div>
+						))}
+						<p>Room Type: {roomType.type}</p>
+
 						<p>
 							Check-in Date:{" "}
-							{moment(bookingInfo.checkInDate).subtract(1, "month").format("MMM Do, YYYY")}
+							{moment(bookingInfo.check_in_date).subtract(1, "month").format("MMM Do, YYYY")}
 						</p>
 						<p>
 							Check-out Date:{" "}
-							{moment(bookingInfo.checkInDate).subtract(1, "month").format("MMM Do, YYYY")}
+							{moment(bookingInfo.check_out_date).subtract(1, "month").format("MMM Do, YYYY")}
 						</p>
-						<p>Full Name: {bookingInfo.guestName}</p>
-						<p>Email Address: {bookingInfo.guestEmail}</p>
-						<p>Adults: {bookingInfo.numOfAdults}</p>
-						<p>Children: {bookingInfo.numOfChildren}</p>
-						<p>Total Guest: {bookingInfo.totalNumOfGuests}</p>
+						{/* <p>Full Name: {bookingInfo.guestName}</p> */}
+						<p>Email Address: {bookingInfo.email}</p>
 
 						{!isDeleted && (
 							<button

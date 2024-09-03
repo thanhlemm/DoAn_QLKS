@@ -2,14 +2,15 @@ import axios from "axios"
 // import moment from "moment";
 import cookie from "react-cookies";
 
-const BASE_URL="http://127.0.0.1:8000"
-
+// const BASE_URL="http://127.0.0.1:8000"
+const BASE_URL="https://oceanhotel.pythonanywhere.com"
 export const endpoints = {
     'login': '/o/token/',
 	'current_user': '/auth/user/current-user/',
 	'googleCallbackLogin': `${BASE_URL}/auth/google/callback/login`,
 	'facebookCallbackLogin': `${BASE_URL}/auth/facebook/callback/login`,
-	'send_email': '/hotel/sendemail/'
+	'send_email': '/hotel/sendemail/',
+	'roomtypeById' : (id) => `/hotel/roomtypes/${id}/`
 };
 
 
@@ -222,6 +223,29 @@ export const checkRoomAvailability = async (branch_id, room_type_id, checkin, ch
 	}
   };
 
+  /* This function get booking by the cnfirmation code */
+export async function getBookingByConfirmationCode(confirmationCode) {
+	try {
+		const result = await api.get(`/hotel/booking/confirmation/`, {
+			params: {
+				confirmationCode: confirmationCode,
+			},
+		});
+		return result.data
+	} catch (error) {
+		if (error.response && error.response.data) {
+			throw new Error(error.response.data)
+		} else {
+			throw new Error(`Error find booking : ${error.message}`)
+		}
+	}
+}
+
+
+
+
+
+
 
 
 
@@ -316,7 +340,7 @@ export async function bookRoom( booking) {
 /* This function gets alll bokings from the database */
 export async function getAllBookings() {
 	try {
-		const result = await api.get("/bookings/all-bookings", {
+		const result = await api.get("/hotel/booking", {
 			// headers: getHeader()
 		})
 		return result.data
@@ -325,19 +349,6 @@ export async function getAllBookings() {
 	}
 }
 
-/* This function get booking by the cnfirmation code */
-export async function getBookingByConfirmationCode(confirmationCode) {
-	try {
-		const result = await api.get(`/bookings/confirmation/${confirmationCode}`)
-		return result.data
-	} catch (error) {
-		if (error.response && error.response.data) {
-			throw new Error(error.response.data)
-		} else {
-			throw new Error(`Error find booking : ${error.message}`)
-		}
-	}
-}
 
 /* This is the function to cancel user booking */
 export async function cancelBooking(bookingId) {
