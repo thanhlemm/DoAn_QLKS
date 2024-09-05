@@ -17,15 +17,8 @@ const Admin = () => {
 		// 		<Link to={"/existing-bookings"} className="btn">Manage Bookings</Link>
 		// 	</div>
 		// </section>
-		<div className="app-admin">
-			<Sidebar />
-			<Main>
-				<Header />
-				<Content>
-					{/* <Outlet /> */}
-					{/* <ExistingRooms /> */}
-				</Content>
-			</Main>
+		<div>
+			<h2>Welcome to Oceanhotel</h2>
 		</div>
 	);
 
