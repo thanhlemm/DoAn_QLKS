@@ -29,7 +29,6 @@ const Profile = () => {
             if (user && user.id) {
                 try {
                     const userData = await getUser(user.id);
-                    console.log('Fetched user data:', userData);
                 } catch (error) {
                     console.error(error);
                 }

@@ -104,87 +104,75 @@ const RoomSelection = () => {
 
   
   const loadSelectionData = () => {
-    const storedData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+    // Lấy dữ liệu giỏ hàng của user từ localStorage
+    const storedData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
     setSelectionData(storedData);
-};
+  };
 
+  const handleAddToSelection = (room) => {
+    const { id: room_id, branch, price, number_of_beds, room_number, room_type } = room;
+    const { checkin, checkout } = details;
 
-  
-const handleAddToSelection = (room) => {
-  const { id: room_id, branch, price, number_of_beds, room_number, room_type } = room;
-  const { checkin, checkout } = details;
-  const expirationTime = Date.now() + 3 * 60 * 1000; // 3 phút sau
+    const expirationTime = Date.now() + 3 * 60 * 1000; // 3 phút sau
 
-  try {
-    // Lấy dữ liệu hiện tại từ localStorage
-    const currentData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+    try {
+      // Lấy dữ liệu hiện tại của user từ localStorage
+      const currentData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
 
-    // Tạo đối tượng dữ liệu phòng mới để thêm vào localStorage
-    const newRoomData = {
-      [room_id]: {
-        branch_id: branch.id,
-        branch_name: branch.name,
-        price,
-        number_of_beds,
-        room_number,
-        room_type: room_type.name,
-        room_id: room_id,
-        checkin,
-        checkout,
-        expirationTime
-      }
-    };
+      const newRoomData = {
+        [room_id]: {
+          user: user.id,
+          branch_id: branch.id,
+          branch_name: branch.name,
+          price,
+          number_of_beds,
+          room_number,
+          room_type: room_type.name,
+          room_id: room_id,
+          checkin,
+          checkout,
+          expirationTime
+        }
+      };
 
-    // Cập nhật dữ liệu
-    const updatedData = {
-      ...currentData,
-      ...newRoomData
-    };
+      const updatedData = {
+        ...currentData,
+        ...newRoomData
+      };
 
-    // Lưu dữ liệu mới vào localStorage
-    localStorage.setItem('selection_data_obj', JSON.stringify(updatedData));
+      // Cập nhật giỏ hàng của user trong localStorage
+      localStorage.setItem(`selection_data_${user.id}`, JSON.stringify(updatedData));
+      setSelectionData(updatedData);
 
-    // Cập nhật trạng thái giao diện người dùng
-    setSelectionData(updatedData);
-
-    alert('Room added to selection successfully');
-  } catch (error) {
-    alert('Failed to add room to selection');
-    console.error(error);
-  }
-};
-
-const handleRemoveFromSelection = async (room_id) => {
-  try {
-    // Lấy dữ liệu hiện tại từ localStorage
-    const currentData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
-    
-    // Kiểm tra xem room_id có trong dữ liệu không
-    if (currentData[room_id]) {
-      // Xoá phòng khỏi dữ liệu
-      delete currentData[room_id];
-      
-      // Cập nhật dữ liệu mới vào localStorage
-      localStorage.setItem('selection_data_obj', JSON.stringify(currentData));
-      
-      // Cập nhật giao diện người dùng (nếu có)
-      setSelectionData(currentData);
-      
-      alert('Room removed from selection successfully');
-    } else {
-      alert('Room not found in selection');
+      alert('Room added to selection successfully');
+    } catch (error) {
+      alert('Failed to add room to selection');
+      console.error(error);
     }
-  } catch (error) {
-    alert('Failed to remove room from selection');
-    console.error(error);
-  }
-};
+  };
 
-const isRoomInSelection = (room_id) => {
-  // return selectionData.hasOwnProperty(room_id);
-  const selection = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+  const handleRemoveFromSelection = async (room_id) => {
+    try {
+      const currentData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
+      
+      if (currentData[room_id]) {
+        delete currentData[room_id];
+        localStorage.setItem(`selection_data_${user.id}`, JSON.stringify(currentData));
+        setSelectionData(currentData);
+        alert('Room removed from selection successfully');
+      } else {
+        alert('Room not found in selection');
+      }
+    } catch (error) {
+      alert('Failed to remove room from selection');
+      console.error(error);
+    }
+  };
+
+  const isRoomInSelection = (room_id) => {
+    const selection = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
     return Object.keys(selection).includes(String(room_id));
-};
+  };
 
 
   if (!rooms.length) {

@@ -66,9 +66,11 @@ const Login = () => {
                     payload: userdata.data
                 });
 
-				
-
-                navigate(redirectUrl, {replace: true}); // Redirect to the home page
+				if (userdata.data.role && userdata.data.role.name === "Admin") {
+                    navigate("/admin", { replace: true });
+                } else {
+                    navigate("/", { replace: true }); // Redirect to the home page for non-admin users
+                }
             } else {       
                 handleLoginError(res.status);
                 console.error("Đăng nhập không thành công:", res);

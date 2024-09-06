@@ -10,7 +10,10 @@ export const endpoints = {
 	'googleCallbackLogin': `${BASE_URL}/auth/google/callback/login`,
 	'facebookCallbackLogin': `${BASE_URL}/auth/facebook/callback/login`,
 	'send_email': '/hotel/sendemail/',
-	'roomtypeById' : (id) => `/hotel/roomtypes/${id}/`
+	'roomtypeById' : (id) => `/hotel/roomtypes/${id}/`,
+	'getEmployees' : '/auth/user/',
+	'deleteEmployee': (id) => `/auth/user/${id}/delete-account/`,
+	'getRoles': '/auth/role/',
 };
 
 
@@ -121,7 +124,6 @@ export async function getUser(userId) {
 		const response = await api.get(`/auth/user/${userId}/`, {
 			headers: getHeader()
 		})
-		console.log(response.data)
 		return response.data
 	} catch (error) {
 		throw error
@@ -241,20 +243,6 @@ export async function getBookingByConfirmationCode(confirmationCode) {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getHeader = () => {
 	const token = localStorage.getItem("token")
 	return {
@@ -370,36 +358,6 @@ export async function getAvailableRooms(checkInDate, checkOutDate, roomType) {
 }
 
 
-
-/* This function login a registered user */
-export async function loginUser(login) {
-	try {
-		const response = await api.post("/auth/login", login)
-		if (response.status >= 200 && response.status < 300) {
-			return response.data
-		} else {
-			return null
-		}
-	} catch (error) {
-		console.error(error)
-		return null
-	}
-}
-
-/*  This is function to get the user profile */
-export async function getUserProfile(userId, token) {
-	try {
-		const response = await api.get(`users/profile/${userId}`, {
-			headers: getHeader()
-		})
-		return response.data
-	} catch (error) {
-		throw error
-	}
-}
-
-
-
 /* This is the function to get user bookings by the user id */
 export async function getBookingsByUserId(userId) {
 	try {
@@ -413,3 +371,78 @@ export async function getBookingsByUserId(userId) {
 		throw new Error("Failed to fetch bookings")
 	}
 }
+
+export const addEmployee = async (username, first_name, last_name, DOB, address, phone, email, sex, role, password, isActive, avatar) => {
+	try {
+	  // Create FormData object to handle both text and file data
+	  const formData = new FormData();
+	  formData.append("username", username);
+	  formData.append("first_name", first_name);
+	  formData.append("last_name", last_name);
+	  formData.append("DOB", DOB);
+	  formData.append("address", address);
+	  formData.append("phone", phone);
+	  formData.append("email", email);
+	  formData.append("sex", sex);
+	  formData.append("role", role);
+	  formData.append("password", password);
+	  formData.append("password2", password); // Confirm password
+	  formData.append("is_active", isActive);
+  
+	  // Append avatar only if the file is provided
+	  if (avatar) {
+		formData.append("avatar", avatar);
+	  }
+	  const response = await api.post("/auth/user/add-employee/", formData, {
+		headers: {
+		  "Content-Type": "multipart/form-data", // Important for file upload
+		},
+	  });
+  
+	  return response.data;
+	} catch (error) {
+	  console.error("Error adding employee:", error);
+	  throw error;
+	}
+  };
+
+  export async function deleteEmployee(AccId) {
+	const confirmed = window.confirm("Bạn có muốn xoá account này?")
+	if(confirmed){
+		try {
+			const result = await api.patch(`/auth/user/${AccId}/delete-account/`, {
+				// headers: getHeader()
+			})
+			return result.data
+		} catch (error) {
+			throw new Error(`Error deleting room type ${error.message}`)
+		}
+	}
+}
+
+export const updateEmployee = async (employeeId, employeeData) => {
+	try {
+	  // Create FormData object to handle both text and file data
+	  const formData = new FormData();
+        for (const key in employeeData) {
+            if (employeeData.hasOwnProperty(key)) {
+                formData.append(key, employeeData[key]);
+            }
+        }
+  
+	  // Send the request
+	  const response = await api.patch(`/auth/user/${employeeId}/update-employee/`, formData, {
+		headers: {
+		  "Content-Type": "multipart/form-data", // Important for file upload
+		},
+	  });
+  
+	  return response;
+	} catch (error) {
+	  console.error("Error updating employee:", error);
+	  throw error;
+	}
+  };
+
+  
+  

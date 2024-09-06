@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import BookingForm from "../booking/BookingForm"
 // import {
 // 	FaUtensils,
@@ -10,6 +10,8 @@ import BookingForm from "../booking/BookingForm"
 // 	FaTshirt
 // } from "react-icons/fa"
 import { FaTrash } from "react-icons/fa" 
+import { MyUserContext } from '../utils/MyContext';
+
 
 
 import { useParams } from "react-router-dom"
@@ -27,6 +29,8 @@ const Checkout = () => {
 	})
 
 	const { roomId } = useParams()
+	const user = useContext(MyUserContext);
+
 
 	useEffect(() => {
 		const fetchRooms = async () => {
@@ -36,7 +40,7 @@ const Checkout = () => {
 				setRoomInfo(response);
 				setIsLoading(false);
 			  } else {
-				const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+				const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
 				const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
 				const roomPromises = roomIds.map(id => getRoomById(id));
 				const rooms = await Promise.all(roomPromises);
@@ -55,7 +59,7 @@ const Checkout = () => {
 
 	const handleRemoveRoom = (id) => {
 		// Lấy dữ liệu từ localStorage
-		const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+		const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
 		// Xóa phòng khỏi đối tượng selectionData
 		delete selectionData[id];
 		// Cập nhật lại localStorage
