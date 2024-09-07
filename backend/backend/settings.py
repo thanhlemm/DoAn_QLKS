@@ -27,17 +27,15 @@ SECRET_KEY = 'django-insecure-vo%o6ll8zsnlvr6k+4f$w)dwczr#2*^h*j(#f*nuxsv2t*-p)_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oceanhotel.pythonanywhere.com']
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-#     "http://127.0.0.1:8000",
-#     # "http://127.0.0.1:8000/auth/login/google/",
-#     # Thêm các domain khác nếu cần
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 600  # 10 phut
@@ -49,15 +47,17 @@ SESSION_SAVE_EVERY_REQUEST = True
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+
 
 # Cloudinary configuration
 cloudinary.config(
     cloud_name='thanhlem',
     api_key='791132312397797',
-    api_secret='_m9UIrPJn3_6VrSV3y9NiCvALng'
+    api_secret='_m9UIrPJn3_6VrSV3y9NiCvALng',
+    api_proxy = "http://proxy.server:3128",
 )
+import cloudinary.uploader
+import cloudinary.api
 
 AUTH_USER_MODEL = 'userauths.User'
 
@@ -146,26 +146,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'oceanhoteldb',
-#         'USER': 'root',
-#         'PASSWORD': 'Abcd1234',  # mk mysql
-#         'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)
-#         'PORT': '3306',
-#     }
-# }
-# PYTHONANYWHERE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oceanhotel$oceanhoteldb',
-        'USER': 'oceanhotel',
-        'PASSWORD': 'Abcd@1234',
-        'HOST': 'oceanhotel.mysql.pythonanywhere-services.com',
+        'NAME': 'oceanhoteldb',
+        'USER': 'root',
+        'PASSWORD': 'Abcd1234',  # mk mysql
+        'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)
+        'PORT': '3306',
     }
 }
+# PYTHONANYWHERE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'oceanhotel$oceanhoteldb',
+#         'USER': 'oceanhotel',
+#         'PASSWORD': 'Abcd@1234',
+#         'HOST': 'oceanhotel.mysql.pythonanywhere-services.com',
+#     }
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

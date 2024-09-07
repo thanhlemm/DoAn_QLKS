@@ -10,6 +10,7 @@ from . import views
 
 r = routers.DefaultRouter()
 r.register('user', views.UserViewSet, basename='user')
+r.register('role', views.RoleViewSet, basename='role')
 
 urlpatterns = [
     path('', include(r.urls)),

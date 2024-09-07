@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
-from .serializers import UserRegisterSerializer, UserSerializer
+from .serializers import UserRegisterSerializer, UserSerializer, RoleSerializer, EmployeeSerializer
 from .models import User, UserProfile, Role
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -40,6 +40,19 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=['post'], url_path='add-employee')
+    def add_employee(self, request):
+        # Sử dụng serializer để kiểm tra và validate dữ liệu đầu vào
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            # Lưu nhân viên vào database
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            # Trả về lỗi nếu dữ liệu không hợp lệ
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
     @action(methods=['get'], url_path='current-user', detail=False)
     def get_current_user(self, request):
         # Đã được chứng thực rồi thì không cần truy vấn nữa => Xác định đây là người dùng luôn
@@ -60,6 +73,22 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(UserSerializer(user).data)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
+    @action(detail=True, methods=['put', 'patch'], url_path='update-employee')
+    def update_employee(self, request, pk=None):
+        try:
+            user = self.get_object()  # Lấy đối tượng user cần cập nhật dựa vào pk
+            serializer = self.get_serializer(user, data=request.data, partial=True)  # partial=True cho phép cập nhật từng phần
+
+            if serializer.is_valid():
+                serializer.save()  # Lưu lại các thay đổi sau khi cập nhật
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
     # API xóa tài khoản
     # /users/<user_id>/delete-account/
     @action(detail=True, methods=['delete'], url_path='delete-account')
@@ -69,15 +98,19 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
             user = get_object_or_404(User, pk=pk)
 
             # Kiểm tra quyền hạn: Chỉ người tạo mới có quyền xóa hoặc admin
-            if request.user.role.name == "Admin" or request.user == user:
+            if request.user.is_authenticated and (request.user.role.name == "Admin" or request.user == user):
                 user.delete()
                 return Response({"message": "User account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({"error": "You do not have permission to delete this user account."},
                                 status=status.HTTP_403_FORBIDDEN)
 
-        except User.DoesNotExist:
-            return Response({"error": "User account not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Log the exception for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to delete user account: {e}", exc_info=True)
+            return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # Check tài khoản có mật khẩu chưa
     @action(detail=False, methods=['get'])
@@ -137,7 +170,7 @@ class GoogleOAuth2LoginCallbackView(APIView):
 
         # Lấy URL frontend từ OAuth state
         frontend_url = request.GET.get('state')
-        
+
         if frontend_url is None:
             return JsonResponse({"error": "State (frontend URL) is missing."}, status=400)
 
@@ -148,7 +181,7 @@ class GoogleOAuth2LoginCallbackView(APIView):
             defaults={"first_name": user_data["given_name"],
                       "last_name": user_data.get("family_name", ""),
                       'email': user_data["email"],
-                      "role": Role.objects.get(id=3),  # Thiết lập role mặc định là khách hàng
+                      "role": Role.objects.get(name="Khách hàng"),  # Thiết lập role mặc định là khách hàng
                       'avatar': upload_image_from_url(user_picture)
                       }
 
@@ -177,6 +210,10 @@ class GoogleOAuth2LoginCallbackView(APIView):
         # Chuyển hướng về frontend với token trong query parameters
         redirect_url = f"{frontend_url}/?token={access_token.token}"
         return redirect(redirect_url)
+
+class RoleViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
 
 
 class FacebookLoginCallbackView(APIView):

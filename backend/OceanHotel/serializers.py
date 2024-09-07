@@ -74,4 +74,5 @@ class BookingSerializer(serializers.ModelSerializer):
             'checked_in_tracker',
             'checked_out_tracker',
             'date',
+            'confirmationCode',
         ]

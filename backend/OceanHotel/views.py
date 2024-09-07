@@ -5,7 +5,6 @@ from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from .models import Branch, RoomType, Room, Booking
-from .sendEmail import send_confirmation_email
 from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
     BookingSerializer
 from rest_framework.response import Response
@@ -142,21 +141,32 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         except Booking.DoesNotExist:
             return Response({'detail': 'Bookings not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=False, methods=['get'], url_path='confirmation')
+    def booking_by_confirmationCode(self, request):
+        confirmation_code = request.query_params.get('confirmationCode')
+        if not confirmation_code:
+            return Response({'error': 'confirmationCode is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            booking = Booking.objects.get(confirmationCode=confirmation_code)
+            serializer = BookingSerializer(booking)
+            return Response(serializer.data)
+        except Booking.DoesNotExist:
+            return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class SendEmailViewSet(viewsets.ViewSet):
     def create(self, request):
         subject = request.data.get('subject')
         message = request.data.get('message')
-        recipient = [request.data.get('recipient')]
-        sender = settings.EMAIL_HOST_USER
+        recipient_list = [request.data.get('recipient')]
+        sender = 'tan036075@gmail.com'
 
-        if not subject or not message or not recipient:
+        if not subject or not message or not recipient_list:
             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # recipient_list = [recipient]
-
         try:
-            send_mail(subject, message, sender, recipient)
+            send_mail(subject, message, sender, recipient_list)
             return Response({'success': True})
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

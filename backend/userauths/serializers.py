@@ -85,3 +85,51 @@ class UserSerializer(serializers.ModelSerializer):
     #         instance.set_password(validated_data['password'])
     #     instance.save()
     #     return instance
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
+    role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), required=True)
+    avatar = serializers.ImageField(required=False, allow_null=True)  # Add avatar field for image uploads
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'password', 'password2', 'email', 'first_name', 'last_name', 'role', 'DOB', 'address', 'phone',
+            'sex', 'avatar', 'is_active'
+        )
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_active': {'default': True}
+        }
+
+    def validate(self, attrs):
+        # Check if passwords match
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
+
+    def create(self, validated_data):
+        # Remove password2 since it is not saved in the database
+        validated_data.pop('password2')
+
+        # Handle avatar if present
+        avatar = validated_data.pop('avatar', None)
+
+        # Create user object
+        user = User(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            role=validated_data['role'],
+            DOB=validated_data.get('DOB'),
+            address=validated_data.get('address'),
+            phone=validated_data.get('phone'),
+            sex=validated_data.get('sex'),
+            is_active=validated_data.get('is_active', True),  # Handle is_active field
+            avatar=avatar  # Assign avatar if provided
+        )
+        user.set_password(validated_data['password'])  # Hash the password before saving
+        user.save()
+        return user
