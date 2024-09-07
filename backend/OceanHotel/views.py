@@ -5,6 +5,7 @@ from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from .models import Branch, RoomType, Room, Booking
+from .sendEmail import send_confirmation_email
 from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
     BookingSerializer
 from rest_framework.response import Response
@@ -64,7 +65,6 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
             available_rooms = Room.objects.filter(
                 branch_id=branch_id,
                 room_type_id=room_type_id,
-                is_available=True
             ).exclude(
                 # Q(booking__check_in_date__lt=checkout,
                 #   booking__check_out_date__lte=checkout) |  # Phòng đã được đặt và kết thúc trước khi hoặc đúng thời gian bạn check-out.
@@ -72,7 +72,8 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
                 #   booking__check_out_date__gt=checkin) |  # Phòng đã được đặt bắt đầu sau thời gian bạn check-in hoặc kéo dài qua thời gian bạn check-in.
                 # Q(booking__check_in_date__lte=checkin, booking__check_out_date__gte=checkout)
                 # # Phòng đã được đặt bao phủ toàn bộ khoảng thời gian bạn yêu cầu.
-                Q(booking__check_in_date__lt=checkout, booking__check_out_date__gt=checkin)
+                Q(booking__check_in_date__lt=checkout, booking__check_out_date__gt=checkin) &
+                Q(booking__is_active=True)
             ).distinct()
 
             # Serialize danh sách các phòng có sẵn
@@ -115,12 +116,15 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         # Thêm danh sách các phòng vào dữ liệu yêu cầu
         data['room'] = room_ids
+        data['is_active'] = True
 
         # Tạo serializer với dữ liệu yêu cầu
         serializer = BookingSerializer(data=data)
         if serializer.is_valid():
             booking = serializer.save()
             booking.room.set(rooms)  # Gán các phòng vào booking
+
+            rooms.update(is_available=False)
             # Gửi email xác nhận
             # send_confirmation_email(booking)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -153,6 +157,55 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(serializer.data)
         except Booking.DoesNotExist:
             return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'], url_path='cancel-booking')
+    def cancel_booking(self, request, pk=None):
+        # Tìm booking dựa trên pk
+        booking = self.get_object()
+
+        if not booking.is_active:
+            return Response({'success': False, 'message': 'Booking đã bị hủy trước đó!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        booking.is_active = False
+        booking.save()
+
+        return Response({'success': True, 'message': 'Booking đã được hủy thành công!'})
+
+    @action(detail=True, methods=['post'], url_path='check-in')
+    def check_in_booking(self, request, pk=None):
+        booking = self.get_object()
+        if not booking.is_active:
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if booking.checked_in:
+            return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        booking.checked_in = True
+        booking.save()
+        return Response({'success': True, 'message': 'Booking đã được check-in thành công.'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='check-out')
+    def check_out_booking(self, request, pk=None):
+        booking = self.get_object()
+        if not booking.is_active:
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-out.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not booking.checked_in:
+            return Response({'success': False, 'message': 'Booking chưa được check-in và không thể check-out.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if booking.checked_out:
+            return Response({'success': False, 'message': 'Booking đã được check-out trước đó.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        booking.checked_out = True
+        booking.save()
+        return Response({'success': True, 'message': 'Booking đã được check-out thành công.'},
+                        status=status.HTTP_200_OK)
 
 
 class SendEmailViewSet(viewsets.ViewSet):

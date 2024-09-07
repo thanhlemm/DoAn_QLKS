@@ -3,8 +3,10 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
-from userauths.models import User
 import uuid
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class BaseModel(models.Model):
@@ -30,7 +32,7 @@ class Branch(BaseModel):
     phone = models.CharField(max_length=15)
     email = models.EmailField(max_length=100)
     image = CloudinaryField()
-    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    manager = models.ForeignKey('userauths.User', on_delete=models.SET_NULL, null=True, related_name='managed_branches')
     status = models.CharField(max_length=20, choices=HOTEL_STATUS, default="Live")
     tags = models.CharField(max_length=200, help_text="Seperate tags with comma")
     views = models.IntegerField(default=0)  # Số lượt xem chi nhánh

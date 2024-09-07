@@ -60,7 +60,7 @@ const BookingForm = () => {
 	useEffect(() => {
 		const fetchRoomData = async () => {
 			try {
-					const selectionData = JSON.parse(localStorage.getItem('selection_data_obj') || '{}');
+					const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
 					const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
 					const roomPromises = roomIds.map(id => getRoomById(id));
 					const rooms = await Promise.all(roomPromises);

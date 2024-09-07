@@ -9,24 +9,28 @@ const Bookings = () => {
 	const [error, setError] = useState("")
 
 	useEffect(() => {
-		setTimeout(() => {
-			getAllBookings()
-				.then((data) => {
-					setBookingInfo(data)
-					setIsLoading(false)
-				})
-				.catch((error) => {
-					setError(error.message)
-					setIsLoading(false)
-				})
-		}, 1000)
-	}, [])
+        const fetchBookings = async () => {
+            try {
+                const data = await getAllBookings();
+                // Lọc dữ liệu để chỉ lấy booking còn hoạt động
+                const activeBookings = data.filter(booking => booking.is_active);
+                setBookingInfo(activeBookings);
+                setIsLoading(false);
+            } catch (error) {
+                setError(error.message);
+                setIsLoading(false);
+            }
+        };
+
+        fetchBookings();
+    }, []);
 
 	const handleBookingCancellation = async (bookingId) => {
 		try {
 			await cancelBooking(bookingId)
 			const data = await getAllBookings()
-			setBookingInfo(data)
+			const activeBookings = data.filter(booking => booking.is_active);
+			setBookingInfo(activeBookings)
 		} catch (error) {
 			setError(error.message)
 		}

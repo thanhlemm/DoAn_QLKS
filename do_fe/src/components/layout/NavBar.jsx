@@ -11,6 +11,8 @@ const NavBar = () => {
 		setShowAccount(!showAccount)
 	}
 	const isUserAdmin = user && user.role && user.role.name === "Admin";
+	const isUserReceptionist = user && user.role && user.role.name === "Lễ tân"; // Check if user is a receptionist
+
 	const [cartItemCount, setCartItemCount] = useState(0);
 
 	useEffect(() => {
@@ -55,6 +57,16 @@ const NavBar = () => {
 									Admin
 								</NavLink>
 							</li>
+						)}
+
+						{isUserReceptionist && (
+							<>
+								<li className="nav-item">
+									<NavLink className="nav-link" aria-current="page" to={"/existing-bookings"}>
+										Existing Bookings
+									</NavLink>
+								</li>
+							</>
 						)}
 					</ul>
 

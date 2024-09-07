@@ -18,7 +18,7 @@ const Admin = () => {
 		// 	</div>
 		// </section>
 		<div>
-			<h2>Welcome to Oceanhotel</h2>
+			<Header />
 		</div>
 	);
 

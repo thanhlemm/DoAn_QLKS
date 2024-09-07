@@ -25,6 +25,7 @@ class User(AbstractUser):
 
     sex = models.IntegerField(choices=Sex.choices, null=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
+    branch = models.ForeignKey('OceanHotel.Branch', on_delete=models.SET_NULL, null=True, related_name='employees') # dùng cho employee: thuộc chi nhánh nào?
 
     def __str__(self):
         return self.username

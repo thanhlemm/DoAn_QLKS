@@ -6,6 +6,8 @@ import { getRoomTypesByBranchId, checkRoomAvailability, bookRoom } from '../util
 import { MyUserContext } from '../utils/MyContext';
 import moment from "moment"
 import BookingSummary from "../booking/BookingSummary"
+import { FaTrash } from "react-icons/fa" 
+
 
 const RoomSelection = () => {
   const location = useLocation();
@@ -257,21 +259,18 @@ const RoomSelection = () => {
                         Beds: {room.number_of_beds}<br />
                         Room Capacity: {room.room_type.room_capacity}
                     </Card.Text>
-                    <Button variant="primary" className="mt-2" onClick={() => handleAddToSelection(room)}>Add To Selection</Button>
+                    <Button 
+                      variant="primary" 
+                      className="mt-2" 
+                      onClick={() => handleAddToSelection(room)}
+                    >Add To Cart</Button>
                     <Button 
                       variant="danger" 
                       className="mt-2 ml-2" 
                       onClick={() => handleRemoveFromSelection(room.id)}
                       disabled={!isRoomInSelection(room.id)}
                     >
-                      Remove From Selection
-                    </Button>
-                    <Button 
-                      variant={isRoomInSelection(room.id) ? "success" : "secondary"} 
-                      className="mt-2 ml-2" 
-                      disabled
-                    >
-                      {isRoomInSelection(room.id) ? "In Selection" : "Not Selected"}
+                      <FaTrash />
                     </Button>
                     </Card.Body>
                 </Card>

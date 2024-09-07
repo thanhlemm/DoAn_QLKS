@@ -1,13 +1,12 @@
-import { parseISO } from "date-fns";
 import React, { useState, useEffect } from "react";
+import { parseISO } from "date-fns";
 import DateSlider from "../common/DateSlider";
-import { getUser, getRoomById } from '../utils/ApiFunctions';
-
+import { getUser, getRoomById, getAllBookings, endpoints, api } from '../utils/ApiFunctions';
 
 const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const [filteredBookings, setFilteredBookings] = useState(bookingInfo);
     const [userNames, setUserNames] = useState({});
-    const [room, setRoom] = useState("")
+    const [room, setRoom] = useState({});
 
     const filterBookings = (startDate, endDate) => {
         let filtered = bookingInfo;
@@ -32,7 +31,6 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
             const roomNumbersMap = {};
 
             for (const booking of bookingInfo) {
-                // Fetch user name if not already fetched
                 if (!userNamesMap[booking.user]) {
                     const response = await getUser(booking.user);
                     userNamesMap[booking.user] = response.last_name;
@@ -58,11 +56,32 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
         };
 
         fetchUserNamesAndRooms();
-        
     }, [bookingInfo]);
 
     const getGuestName = (user) => userNames[user] || 'Loading...';
-    const getRoom= (roomId) => room[roomId] || 'Loading...';
+    const getRoom = (roomId) => room[roomId] || 'Loading...';
+
+    const handleCheckIn = async (bookingId) => {
+        try {
+            await api.post(endpoints.check_in(bookingId));
+            const updatedBookings = await getAllBookings();
+            const activeBookings = updatedBookings.filter(booking => booking.is_active);
+            setFilteredBookings(activeBookings);
+        } catch (error) {
+            console.error('Error checking in:', error);
+        }
+    };
+
+    const handleCheckOut = async (bookingId) => {
+        try {
+            await api.post(endpoints.check_out(bookingId));
+            const updatedBookings = await getAllBookings();
+            const activeBookings = updatedBookings.filter(booking => booking.is_active);
+            setFilteredBookings(activeBookings);
+        } catch (error) {
+            console.error('Error checking out:', error);
+        }
+    };
 
     return (
         <section className="bookings-table-container">
@@ -102,6 +121,21 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                                     >
                                         Cancel
                                     </button>
+                                    {booking.checked_in ? (
+                                        <button
+                                            className="btn btn-success btn-sm ml-2"
+                                            onClick={() => handleCheckOut(booking.id)}
+                                        >
+                                            Check-Out
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="btn btn-primary btn-sm ml-2"
+                                            onClick={() => handleCheckIn(booking.id)}
+                                        >
+                                            Check-In
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

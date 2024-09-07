@@ -2,15 +2,14 @@ import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { MyUserContext } from '../utils/MyContext';
 
-const RequireAdmin = ({ children }) => {
+const RequireReceptionist = ({ children }) => {
     const user = useContext(MyUserContext);
 
-    if (!user || user.role.name !== "Admin") {
-        // Nếu người dùng không có quyền admin, chuyển hướng về trang không có quyền
+    if (!user || user.role.name !== "Lễ tân") {
         return <Navigate to="/login" replace />;
     }
 
     return children;
 };
 
-export default RequireAdmin;
+export default RequireReceptionist;

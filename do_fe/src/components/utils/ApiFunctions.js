@@ -14,6 +14,8 @@ export const endpoints = {
 	'getEmployees' : '/auth/user/',
 	'deleteEmployee': (id) => `/auth/user/${id}/delete-account/`,
 	'getRoles': '/auth/role/',
+	'check_in': (id) => `/hotel/booking/${id}/check-in/`,
+	'check_out': (id) => `/hotel/booking/${id}/check-out/`
 };
 
 
@@ -328,7 +330,7 @@ export async function bookRoom( booking) {
 /* This function gets alll bokings from the database */
 export async function getAllBookings() {
 	try {
-		const result = await api.get("/hotel/booking", {
+		const result = await api.get("/hotel/booking/", {
 			// headers: getHeader()
 		})
 		return result.data
@@ -341,7 +343,7 @@ export async function getAllBookings() {
 /* This is the function to cancel user booking */
 export async function cancelBooking(bookingId) {
 	try {
-		const result = await api.delete(`/hotel/booking/${bookingId}`)
+		const result = await api.post(`/hotel/booking/${bookingId}/cancel-booking/`)
 		return result.data
 	} catch (error) {
 		throw new Error(`Error cancelling booking :${error.message}`)

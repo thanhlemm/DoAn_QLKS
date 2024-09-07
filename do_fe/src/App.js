@@ -29,6 +29,7 @@ import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
 import RequireAuth from "./components/auth/RequireAuth"
 import RequireAdmin from "./components/auth/RequireAdmin"
+import RequireReceptionist from "./components/auth/RequireReceptionist"
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
 
@@ -114,9 +115,9 @@ function App() {
 							</RequireAdmin>
 						} />
 						<Route path="/existing-bookings" element={
-							<RequireAdmin>
+							<RequireReceptionist>
 								<AdminLayout><Bookings /></AdminLayout>
-							</RequireAdmin>
+							</RequireReceptionist>
 						} />
 
 						<Route path="/book-room/:roomId" element={
