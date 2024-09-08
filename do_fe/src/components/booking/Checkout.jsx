@@ -63,7 +63,7 @@ const Checkout = () => {
 		// Xóa phòng khỏi đối tượng selectionData
 		delete selectionData[id];
 		// Cập nhật lại localStorage
-		localStorage.setItem('selection_data_obj', JSON.stringify(selectionData));
+		localStorage.setItem(`selection_data_${user.id}`, JSON.stringify(selectionData));
 		// Cập nhật lại roomsInfo sau khi xóa
 		setRoomsInfo(prevRooms => prevRooms.filter(room => room.id !== id));
 	}

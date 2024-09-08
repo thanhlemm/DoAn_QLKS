@@ -4,10 +4,10 @@ from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
-from .models import Branch, RoomType, Room, Booking
+from .models import Branch, RoomType, Room, Booking, Coupon
 from .sendEmail import send_confirmation_email
 from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
-    BookingSerializer
+    BookingSerializer, CouponSerializer
 from rest_framework.response import Response
 from django.conf import settings
 
@@ -223,3 +223,33 @@ class SendEmailViewSet(viewsets.ViewSet):
             return Response({'success': True})
         except Exception as e:
             return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from django.utils import timezone
+
+
+class CouponViewSet(viewsets.ViewSet):
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
+
+    @action(detail=False, methods=['post'], url_path='get-coupon')
+    def get_coupon(self, request):
+        code = request.data.get('code')
+        try:
+            coupon = Coupon.objects.get(code=code)
+            now = timezone.now()
+            if coupon.valid_from <= now <= coupon.valid_to and coupon.redemptions < coupon.max_redemptions:
+                return Response({
+                    'discount': coupon.discount,
+                    'type': coupon.type  # Assuming type is a field in your Coupon model
+                })
+            else:
+                return Response({
+                    'discount': 0,
+                    'type': 'none'  # Specify a default type when the coupon is invalid
+                })
+        except Coupon.DoesNotExist:
+            return Response({
+                'discount': 0,
+                'type': 'none'  # Specify a default type when the coupon does not exist
+            })

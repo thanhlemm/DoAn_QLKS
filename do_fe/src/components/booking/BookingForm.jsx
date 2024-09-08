@@ -15,6 +15,7 @@ const BookingForm = () => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [roomInfo, setRoomInfo] = useState({});
 	const [roomsInfo, setRoomsInfo] = useState([]);
+	const [couponCode, setCouponCode] = useState(""); 
 
 	const user = useContext(MyUserContext);
 
@@ -27,25 +28,45 @@ const BookingForm = () => {
 		room:[],
 		check_in_date: "",
 		check_out_date: "",
+		before_discount: 0,
+		total: 0,
+		saved: 0,
+		total_days: 0,
 	})
 
 	const { roomId } = useParams()
 	const navigate = useNavigate()
 
-	const handleInputChange = (e) => {
-		const { name, value } = e.target
-		if (name === 'room') {
-			// Handle room as an array
-			setBooking({ ...booking, room: [value] }) // Push the roomId to the array
-		} else {
-			setBooking({ ...booking, [name]: value })
-		}		setErrorMessage("")
+	// const handleInputChange = (e) => {
+	// 	const { name, value } = e.target
+	// 	if (name === 'room') {
+	// 		// Handle room as an array
+	// 		setBooking({ ...booking, room: [value] }) // Push the roomId to the array
+	// 	} else {
+	// 		setBooking({ ...booking, [name]: value })
+	// 	}		setErrorMessage("")
 
-		setBooking(prevState => ({
-			...prevState,
-			[name]: value, // This will correctly update booking.phone when name is "phone"
-		  }));
+	// 	setBooking(prevState => ({
+	// 		...prevState,
+	// 		[name]: value, // This will correctly update booking.phone when name is "phone"
+	// 	  }));
+	// }
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		if (name === 'room') {
+			setBooking(prevState => ({
+				...prevState,
+				room: [value]
+			}));
+		} else {
+			setBooking(prevState => ({
+				...prevState,
+				[name]: value
+			}));
+		}
+		setErrorMessage("");
 	}
+	
 
 
 	// const getRoomPriceById = async (roomId) => {
@@ -116,13 +137,10 @@ const BookingForm = () => {
 		fetchRoomData();
 	}, [roomId])
 
-	const calculatePayment = () => {
-		const checkInDate = moment(booking.check_in_date)
-		const checkOutDate = moment(booking.check_out_date)
-		const diffInDays = checkOutDate.diff(checkInDate, "days")
-		const paymentPerDay = roomPrice ? roomPrice : 0
-		return diffInDays * paymentPerDay
-	}
+	useEffect(() => {
+		calculatePayment();
+	}, [booking.saved, booking.before_discount, booking.check_in_date, booking.check_out_date, roomPrice]);	
+	
 
 	const isCheckOutDateValid = () => {
 		if (!moment(booking.check_out_date).isSameOrAfter(moment(booking.check_in_date))) {
@@ -134,23 +152,78 @@ const BookingForm = () => {
 		}
 	}
 	
-
-	const handleSubmit = (e) => {
-
-		e.preventDefault()
-		const form = e.currentTarget
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		const form = e.currentTarget;
+	
 		if (form.checkValidity() === false || !isCheckOutDateValid()) {
-			e.stopPropagation()
+			e.stopPropagation();
 		} else {
-			setIsSubmitted(true)
+			try {
+				// Calculate the payment before discount
+				const beforeDiscount = calculatePayment();
+				
+				// Update the booking state with before_discount
+				setBooking(prevState => ({
+					...prevState,
+					before_discount: beforeDiscount
+				}));
+	
+				// Wait for the state to update before calculating discount
+				const updatedBooking = { ...booking, before_discount: beforeDiscount };
+				let discountAmount = 0;
+	
+				if (couponCode) {
+					const discountResponse = await api.post(endpoints.verify_coupon, { code: couponCode });
+					const discountData = discountResponse.data;
+	
+					if (discountData.type === 'percentage') {
+						discountAmount = (updatedBooking.before_discount * discountData.discount) / 100;
+					} else if (discountData.type === 'fixed') {
+						discountAmount = discountData.discount;
+					}
+				}
+	
+				const totalAmount = updatedBooking.before_discount - discountAmount;
+	
+				setBooking(prevState => ({
+					...prevState,
+					saved: discountAmount,
+					total: totalAmount
+				}));
+	
+				setIsSubmitted(true);
+	
+				// Proceed with booking confirmation
+			} catch (error) {
+				setErrorMessage(error.message);
+			}
 		}
-		setValidated(true)
-		console.log(booking)
+	
+		setValidated(true);
 	}
+	
+	
+	const calculatePayment = () => {
+		const checkInDate = moment(booking.check_in_date);
+		const checkOutDate = moment(booking.check_out_date);
+		const diffInDays = checkOutDate.diff(checkInDate, "days");
+		const paymentPerDay = roomPrice ? roomPrice : 0;
+	
+		const beforeDiscount = diffInDays * paymentPerDay;
+	
+		const saved = booking.saved || 0; 
+		const total = beforeDiscount - saved;
+	
+		return total;
+	}
+	
+	
 
 	const handleFormSubmit = async () => {
 		console.log(booking)
 		try {
+
 			const confirmationCode = await bookRoom(booking)
 			console.log(confirmationCode)
 			// Tạo dữ liệu email
@@ -296,6 +369,19 @@ const BookingForm = () => {
 										{errorMessage && <p className="error-message text-danger">{errorMessage}</p>}
 									</div>
 								</fieldset>
+								<Form.Group>
+									<Form.Label htmlFor="couponCode" className="hotel-color">
+										Coupon Code
+									</Form.Label>
+									<FormControl
+										type="text"
+										id="couponCode"
+										name="couponCode"
+										value={couponCode}
+										placeholder="Enter coupon code"
+										onChange={(e) => setCouponCode(e.target.value)}
+									/>
+								</Form.Group>
 
 								<div className="fom-group mt-2 mb-2">
 									<button type="submit" className="btn btn-hotel">

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Branch, RoomType, Room, Booking
+from .models import Branch, RoomType, Room, Booking, Coupon
 from userauths.serializers import UserSerializer
 from userauths.models import User
 
@@ -76,3 +76,29 @@ class BookingSerializer(serializers.ModelSerializer):
             'date',
             'confirmationCode',
         ]
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = [
+            'id',
+            'code',
+            'type',
+            'discount',
+            'redemptions',
+            'max_redemptions',
+            'valid_from',
+            'valid_to',
+            'date',
+            'is_active',
+        ]
+
+    def validate(self, data):
+        """
+        Custom validation for coupon.
+        """
+        # Kiểm tra xem ngày bắt đầu có trước ngày kết thúc không
+        if data['valid_from'] >= data['valid_to']:
+            raise serializers.ValidationError("Ngày bắt đầu phải trước ngày kết thúc.")
+
+        return data

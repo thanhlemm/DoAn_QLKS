@@ -15,7 +15,8 @@ export const endpoints = {
 	'deleteEmployee': (id) => `/auth/user/${id}/delete-account/`,
 	'getRoles': '/auth/role/',
 	'check_in': (id) => `/hotel/booking/${id}/check-in/`,
-	'check_out': (id) => `/hotel/booking/${id}/check-out/`
+	'check_out': (id) => `/hotel/booking/${id}/check-out/`,
+	'verify_coupon': '/hotel/coupon/get-coupon/'
 };
 
 
