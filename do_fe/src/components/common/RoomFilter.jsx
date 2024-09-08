@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 
-const RoomFilter = ({ data, setFilteredData }) => {
+const RoomFilter = ({ data, setFilteredData, roomTypes }) => {
 	const [filter, setFilter] = useState("")
 
 	const handleSelectChange = (e) => {
@@ -10,10 +10,15 @@ const RoomFilter = ({ data, setFilteredData }) => {
 		// const filteredRooms = data.filter((room) =>
 		// 	room.roomType.toLowerCase().includes(selectedType.toLowerCase())
 		// )
-		const filteredRooms = data.filter((room) =>
-        room.room_type?.type.toLowerCase().includes(selectedType.toLowerCase())
-    );
-		setFilteredData(filteredRooms)
+	// 	const filteredRooms = data.filter((room) =>
+    //     room.room_type?.type.toLowerCase().includes(selectedType.toLowerCase())
+    // );
+	// 	setFilteredData(filteredRooms)
+		const filteredRooms = data.filter((room) => {
+			const roomType = roomTypes.find(type => type.id === room.room_type);
+			return roomType ? roomType.type.toLowerCase().includes(selectedType.toLowerCase()) : false;
+		});
+		setFilteredData(filteredRooms);
 	}
 
 	const clearFilter = () => {
@@ -21,7 +26,9 @@ const RoomFilter = ({ data, setFilteredData }) => {
 		setFilteredData(data)
 	}
 
-	const roomTypes = ["", ...new Set(data.map((room) => room.room_type?.type))]
+	// const roomTypes = ["", ...new Set(data.map((room) => room.room_type?.type))]
+	const roomTypeOptions = ["", ...new Set(roomTypes.map((type) => type.type))];
+
 
 	return (
 		<div className="input-group mb-3">
@@ -34,7 +41,7 @@ const RoomFilter = ({ data, setFilteredData }) => {
 				value={filter}
 				onChange={handleSelectChange}>
 				<option value="">select a room type to filter....</option>
-				{roomTypes.map((type, index) => (
+				{roomTypeOptions.map((type, index) => (
 					<option key={index} value={String(type)}>
 						{String(type)}
 					</option>

@@ -4,8 +4,10 @@ import "/node_modules/bootstrap/dist/js/bootstrap.min.js"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./components/home/Home"
 import EditRoom from "./components/room/EditRoom"
+import EditRoomType from "./components/roomtype/EditRoomType"
 import EditEmployee from "./components/employee/EditEmployee"
 import AddRoom from "./components/room/AddRoom"
+import AddRoomType from "./components/roomtype/AddRoomType"
 import AddEmployee from "./components/employee/AddEmployee"
 import NavBar from "./components/layout/NavBar"
 import Footer from "./components/layout/Footer"
@@ -16,7 +18,8 @@ import RoomListing from "./components/room/RoomListing"
 import Admin from "./components/admin/Admin"
 import ExistingEmployees from "./components/employee/ExistingEmployees"
 import ExistingRooms from "./components/room/ExistingRooms"
-import Sidebar from "./components/admin/Sidebar"
+import ExistingRoomTypes from "./components/roomtype/ExistingRoomTypes"
+
 import Checkout from "./components/booking/Checkout"
 import BookingSuccess from "./components/booking/BookingSuccess"
 import Bookings from "./components/booking/Bookings"
@@ -99,14 +102,29 @@ function App() {
 								<AdminLayout><ExistingRooms /></AdminLayout>
 							</RequireAdmin>
 						} />
+						<Route path="/existing-roomtypes" element={
+							<RequireAdmin>
+								<AdminLayout><ExistingRoomTypes /></AdminLayout>
+							</RequireAdmin>
+						} />
 						<Route path="/add-room" element={
 							<RequireAdmin>
 								<AdminLayout><AddRoom /></AdminLayout>
 							</RequireAdmin>
 						} />
+						<Route path="/add-roomtype" element={
+							<RequireAdmin>
+								<AdminLayout><AddRoomType /></AdminLayout>
+							</RequireAdmin>
+						} />
 						<Route path="/edit-room/:roomId" element={
 							<RequireAdmin>
 								<AdminLayout><EditRoom /></AdminLayout>
+							</RequireAdmin>
+						} />
+						<Route path="/edit-roomtype/:roomTypeId" element={
+							<RequireAdmin>
+								<AdminLayout><EditRoomType /></AdminLayout>
 							</RequireAdmin>
 						} />
 						<Route path="/edit-employee/:employeeId" element={

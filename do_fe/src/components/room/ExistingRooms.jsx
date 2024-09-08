@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { deleteRoom, getAllRooms } from "../utils/ApiFunctions";
+import { deleteRoom, getAllRooms, api, getRoomTypes } from "../utils/ApiFunctions";
 import { Col, Row } from "react-bootstrap";
 import RoomFilter from "../common/RoomFilter";
 import RoomPaginator from "../common/RoomPaginator";
@@ -7,19 +7,21 @@ import { FaEdit, FaEye, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const ExistingRooms = () => {
-  const [rooms, setRooms] = useState([{ id: "", roomType: "", roomPrice: "" }]);
+  const [rooms, setRooms] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [roomsPerPage] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
-  const [filteredRooms, setFilteredRooms] = useState([
-    { id: "", roomType: "", roomPrice: "" },
-  ]);
+  const [filteredRooms, setFilteredRooms] = useState([]);
   const [selectedRoomType, setSelectedRoomType] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchRooms();
+    fetchBranches();
+    fetchRoomTypes();
   }, []);
 
   const fetchRooms = async () => {
@@ -27,10 +29,29 @@ const ExistingRooms = () => {
     try {
       const result = await getAllRooms();
       setRooms(result);
+      setFilteredRooms(result);
       setIsLoading(false);
     } catch (error) {
       setErrorMessage(error.message);
       setIsLoading(false);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get('/hotel/branch/');
+      setBranches(response.data);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
+
+  const fetchRoomTypes = async () => {
+    try {
+      const response = await getRoomTypes();
+      setRoomTypes(response);
+    } catch (error) {
+      console.error("Error fetching room types:", error);
     }
   };
 
@@ -39,7 +60,7 @@ const ExistingRooms = () => {
       setFilteredRooms(rooms);
     } else {
       const filteredRooms = rooms.filter(
-        (room) => room.roomType === selectedRoomType
+        (room) => room.room_type === selectedRoomType
       );
       setFilteredRooms(filteredRooms);
     }
@@ -54,10 +75,10 @@ const ExistingRooms = () => {
     try {
       const result = await deleteRoom(roomId);
       if (result === "") {
-        setSuccessMessage(`Room No ${roomId} was delete`);
+        setSuccessMessage(`Room No ${roomId} was deleted`);
         fetchRooms();
       } else {
-        console.error(`Error deleting room : ${result.message}`);
+        console.error(`Error deleting room: ${result.message}`);
       }
     } catch (error) {
       setErrorMessage(error.message);
@@ -68,15 +89,30 @@ const ExistingRooms = () => {
     }, 3000);
   };
 
-  const calculateTotalPages = (filteredRooms, roomsPerPage, rooms) => {
-    const totalRooms =
-      filteredRooms.length > 0 ? filteredRooms.length : rooms.length;
+  const calculateTotalPages = (filteredRooms, roomsPerPage) => {
+    const totalRooms = filteredRooms.length;
     return Math.ceil(totalRooms / roomsPerPage);
   };
 
   const indexOfLastRoom = currentPage * roomsPerPage;
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
   const currentRooms = filteredRooms.slice(indexOfFirstRoom, indexOfLastRoom);
+
+  // Helper function to get branch name by ID
+  const getBranchName = (id) => {
+    const branch = branches.find(branch => branch.id === id);
+    return branch ? branch.name : 'Unknown';
+  };
+
+  // Helper function to get room type details by ID
+  const getRoomTypeName = (id) => {
+    const roomType = roomTypes.find(type => type.id === id);
+    return roomType ? `${roomType.type} ` : 'Unknown';
+  };
+  const getRoomTypePrice = (id) => {
+    const roomType = roomTypes.find(type => type.id === id);
+    return roomType ? `${roomType.price}` : 'Unknown';
+  };
 
   return (
     <>
@@ -101,7 +137,7 @@ const ExistingRooms = () => {
 
             <Row>
               <Col md={6} className="mb-2 md-mb-0">
-                <RoomFilter data={rooms} setFilteredData={setFilteredRooms} />
+                <RoomFilter data={rooms} roomTypes={roomTypes} setFilteredData={setFilteredRooms} />
               </Col>
 
               <Col
@@ -133,7 +169,9 @@ const ExistingRooms = () => {
                   <th>ID</th>
                   <th>Branch</th>
                   <th>Room Type</th>
+                  <th>Room Number</th>
                   <th>Room Price</th>
+                  <th>Available</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -142,9 +180,11 @@ const ExistingRooms = () => {
                 {currentRooms.map((room) => (
                   <tr key={room.id} className="text-center">
                     <td>{room.id}</td>
-                    <td>{room.branch?.name}</td>
-                    <td>{room.room_type?.type}</td>
-                    <td>{room.price}</td>
+                    <td>{getBranchName(room.branch)}</td>
+                    <td>{getRoomTypeName(room.room_type)}</td>
+                    <td>{room.room_number}</td>
+                    <td>{getRoomTypePrice(room.room_type)}</td>
+                    <td>{room.is_available ? "Yes" : "No"}</td>
                     <td className="gap-2">
                       <Link to={`/edit-room/${room.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">
@@ -167,11 +207,7 @@ const ExistingRooms = () => {
             </table>
             <RoomPaginator
               currentPage={currentPage}
-              totalPages={calculateTotalPages(
-                filteredRooms,
-                roomsPerPage,
-                rooms
-              )}
+              totalPages={calculateTotalPages(filteredRooms, roomsPerPage)}
               onPageChange={handlePaginationClick}
             />
           </section>

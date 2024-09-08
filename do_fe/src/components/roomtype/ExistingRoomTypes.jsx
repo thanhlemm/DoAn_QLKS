@@ -27,7 +27,9 @@ const ExistingRoomTypes = () => {
     setIsLoading(true);
     try {
       const result = await getRoomTypes();
-      setRoomTypes(result);
+      const activeRoomTypes = result.filter(roomType => roomType.active);
+
+      setRoomTypes(activeRoomTypes);
       setIsLoading(false);
     } catch (error) {
       setErrorMessage(error.message);
@@ -53,22 +55,25 @@ const ExistingRoomTypes = () => {
 
   const handleDelete = async (roomTypeId) => {
     try {
-      const result = await deleteRoomType(roomTypeId);
-      console.log(result.status)
-      if (result === "") {
-        setSuccessMessage(`RoomType No ${roomTypeId} was delete`);
-        fetchRoomTypes();
-      } else {
-        console.error(`Error deleting room : ${result.message}`);
-      }
+        const result = await deleteRoomType(roomTypeId);
+        console.log(result);
+
+        if (result.success) {
+            setSuccessMessage(`RoomType No ${roomTypeId} was deleted`);
+            fetchRoomTypes(); 
+        } else {
+            console.error(`Error deleting room type: ${result.message}`);
+            setErrorMessage(result.message);
+        }
     } catch (error) {
-      setErrorMessage(error.message);
+        setErrorMessage(error.message);
     }
     setTimeout(() => {
-      setSuccessMessage("");
-      setErrorMessage("");
+        setSuccessMessage("");
+        setErrorMessage("");
     }, 3000);
-  };
+};
+
 
   const calculateTotalPages = (filteredRoomTypes, roomTypesPerPage, roomTypes) => {
     const totalRoomTypes =
@@ -133,10 +138,12 @@ const ExistingRoomTypes = () => {
               <thead>
                 <tr className="text-center">
                   <th>ID</th>
-                  <th>Name RoomType</th>
+                  <th>Name Room Type</th>
                   <th> Price</th>
+                  <th> Bed </th>
                   <th> Quantity</th>
                   <th>Image</th>
+                  <th></th>
                 </tr>
               </thead>
 
@@ -144,10 +151,19 @@ const ExistingRoomTypes = () => {
                 {currentRoomTypes.map((roomType) => (
                   <tr key={roomType.id} className="text-center">
                     <td>{roomType.id}</td>
-                    <td>{roomType.nameRoomType}</td>
+                    <td>{roomType.type}</td>
                     <td>{roomType.price}</td>
-                    <td>{roomType.quantity}</td>
-                    <td>{roomType.image}</td>
+                    <td>{roomType.number_of_beds}</td>
+                    <td>{roomType.room_capacity}</td>
+                    <td>{roomType.image ? (
+                        <img
+                          src={roomType.image.replace("image/upload/", "")}
+                          alt={`Image of ${roomType.type}`}
+                          style={{ maxWidth: "100px", maxHeight: "100px" }}
+                        />
+                      ) : (
+                        "No Image"
+                      )}</td>
                     <td className="gap-2">
                       <Link to={`/edit-roomtype/${roomType.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">

@@ -42,6 +42,41 @@ class RoomTypeViewSet(viewsets.ViewSet, generics.CreateAPIView,
     def get_queryset(self):
         return RoomType.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        # Đảm bảo trường is_active được thiết lập là True khi tạo mới
+        data['active'] = True
+
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            # Log or print the error message for debugging
+            print("Error during partial update:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_update(self, serializer):
+        # Update the instance with the validated data
+        serializer.save()
+
+    @action(detail=True, methods=['patch'], url_path='delete-roomtypes')
+    def delete_roomtypes(self, request, pk=None):
+        room_type = self.get_object()
+        room_type.active = False
+        room_type.save()
+        return Response({'success': True, 'message': 'Room type has been deactivated.'}, status=status.HTTP_200_OK)
+
 
 class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
                   generics.RetrieveAPIView,
@@ -51,6 +86,25 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
     def get_queryset(self):
         return Room.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        # Đảm bảo trường is_active được thiết lập là True khi tạo mới
+        data['active'] = True
+
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['patch'], url_path='delete-room')
+    def delete_roomtypes(self, request, pk=None):
+        room = self.get_object()
+        room.active = False
+        room.save()
+        return Response({'success': True, 'message': 'Room has been deactivated.'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='check-availability')
     def check_availability(self, request):
@@ -114,6 +168,24 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         if rooms.count() != len(room_ids):
             return Response({"error": "One or more rooms not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        coupon_code = data.get('code')  # Lấy coupon code từ request
+        print(coupon_code)
+        if coupon_code:
+            try:
+                # Lấy mã coupon từ database
+                coupon = Coupon.objects.get(code=coupon_code)
+
+                # Kiểm tra tính hợp lệ của mã coupon
+                now = timezone.now()
+                if not (coupon.valid_from <= now <= coupon.valid_to and coupon.redemptions < coupon.max_redemptions):
+                    return Response({"error": "Invalid or expired coupon code."}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Nếu hợp lệ, thêm mã giảm giá vào quá trình booking
+                data['code'] = coupon_code
+
+            except Coupon.DoesNotExist:
+                return Response({"error": "Coupon not found."}, status=status.HTTP_404_NOT_FOUND)
+
         # Thêm danh sách các phòng vào dữ liệu yêu cầu
         data['room'] = room_ids
         data['is_active'] = True
@@ -125,6 +197,10 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
             booking.room.set(rooms)  # Gán các phòng vào booking
 
             rooms.update(is_available=False)
+
+            if coupon_code:
+                coupon.redemptions += 1
+                coupon.save()
             # Gửi email xác nhận
             # send_confirmation_email(booking)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -169,6 +245,22 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         booking.is_active = False
         booking.save()
+
+        # Lấy mã coupon từ request nếu có
+        coupon_code = request.data.get('code', None)
+
+        if coupon_code:
+            try:
+                coupon = Coupon.objects.get(code=coupon_code)
+
+                # Giảm số lần sử dụng (redemptions) khi huỷ booking
+                if coupon.redemptions > 0:
+                    coupon.redemptions -= 1
+                    coupon.save()
+
+            except Coupon.DoesNotExist:
+                return Response({'success': False, 'message': 'Coupon không tồn tại!'},
+                                status=status.HTTP_404_NOT_FOUND)
 
         return Response({'success': True, 'message': 'Booking đã được hủy thành công!'})
 

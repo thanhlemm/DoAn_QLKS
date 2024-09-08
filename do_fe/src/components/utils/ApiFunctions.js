@@ -255,21 +255,23 @@ export const getHeader = () => {
 }
 
 /* This function adds a new room room to the database */
-export async function addRoom(photo, roomType, roomPrice) {
-	const formData = new FormData()
-	formData.append("photo", photo)
-	formData.append("roomType", roomType)
-	formData.append("roomPrice", roomPrice)
-
-	const response = await api.post("/rooms/add/new-room", formData,{
-		// headers: getHeader()
-	})
-	if (response.status === 201) {
-		return true
-	} else {
-		return false
+export async function addRoom(branchId, roomTypeId, roomNumber, isAvailable) {
+	const payload = {
+	  branch: branchId,
+	  room_type: roomTypeId,
+	  room_number: roomNumber,
+	  is_available: isAvailable
+	};
+  
+	try {
+	  const response = await api.post("/hotel/rooms/", payload);
+	  return response.status === 201;
+	} catch (error) {
+	  console.error("Error adding room:", error);
+	  return false;
 	}
-}
+  }
+
 
 export async function getAllRooms() {
 	try {
@@ -283,7 +285,7 @@ export async function getAllRooms() {
 /* This function deletes a room by the Id */
 export async function deleteRoom(roomId) {
 	try {
-		const result = await api.delete(`/rooms/delete/room/${roomId}`, {
+		const result = await api.patch(`/hotel/rooms/${roomId}/delete-room/`, {
 			// headers: getHeader()
 		})
 		return result.data
@@ -315,18 +317,21 @@ export async function getRoomById(roomId) {
 }
 
 /* This function saves a new booking to the database */
-export async function bookRoom( booking) {
+export async function bookRoom(booking, couponCode) {
 	try {
-		const response = await api.post(`/hotel/booking/book/`, booking)
-		return response.data
+	  const data = { ...booking, code: couponCode };
+  
+	  const response = await api.post(`/hotel/booking/book/`, data);
+  
+	  return response.data;
 	} catch (error) {
-		if (error.response && error.response.data) {
-			throw new Error(error.response.data)
-		} else {
-			throw new Error(`Error booking room : ${error.message}`)
-		}
+	  if (error.response && error.response.data) {
+		throw new Error(error.response.data.error || 'Error booking room');
+	  } else {
+		throw new Error(`Error booking room: ${error.message}`);
+	  }
 	}
-}
+  }
 
 /* This function gets alll bokings from the database */
 export async function getAllBookings() {
@@ -447,5 +452,88 @@ export const updateEmployee = async (employeeId, employeeData) => {
 	}
   };
 
-  
+  export async function deleteRoomType(roomTypeId) {
+	const confirmed = window.confirm("Bạn có muốn xoá loại phòng này?")
+	if(confirmed){
+		try {
+			const result = await api.patch(`/hotel/roomtypes/${roomTypeId}/delete-roomtypes/`, {
+				// headers: getHeader()
+			})
+			console.log(result)
+			return result
+		} catch (error) {
+			throw new Error(`Error deleting room type ${error.message}`)
+		}
+	}
+}
+
+export async function getRoomTypeById(roomTypeId) {
+	try {
+		const result = await api.get(`/hotel/roomtypes/${roomTypeId}/`)
+		console.log(result.data)
+		return result.data
+	} catch (error) {
+		throw new Error(`Error fetching room ${error.message}`)
+	}
+}
+
+export async function updateRoomType(roomTypeId, roomTypeData) {
+    // Nếu có ảnh mới, tải lên Cloudinary và lấy URL
+    let imageUrl = roomTypeData.image;
+    if (roomTypeData.image && typeof roomTypeData.image === 'object') {
+        const fullImageUrl = await uploadToCloudinary(roomTypeData.image);
+        imageUrl = fullImageUrl; // Chỉ lấy phần cần thiết của URL
+    }
+
+    const formData = new FormData();
+    formData.append("branch", roomTypeData.branch); 
+    formData.append("type", roomTypeData.type);
+    formData.append("price", roomTypeData.price);
+    formData.append("number_of_beds", roomTypeData.number_of_beds);
+    formData.append("room_capacity", roomTypeData.room_capacity);
+    if (imageUrl) formData.append("image", imageUrl); 
+
+    try {
+        console.log(...formData.entries());
+        const response = await api.patch(`/hotel/roomtypes/${roomTypeId}/`, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data'
+			}
+		});
+        return response.data;
+    } catch (error) {
+        console.error('Error updating room type:', error);
+        throw error;
+    }
+}
+
+export async function addRoomType(branch, type, price, number_of_beds, room_capacity, imageUrl) {
+    // Tạo FormData để gửi dữ liệu kiểu multipart/form-data
+    const formData = new FormData();
+    formData.append('branch', branch);
+    formData.append('type', type);
+    formData.append('price', price);
+    formData.append('number_of_beds', number_of_beds);
+    formData.append('room_capacity', room_capacity);
+    formData.append('image', imageUrl);
+
+    try {
+        const response = await api.post("/hotel/roomtypes/", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        if (response.status === 201) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Error in API call: ", error.response ? error.response.data : error.message);
+        return false;
+    }
+}
+
+
   

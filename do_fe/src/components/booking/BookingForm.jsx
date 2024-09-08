@@ -224,7 +224,7 @@ const BookingForm = () => {
 		console.log(booking)
 		try {
 
-			const confirmationCode = await bookRoom(booking)
+			const confirmationCode = await bookRoom(booking, couponCode)
 			console.log(confirmationCode)
 			// Tạo dữ liệu email
 			const emailData = {

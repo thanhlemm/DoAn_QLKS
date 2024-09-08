@@ -19,9 +19,8 @@ class RoomTypeSerializer(serializers.ModelSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
-    room_type = RoomTypeSerializer()
-    branch = BranchSerializer()
-
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
+    room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
     price = serializers.SerializerMethodField()
     number_of_beds = serializers.SerializerMethodField()
 
@@ -49,6 +48,7 @@ class BookingSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
     room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+
     # room_type = RoomTypeSerializer()
 
     class Meta:
@@ -76,6 +76,7 @@ class BookingSerializer(serializers.ModelSerializer):
             'date',
             'confirmationCode',
         ]
+
 
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
