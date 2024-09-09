@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { getAllRooms } from "../utils/ApiFunctions"
+import { getAllRooms, getRoomTypes } from "../utils/ApiFunctions"
 import RoomCard from "./RoomCard"
 import { Col, Container, Row } from "react-bootstrap"
 import RoomFilter from "../common/RoomFilter"
@@ -12,6 +12,11 @@ const Room = () => {
 	const [currentPage, setCurrentPage] = useState(1)
 	const [roomsPerPage] = useState(6)
 	const [filteredData, setFilteredData] = useState([{ id: "" }])
+	const [roomTypes, setRoomTypes] = useState([]);
+
+	useEffect(() => {
+		fetchRoomTypes();
+	  }, []);
 
 	useEffect(() => {
 		setIsLoading(true)
@@ -33,6 +38,14 @@ const Room = () => {
 		return <div className=" text-danger">Error : {error}</div>
 	}
 
+	const fetchRoomTypes = async () => {
+		try {
+		  const response = await getRoomTypes();
+		  setRoomTypes(response);
+		} catch (error) {
+		  console.error("Error fetching room types:", error);
+		}
+	  };
 	const handlePageChange = (pageNumber) => {
 		setCurrentPage(pageNumber)
 	}
@@ -46,12 +59,13 @@ const Room = () => {
 			.slice(startIndex, endIndex)
 			.map((room) => <RoomCard key={room.id} room={room} />)
 	}
+	
 
 	return (
 		<Container>
 			<Row>
 				<Col md={6} className="mb-3 mb-md-0">
-					<RoomFilter data={data} setFilteredData={setFilteredData} />
+					<RoomFilter data={data} roomTypes={roomTypes} setFilteredData={setFilteredData} />
 				</Col>
 
 				<Col md={6} className="d-flex align-items-center justify-content-end">
