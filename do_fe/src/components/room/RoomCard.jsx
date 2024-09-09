@@ -21,7 +21,11 @@ const RoomCard = ({ room }) => {
     const getRoomTypeImage = (id) => {
       const roomType = roomTypes.find(type => type.id === id);
       return roomType ? `${roomType.image}` : 'Unknown';
-      };
+    };
+    const getRoomTypeName = (id) => {
+      const roomType = roomTypes.find(type => type.id === id);
+      return roomType ? `${roomType.type}` : 'Unknown';
+    };
   return (
     <Col key={room.id} className="mb-4" xs={12} md={6} lg={4}>
       <Card className="room-card">
@@ -39,7 +43,7 @@ const RoomCard = ({ room }) => {
         <Card.Body className="room-details">
           <Card.Title className="room-type">{room.branch?.name}</Card.Title>
           {/* <Card.Text className="room-price">{`Price: ${room.roomType.price}`}</Card.Text> */}
-          <Card.Text className="room-type">Loại phòng: {room.room_type?.type}</Card.Text>
+          <Card.Text className="room-type">Loại phòng: {getRoomTypeName(room.room_type)}</Card.Text>
           <Card.Text className="room-type">Số phòng: {room.room_number}</Card.Text>
           <Card.Text className="room-price">
             {room.price ? `${room.price} USD` : "Price not available"}

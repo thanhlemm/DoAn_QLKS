@@ -50,7 +50,15 @@ const RoomCarousel = () => {
   const getRoomTypeImage = (id) => {
 		const roomType = roomTypes.find(type => type.id === id);
 		return roomType ? `${roomType.image}` : 'Unknown';
-	  };
+	};
+  const getRoomTypeBeds = (id) => {
+    const roomType = roomTypes.find(type => type.id === id);
+    return roomType ? `${roomType.number_of_beds}` : 'Unknown';
+  };
+  const getRoomTypeCapicity = (id) => {
+    const roomType = roomTypes.find(type => type.id === id);
+    return roomType ? `${roomType.room_capacity}` : 'Unknown';
+  };
 
   return (
     <section className="bg-light mb-5 mt-5 shadow">
@@ -79,8 +87,8 @@ const RoomCarousel = () => {
                         <Card.Body>
                           <Card.Title className="hotel-color">{room.room_type?.type}</Card.Title>
                           <Card.Title className="room-price">${room.price}</Card.Title>
-						              <Card.Text className="room-price">Beds: {room.room_type?.number_of_beds}</Card.Text>
-                    		<Card.Text className="room-price">Capacity: {room.room_type?.room_capacity} people</Card.Text>
+						              <Card.Text className="room-price">Beds: {getRoomTypeBeds(room.room_type)}</Card.Text>
+                    		<Card.Text className="room-price">Capacity: {getRoomTypeCapicity(room.room_type)} people</Card.Text>
                           <div className="flex-shrink-0">
                             <Link to={`/book-room/${room.id}`} className="btn btn-outline-secondary">
                               Book Now

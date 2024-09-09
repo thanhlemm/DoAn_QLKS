@@ -19,12 +19,12 @@ const Menu = () => {
            Roomtypes
         </Link>
       </li>
-      <li className='menu--list-item'>
+      {/* <li className='menu--list-item'>
         <Link to={"/existing-bookings"}>
           <FaBed />
            Bookings
         </Link>
-      </li>
+      </li> */}
       <li className='menu--list-item'>
         <Link to={"/existing-employees"}>
           <FaUsersCog />

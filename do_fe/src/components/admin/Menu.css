@@ -11,7 +11,7 @@
     border-radius: 5px;
     overflow: hidden;
 }
-.menu--list-item:hover,.active{
+.menu--list-item:hover, .menu--list-item.active{
     background: #3c3c3c;
     cursor: pointer;
     transition: all 0.3s ease-in;

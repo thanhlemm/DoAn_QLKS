@@ -16,7 +16,7 @@ const Sidebar = () => {
         <div className={isOpen ? "sidebar open":"sidebar"}>
             
             <Link to={"/admin"}>
-             <div className="sidebar--logo">Ocean Admin</div>
+               <div className="sidebar--logo">Ocean Admin</div>
             </Link>
             <Menu />
         </div>
