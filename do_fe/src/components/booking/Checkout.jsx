@@ -11,11 +11,8 @@ import BookingForm from "../booking/BookingForm"
 // } from "react-icons/fa"
 import { FaTrash } from "react-icons/fa" 
 import { MyUserContext } from '../utils/MyContext';
-
-
-
 import { useParams } from "react-router-dom"
-import { getRoomById } from "../utils/ApiFunctions"
+import { getRoomById, getRoomTypes } from "../utils/ApiFunctions"
 import RoomCarousel from "../common/RoomCarousel"
 
 const Checkout = () => {
@@ -30,7 +27,28 @@ const Checkout = () => {
 
 	const { roomId } = useParams()
 	const user = useContext(MyUserContext);
+	const [roomTypes, setRoomTypes] = useState([]);
 
+	useEffect(() => {
+		fetchRoomTypes();
+	  }, []);
+
+  	const fetchRoomTypes = async () => {
+		try {
+		  const response = await getRoomTypes();
+		  setRoomTypes(response);
+		} catch (error) {
+		  console.error("Error fetching room types:", error);
+		}
+	  };
+    const getRoomTypeImage = (id) => {
+      const roomType = roomTypes.find(type => type.id === id);
+		return roomType ? `${roomType.image}` : 'Unknown';
+    };
+	const getRoomTypeName = (id) => {
+		const roomType = roomTypes.find(type => type.id === id);
+		  return roomType ? `${roomType.type}` : 'Unknown';
+	  };
 
 	useEffect(() => {
 		const fetchRooms = async () => {
@@ -67,6 +85,7 @@ const Checkout = () => {
 		// Cập nhật lại roomsInfo sau khi xóa
 		setRoomsInfo(prevRooms => prevRooms.filter(room => room.id !== id));
 	}
+	
 
 	return (
 		<div>
@@ -81,7 +100,7 @@ const Checkout = () => {
 						) : roomId ? (
 								<div className="room-info mb-4">
 									<img
-										src={roomInfo.room_type?.image.replace("image/upload/", "")}
+										src={getRoomTypeImage(roomInfo.room_type).replace("image/upload/", "")}
 										alt="Room in the hotel"
 										style={{ width: "100%", height: "200px" }}
 									/>
@@ -109,7 +128,7 @@ const Checkout = () => {
 							roomsInfo.map((room, index) => (
 								<div key={index} className="room-info mb-4">
 								<img
-									src={room.room_type?.image.replace("image/upload/", "")}
+									src={getRoomTypeImage(room.room_type).replace("image/upload/", "")}
 									alt="Room in the hotel"
 									style={{ width: "100%", height: "200px" }}
 								/>
@@ -117,39 +136,11 @@ const Checkout = () => {
 									<tbody>
 										<tr>
 											<th>Room Type:</th>
-											<td>{room.room_type?.type}</td>
+											<td>{getRoomTypeName(room.room_type)}</td>
 										</tr>
 										<tr>
 											<th>Price per night:</th>
 											<td>${room.price}</td>
-										</tr>
-										<tr>
-											<th>Room Service:</th>
-											<td>
-												{/* <ul className="list-unstyled">
-													<li>
-														<FaWifi /> Wifi
-													</li>
-													<li>
-														<FaTv /> Netfilx Premium
-													</li>
-													<li>
-														<FaUtensils /> Breakfast
-													</li>
-													<li>
-														<FaWineGlassAlt /> Mini bar refreshment
-													</li>
-													<li>
-														<FaCar /> Car Service
-													</li>
-													<li>
-														<FaParking /> Parking Space
-													</li>
-													<li>
-														<FaTshirt /> Laundry
-													</li>
-												</ul> */}
-											</td>
 										</tr>
 										<tr>
 											<td colSpan="2">
