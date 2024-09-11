@@ -278,3 +278,42 @@ body {
   font-size: 1.2rem;
   color: gray;
 }
+
+/* Feedback Start */
+.rating {
+  display: inline-block;
+  direction: rtl; /* Sắp xếp ngược từ phải qua trái */
+  font-size: 0; /* Ẩn text */
+}
+
+.rating > input {
+  display: none; /* Ẩn input */
+}
+
+.rating:not(:checked) > label {
+  float: right;
+  cursor: pointer;
+  font-size: 30px;
+}
+
+.rating:not(:checked) > label > svg {
+  fill: #666; /* Màu mặc định cho SVG */
+  transition: fill 0.3s ease; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+.rating > input:checked + label:hover,
+.rating > input:checked + label:hover ~ label,
+.rating > input:checked ~ label:hover,
+.rating > input:checked ~ label:hover ~ label,
+.rating > label:hover ~ input:checked ~ label {
+  fill: #e58e09;
+}
+
+.rating:not(:checked) > label:hover,
+.rating:not(:checked) > label:hover ~ label {
+  fill: #ff9e0b;
+}
+
+.rating > input:checked ~ label > svg {
+  fill: #ffa723; /* Màu cho các sao đã được chọn */
+}

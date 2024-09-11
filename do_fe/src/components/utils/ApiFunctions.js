@@ -16,7 +16,8 @@ export const endpoints = {
 	'getRoles': '/auth/role/',
 	'check_in': (id) => `/hotel/booking/${id}/check-in/`,
 	'check_out': (id) => `/hotel/booking/${id}/check-out/`,
-	'verify_coupon': '/hotel/coupon/get-coupon/'
+	'verify_coupon': '/hotel/coupon/get-coupon/',
+	'booking_info': (id) => `/hotel/booking/${id}/`
 };
 
 
@@ -535,5 +536,33 @@ export async function addRoomType(branch, type, price, number_of_beds, room_capa
     }
 }
 
+export const getFeedbacksByUser = async (token) => {
+    try {
+        const response = await api.get('/hotel/feedback/', {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token xác thực
+				'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching feedbacks:', error);
+        throw error;
+    }
+};
 
+export const createFeedback = async (feedbackData, token) => {
+    try {
+        const response = await api.post('/hotel/feedback/', feedbackData, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token xác thực
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating feedback:', error);
+        throw error;
+    }
+};
   

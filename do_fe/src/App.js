@@ -85,7 +85,7 @@ function App() {
 						<Route path="/booking-success" element={<MainLayout><BookingSuccess /></MainLayout>} />
 						<Route path="/find-booking" element={<MainLayout><FindBooking /></MainLayout>} />
 						<Route path="/hotel/branch/:id" element={<MainLayout><BranchDetail /></MainLayout>} />
-						<Route path="/hotel/branch/:id/roomtype/:roomname" element={<MainLayout><RoomSelection /></MainLayout>} />
+						<Route path="/hotel/branch/:id/roomtype/:roomname" element={<RequireAuth><MainLayout><RoomSelection /></MainLayout></RequireAuth>} />
 						<Route path="/login" element={<MainLayout><Login /></MainLayout>} />
 						<Route path="/register" element={<MainLayout><Registration /></MainLayout>} />
 						<Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />

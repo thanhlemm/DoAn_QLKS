@@ -5,6 +5,7 @@ import { Card, Col, Form, Button, Row } from "react-bootstrap";
 import { useParams, useNavigate } from 'react-router-dom';
 import { getBranchDetails, getRoomTypesByBranchId, checkRoomAvailability } from '../utils/ApiFunctions';
 import Header from "../common/Header";
+import BranchFeedback from './BranchFeedback';
 
 const Container = styled.div`
   max-width: 100%;
@@ -28,16 +29,21 @@ const BranchInfo = styled.div`
 
 const Title = styled.h1`
   margin-bottom: 10px;
+  color: white;
+
 `;
 
 const Address = styled.p`
   margin: 0;
   color: gray;
+  color: white;
+
 `;
 
 const Contact = styled.div`
   margin-top: 10px;
   font-size: 0.9em;
+  color: white;
 `;
 
 const Tags = styled.div`
@@ -208,6 +214,8 @@ const BranchDetail = () => {
           </Card>
         </Col>
       </Row>
+      <Header title={"Feedbacks"} />
+      <BranchFeedback branchId={id} />
     </Container>
   );
 };

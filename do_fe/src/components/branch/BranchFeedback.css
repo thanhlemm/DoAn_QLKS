@@ -1,0 +1,190 @@
+/* Webcrumbs.css
+
+/* Import các font và thư viện CSS */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+/* Các kiểu dáng riêng cho Webcrumbs */
+#webcrumbs {
+  font-family: Open Sans !important;
+  font-size: 16px !important;
+  line-height: 24px !important;
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin-left: 23rem;
+    margin-bottom: 5rem;
+}
+  
+  .feedback-container {
+    background-color: white; /* Màu nền trắng cho khung */
+    border-radius: 12px; /* Bo tròn góc của khung */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng bóng cho khung */
+    max-width: 800px; /* Đặt chiều rộng tối đa của khung */
+    width: 100%; /* Đảm bảo khung chiếm toàn bộ chiều rộng của phần tử chứa */
+    margin: 20px 0; /* Khoảng cách trên và dưới */
+    padding: 20px; /* Padding bên trong khung */
+  }
+  
+  .feedback-item {
+    background-color: #f9f9f9; /* Màu nền nhẹ cho từng phần feedback */
+    border-radius: 8px; /* Bo tròn góc của từng feedback */
+    padding: 16px; /* Padding bên trong từng feedback */
+    margin-bottom: 16px; /* Khoảng cách dưới từng feedback */
+    width: 100%; /* Đảm bảo phần feedback chiếm toàn bộ chiều rộng của khung */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+
+#webcrumbs .mb-2 {
+  margin-bottom: 8px;
+}
+
+#webcrumbs .mb-4 {
+  margin-bottom: 16px;
+}
+
+#webcrumbs .mb-6 {
+  margin-bottom: 24px;
+}
+
+#webcrumbs .mr-2 {
+  margin-right: 8px;
+}
+
+#webcrumbs .mr-4 {
+  margin-right: 16px;
+}
+
+#webcrumbs .flex {
+  display: flex;
+}
+
+#webcrumbs .h-12 {
+  height: 48px;
+}
+
+#webcrumbs .w-12 {
+  width: 48px;
+}
+
+#webcrumbs .w-\[800px\] {
+  width: 800px;
+}
+
+#webcrumbs .items-center {
+  align-items: center;
+}
+
+#webcrumbs .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-left: calc(16px * (1 - var(--tw-space-x-reverse)));
+  margin-right: calc(16px * var(--tw-space-x-reverse));
+}
+
+#webcrumbs .rounded-full {
+  border-radius: 9999px;
+}
+
+#webcrumbs .rounded-lg {
+  border-radius: 24px;
+}
+
+#webcrumbs .rounded-md {
+  border-radius: 18px;
+}
+
+#webcrumbs .border {
+  border-width: 1px;
+}
+
+#webcrumbs .bg-blue-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+#webcrumbs .bg-neutral-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+#webcrumbs .object-cover {
+  object-fit: cover;
+}
+
+#webcrumbs .p-2 {
+  padding: 8px;
+}
+
+#webcrumbs .p-6 {
+  padding: 24px;
+}
+
+#webcrumbs .px-2 {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#webcrumbs .py-1 {
+  padding-bottom: 4px;
+  padding-top: 4px;
+}
+
+#webcrumbs .font-title {
+  font-family: Lato, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+}
+
+#webcrumbs .text-2xl {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+#webcrumbs .text-sm {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#webcrumbs .font-bold {
+  font-weight: 700;
+}
+
+#webcrumbs .font-semibold {
+  font-weight: bold;
+}
+
+#webcrumbs .italic {
+  font-style: italic;
+}
+
+#webcrumbs .text-blue-600 {
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235 / var(--tw-text-opacity));
+}
+
+#webcrumbs .text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
+}
+
+#webcrumbs .text-gray-700 {
+  --tw-text-opacity: 1;
+  color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+
+#webcrumbs .text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity));
+}
+
+#webcrumbs .text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+#webcrumbs .shadow {
+  --tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2;
+  box-shadow: var(--tw-shadow);
+} 
