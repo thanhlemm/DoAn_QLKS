@@ -1,15 +1,19 @@
 from rest_framework import serializers
-from .models import Branch, RoomType, Room, Booking, Coupon
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback
 from userauths.serializers import UserSerializer
 from userauths.models import User
 
 
 class BranchSerializer(serializers.ModelSerializer):
     manager = UserSerializer()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Branch
         fields = '__all__'
+
+    def get_average_rating(self, obj):
+        return obj.average_rating()
 
 
 class RoomTypeSerializer(serializers.ModelSerializer):
@@ -91,7 +95,7 @@ class CouponSerializer(serializers.ModelSerializer):
             'valid_from',
             'valid_to',
             'date',
-            'is_active',
+            'active',
         ]
 
     def validate(self, data):
@@ -103,3 +107,14 @@ class CouponSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Ngày bắt đầu phải trước ngày kết thúc.")
 
         return data
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Feedback
+        fields = ['id', 'booking', 'branch', 'user', 'rating', 'comment', 'feedback_date', 'response']
+        read_only_fields = ['feedback_date', 'response']

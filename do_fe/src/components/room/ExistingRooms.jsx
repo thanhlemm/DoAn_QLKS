@@ -10,19 +10,26 @@ const ExistingRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [branches, setBranches] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
+  const [filteredRoomTypes, setFilteredRoomTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [roomsPerPage] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [selectedRoomType, setSelectedRoomType] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchRooms();
     fetchBranches();
-    fetchRoomTypes();
   }, []);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      fetchRoomTypes(selectedBranch);
+    }
+  }, [selectedBranch]);
 
   const fetchRooms = async () => {
     setIsLoading(true);
@@ -46,10 +53,11 @@ const ExistingRooms = () => {
     }
   };
 
-  const fetchRoomTypes = async () => {
+  const fetchRoomTypes = async (branchId) => {
     try {
-      const response = await getRoomTypes();
+      const response = await getRoomTypes(branchId); // Assume this function can take branchId as a parameter
       setRoomTypes(response);
+      setFilteredRoomTypes(response); // Update filtered room types based on branch
     } catch (error) {
       console.error("Error fetching room types:", error);
     }
@@ -109,6 +117,7 @@ const ExistingRooms = () => {
     const roomType = roomTypes.find(type => type.id === id);
     return roomType ? `${roomType.type} ` : 'Unknown';
   };
+
   const getRoomTypePrice = (id) => {
     const roomType = roomTypes.find(type => type.id === id);
     return roomType ? `${roomType.price}` : 'Unknown';
@@ -137,7 +146,13 @@ const ExistingRooms = () => {
 
             <Row>
               <Col md={6} className="mb-2 md-mb-0">
-                <RoomFilter data={rooms} roomTypes={roomTypes} setFilteredData={setFilteredRooms} />
+                <RoomFilter 
+                  data={rooms} 
+                  roomTypes={filteredRoomTypes} 
+                  setFilteredData={setFilteredRooms} 
+                  setSelectedRoomType={setSelectedRoomType}
+                  setSelectedBranch={setSelectedBranch}
+                />
               </Col>
 
               <Col

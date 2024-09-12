@@ -17,7 +17,8 @@ export const endpoints = {
 	'check_in': (id) => `/hotel/booking/${id}/check-in/`,
 	'check_out': (id) => `/hotel/booking/${id}/check-out/`,
 	'verify_coupon': '/hotel/coupon/get-coupon/',
-	'booking_info': (id) => `/hotel/booking/${id}/`
+	'booking_info': (id) => `/hotel/booking/${id}/`,
+	'get_couponByID': (id) => `/hotel/coupon/${id}`,
 };
 
 
@@ -565,4 +566,15 @@ export const createFeedback = async (feedbackData, token) => {
         throw error;
     }
 };
+
+export async function deleteCoupon(couponId) {
+	try {
+		const result = await api.patch(`/hotel/coupon/${couponId}/delete-coupon/`, {
+			// headers: getHeader()
+		})
+		return result.data
+	} catch (error) {
+		throw new Error(`Error deleting room ${error.message}`)
+	}
+}
   

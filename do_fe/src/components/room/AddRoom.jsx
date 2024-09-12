@@ -4,14 +4,15 @@ import { Link } from "react-router-dom";
 
 const AddRoom = () => {
   const [newRoom, setNewRoom] = useState({
-	branch: "",
-	room_type: "",
-	room_number: "",
-	is_available: true
+    branch: "",
+    room_type: "",
+    room_number: "",
+    is_available: true
   });
 
   const [branches, setBranches] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
+  const [filteredRoomTypes, setFilteredRoomTypes] = useState([]);
   const [roomPrice, setRoomPrice] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -20,6 +21,7 @@ const AddRoom = () => {
     const fetchBranches = async () => {
       try {
         const response = await api.get("/hotel/branch/");
+        console.log(response.data);
         setBranches(response.data);
       } catch (error) {
         console.error("Error fetching branches:", error);
@@ -30,6 +32,7 @@ const AddRoom = () => {
     const fetchRoomTypes = async () => {
       try {
         const response = await api.get("/hotel/roomtypes/");
+        console.log(response.data);
         setRoomTypes(response.data);
       } catch (error) {
         console.error("Error fetching room types:", error);
@@ -41,23 +44,52 @@ const AddRoom = () => {
     fetchRoomTypes();
   }, []);
 
+  useEffect(() => {
+    if (newRoom.branch) {
+      const branchId = Number(newRoom.branch);
+  
+      const filteredTypes = roomTypes.filter(type => type.branch === branchId);
+      setFilteredRoomTypes(filteredTypes);
+      console.log('Filtered Room Types:', filteredTypes);
+  
+      setNewRoom(prevState => ({
+        ...prevState,
+        room_type: "",
+      }));
+      setRoomPrice("");
+    } else {
+      setFilteredRoomTypes([]);
+    }
+  }, [newRoom.branch, roomTypes]);
+  
+
   const handleRoomInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNewRoom({ ...newRoom, [name]: type === 'checkbox' ? checked : value });
   };
 
+  const handleBranchChange = (e) => {
+    const branchId = e.target.value;
+    setNewRoom(prevState => ({
+      ...prevState,
+      branch: branchId
+    }));
+  };
+
   const handleRoomTypeChange = (e) => {
     const roomTypeId = e.target.value;
-    setNewRoom({ ...newRoom, room_type: roomTypeId });
-    const selectedRoomType = roomTypes.find(type => type.id === roomTypeId);
-	console.log(roomTypeId)
+    setNewRoom(prevState => ({
+      ...prevState,
+      room_type: roomTypeId
+    }));
+    const selectedRoomType = filteredRoomTypes.find(type => type.id === roomTypeId);
     setRoomPrice(selectedRoomType ? selectedRoomType.price : "");
+    console.log(selectedRoomType);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-		console.log(newRoom)
       const success = await addRoom(
         newRoom.branch, 
         newRoom.room_type,
@@ -110,7 +142,7 @@ const AddRoom = () => {
                   id="branch"
                   name="branch"
                   value={newRoom.branch}
-                  onChange={handleRoomInputChange}
+                  onChange={handleBranchChange}
                 >
                   <option value="">Select Branch</option>
                   {branches.map(branch => (
@@ -133,7 +165,7 @@ const AddRoom = () => {
                   onChange={handleRoomTypeChange}
                 >
                   <option value="">Select Room Type</option>
-                  {roomTypes.map(type => (
+                  {filteredRoomTypes.map(type => (
                     <option key={type.id} value={type.id}>
                       {type.type}
                     </option>
@@ -161,7 +193,7 @@ const AddRoom = () => {
                 <input
                   type="checkbox"
                   id="isAvailable"
-                  name="isAvailable"
+                  name="is_available"
                   checked={newRoom.is_available}
                   onChange={handleRoomInputChange}
                 />

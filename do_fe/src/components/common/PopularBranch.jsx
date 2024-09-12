@@ -61,8 +61,8 @@ const PopularBranch = () => {
                                             <i className="fa fa-envelope"></i> {branch.email}
                                         </div>
                                         <div className="d-flex align-items-center">
-                                            <div className="star-rating">⭐️⭐️⭐️⭐️⭐️</div>
-                                            <div className="ml-2"><i className="fa fa-eye"></i> {branch.views}</div>
+                                            <div className="star-rating">⭐️{branch.average_rating.toFixed(1)}/5</div>
+                                            {/* <div className="ml-4"><i className="fa fa-eye"></i> {branch.views}</div> */}
                                         </div>
                                     </Card.Text>
                                 </Card.Body>

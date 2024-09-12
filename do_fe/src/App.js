@@ -6,9 +6,11 @@ import Home from "./components/home/Home"
 import EditRoom from "./components/room/EditRoom"
 import EditRoomType from "./components/roomtype/EditRoomType"
 import EditEmployee from "./components/employee/EditEmployee"
+import EditCoupon from "./components/coupon/EditCoupon"
 import AddRoom from "./components/room/AddRoom"
 import AddRoomType from "./components/roomtype/AddRoomType"
 import AddEmployee from "./components/employee/AddEmployee"
+import AddCoupon from "./components/coupon/AddCoupon"
 import NavBar from "./components/layout/NavBar"
 import Footer from "./components/layout/Footer"
 import BranchDetail from "./components/branch/branchdetail"
@@ -19,6 +21,7 @@ import Admin from "./components/admin/Admin"
 import ExistingEmployees from "./components/employee/ExistingEmployees"
 import ExistingRooms from "./components/room/ExistingRooms"
 import ExistingRoomTypes from "./components/roomtype/ExistingRoomTypes"
+import ExistingCoupons from "./components/coupon/ExistingCoupons"
 
 import Checkout from "./components/booking/Checkout"
 import BookingSuccess from "./components/booking/BookingSuccess"
@@ -107,6 +110,11 @@ function App() {
 								<AdminLayout><ExistingRoomTypes /></AdminLayout>
 							</RequireAdmin>
 						} />
+						<Route path="/existing-coupons" element={
+							<RequireAdmin>
+								<AdminLayout><ExistingCoupons /></AdminLayout>
+							</RequireAdmin>
+						} />
 						<Route path="/add-room" element={
 							<RequireAdmin>
 								<AdminLayout><AddRoom /></AdminLayout>
@@ -115,6 +123,11 @@ function App() {
 						<Route path="/add-roomtype" element={
 							<RequireAdmin>
 								<AdminLayout><AddRoomType /></AdminLayout>
+							</RequireAdmin>
+						} />
+						<Route path="/add-coupon" element={
+							<RequireAdmin>
+								<AdminLayout><AddCoupon /></AdminLayout>
 							</RequireAdmin>
 						} />
 						<Route path="/edit-room/:roomId" element={
@@ -130,6 +143,11 @@ function App() {
 						<Route path="/edit-employee/:employeeId" element={
 							<RequireAdmin>
 								<AdminLayout><EditEmployee /></AdminLayout>
+							</RequireAdmin>
+						} />
+						<Route path="/edit-coupon/:couponId" element={
+							<RequireAdmin>
+								<AdminLayout><EditCoupon /></AdminLayout>
 							</RequireAdmin>
 						} />
 						<Route path="/existing-bookings" element={

@@ -4,10 +4,8 @@ from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
-from .models import Branch, RoomType, Room, Booking, Coupon
-from .sendEmail import send_confirmation_email
-from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
-    BookingSerializer, CouponSerializer
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback
+from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, BookingSerializer, CouponSerializer, FeedbackSerializer
 from rest_framework.response import Response
 from django.conf import settings
 
@@ -40,7 +38,7 @@ class RoomTypeViewSet(viewsets.ViewSet, generics.CreateAPIView,
     serializer_class = RoomTypeSerializer
 
     def get_queryset(self):
-        return RoomType.objects.all()
+        return RoomType.objects.filter(active=True)
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -76,7 +74,6 @@ class RoomTypeViewSet(viewsets.ViewSet, generics.CreateAPIView,
         room_type.active = False
         room_type.save()
         return Response({'success': True, 'message': 'Room type has been deactivated.'}, status=status.HTTP_200_OK)
-
 
 class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
                   generics.RetrieveAPIView,
@@ -240,8 +237,7 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         booking = self.get_object()
 
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy trước đó!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy trước đó!'}, status=status.HTTP_400_BAD_REQUEST)
 
         booking.is_active = False
         booking.save()
@@ -259,8 +255,7 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
                     coupon.save()
 
             except Coupon.DoesNotExist:
-                return Response({'success': False, 'message': 'Coupon không tồn tại!'},
-                                status=status.HTTP_404_NOT_FOUND)
+                return Response({'success': False, 'message': 'Coupon không tồn tại!'}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({'success': True, 'message': 'Booking đã được hủy thành công!'})
 
@@ -268,12 +263,10 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
     def check_in_booking(self, request, pk=None):
         booking = self.get_object()
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if booking.checked_in:
-            return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'}, status=status.HTTP_400_BAD_REQUEST)
 
         booking.checked_in = True
         booking.save()
@@ -283,21 +276,17 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
     def check_out_booking(self, request, pk=None):
         booking = self.get_object()
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-out.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-out.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not booking.checked_in:
-            return Response({'success': False, 'message': 'Booking chưa được check-in và không thể check-out.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking chưa được check-in và không thể check-out.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if booking.checked_out:
-            return Response({'success': False, 'message': 'Booking đã được check-out trước đó.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã được check-out trước đó.'}, status=status.HTTP_400_BAD_REQUEST)
 
         booking.checked_out = True
         booking.save()
-        return Response({'success': True, 'message': 'Booking đã được check-out thành công.'},
-                        status=status.HTTP_200_OK)
+        return Response({'success': True, 'message': 'Booking đã được check-out thành công.'}, status=status.HTTP_200_OK)
 
 
 class SendEmailViewSet(viewsets.ViewSet):
@@ -316,13 +305,32 @@ class SendEmailViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 from django.utils import timezone
 
 
-class CouponViewSet(viewsets.ViewSet):
+class CouponViewSet(viewsets.ViewSet, generics.CreateAPIView,
+                    generics.RetrieveAPIView,
+                    generics.ListAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
+
+    def get_queryset(self):
+        return Coupon.objects.filter(active=True)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            # Log or print the error message for debugging
+            print("Error during partial update:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'], url_path='get-coupon')
     def get_coupon(self, request):
@@ -345,3 +353,42 @@ class CouponViewSet(viewsets.ViewSet):
                 'discount': 0,
                 'type': 'none'  # Specify a default type when the coupon does not exist
             })
+
+    @action(detail=True, methods=['patch'], url_path='delete-coupon')
+    def delete_coupon(self, request, pk=None):
+        coupon = self.get_object()
+        coupon.active = False
+        coupon.save()
+        return Response({'success': True, 'message': 'Coupon has been deactivated.'}, status=status.HTTP_200_OK)
+
+class FeedbackViewSet(viewsets.ViewSet, generics.CreateAPIView,
+                    generics.RetrieveAPIView,
+                    generics.ListAPIView):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
+
+    def list(self, request):
+        # Lấy feedback của người dùng hiện tại
+        user = request.user
+        feedbacks = Feedback.objects.filter(user=user)
+        serializer = FeedbackSerializer(feedbacks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        # Tạo feedback mới
+        data = request.data
+        data['user'] = request.user.id  # Gắn user hiện tại vào request data
+        serializer = FeedbackSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def get_by_branch(self, request):
+        branch_id = request.query_params.get('branch_id')
+        if branch_id:
+            feedbacks = Feedback.objects.filter(branch_id=branch_id).order_by('-feedback_date')
+            serializer = FeedbackSerializer(feedbacks, many=True)
+            return Response(serializer.data)
+        return Response({"error": "Branch ID is required."}, status=400)

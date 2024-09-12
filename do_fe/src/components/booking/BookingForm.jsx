@@ -37,20 +37,7 @@ const BookingForm = () => {
 	const { roomId } = useParams()
 	const navigate = useNavigate()
 
-	// const handleInputChange = (e) => {
-	// 	const { name, value } = e.target
-	// 	if (name === 'room') {
-	// 		// Handle room as an array
-	// 		setBooking({ ...booking, room: [value] }) // Push the roomId to the array
-	// 	} else {
-	// 		setBooking({ ...booking, [name]: value })
-	// 	}		setErrorMessage("")
-
-	// 	setBooking(prevState => ({
-	// 		...prevState,
-	// 		[name]: value, // This will correctly update booking.phone when name is "phone"
-	// 	  }));
-	// }
+	
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
 		if (name === 'room') {
@@ -66,19 +53,9 @@ const BookingForm = () => {
 		}
 		setErrorMessage("");
 	}
+
+
 	
-
-
-	// const getRoomPriceById = async (roomId) => {
-	// 	try {
-	// 		const response = await getRoomById(roomId)
-	// 		setRoomPrice(response.price)
-	// 	} catch (error) {
-	// 		throw new Error(error)
-	// 	}
-	// }
-
-	useEffect(() => {
 		const fetchRoomData = async () => {
 			try {
 					const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
@@ -86,14 +63,16 @@ const BookingForm = () => {
 					const roomPromises = roomIds.map(id => getRoomById(id));
 					const rooms = await Promise.all(roomPromises);
 					setRoomsInfo(rooms);
+					console.log(roomsInfo)
 					if (roomId) {
 						const response = await getRoomById(roomId);
 						setRoomPrice(response.price);
 						setRoomInfo(response);
-
+						console.log(response)
 						const roomTypeId = response.room_type.id;
 						const branchId = response.branch.id;
-			
+						console.log(branchId)
+
 						setBooking(prevState => ({
 							...prevState,
 							room_type: roomTypeId, 
@@ -101,16 +80,9 @@ const BookingForm = () => {
 							room: [roomId]         
 						}));
 					}else{
-						// setBooking(prevState => ({
-						// 	...prevState,
-						// 	room: roomIds,
-						// 	room_type: rooms[0]?.room_type.id, // Giả định là lấy room_type từ phòng đầu tiên
-						// 	branch: rooms[0]?.branch.id // Giả định là lấy branch từ phòng đầu tiên
-						// }));
-						// Kiểm tra tính đồng nhất của room_type và branch
+						
 						const allSameRoomType = rooms.every(room => room.room_type.id === rooms[0].room_type.id);
 						const allSameBranch = rooms.every(room => room.branch.id === rooms[0].branch.id);
-
 						if (allSameRoomType && allSameBranch) {
 							// Nếu tất cả các phòng đều có cùng room_type và branch
 							const firstRoomPrice = rooms[0]?.price || 0;
@@ -119,14 +91,17 @@ const BookingForm = () => {
 							setBooking(prevState => ({
 								...prevState,
 								room: roomIds,
-								room_type: rooms[0]?.room_type.id,
-								branch: rooms[0]?.branch.id
+								room_type: rooms[0]?.room_type,
+								branch: rooms[0]?.branch
 							}));
+							console.log(booking)
+
 						} else {
 							// Nếu các phòng có room_type hoặc branch khác nhau, hiển thị lỗi
 							setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
 						}
 					}
+					console.log(booking)
 					setIsLoading(false);
 			} catch (error) {
 				setErrorMessage(error);
@@ -134,9 +109,9 @@ const BookingForm = () => {
 			}
 		};
 	
-		fetchRoomData();
-	}, [roomId])
-
+		useEffect(() => {
+			fetchRoomData();
+		},[roomId, user.id]);
 	useEffect(() => {
 		calculatePayment();
 	}, [booking.saved, booking.before_discount, booking.check_in_date, booking.check_out_date, roomPrice]);	
@@ -160,27 +135,28 @@ const BookingForm = () => {
 			e.stopPropagation();
 		} else {
 			try {
-				// Calculate the payment before discount
+				await fetchRoomData();
 				const beforeDiscount = calculatePayment();
-				
-				// Update the booking state with before_discount
 				setBooking(prevState => ({
 					...prevState,
-					before_discount: beforeDiscount
+					branch: booking.branch,
+                	room_type: booking.room_type,
+					before_discount: beforeDiscount,
 				}));
 	
-				// Wait for the state to update before calculating discount
 				const updatedBooking = { ...booking, before_discount: beforeDiscount };
 				let discountAmount = 0;
 	
 				if (couponCode) {
-					const discountResponse = await api.post(endpoints.verify_coupon, { code: couponCode });
-					const discountData = discountResponse.data;
-	
-					if (discountData.type === 'percentage') {
-						discountAmount = (updatedBooking.before_discount * discountData.discount) / 100;
-					} else if (discountData.type === 'fixed') {
-						discountAmount = discountData.discount;
+					try {
+						const discountResponse = await api.post(endpoints.verify_coupon, { code: couponCode });
+						const discountData = discountResponse.data;
+				   
+						discountAmount = discountData.type === 'percentage'
+							? (beforeDiscount * discountData.discount) / 100
+							: discountData.discount;
+					} catch (error) {
+						setErrorMessage("Invalid coupon code.");
 					}
 				}
 	

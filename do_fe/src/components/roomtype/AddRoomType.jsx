@@ -130,21 +130,15 @@ const AddRoomType = () => {
                                 <label htmlFor="type" className="form-label">
                                     Room Type
                                 </label>
-                                <select
+                                <input
                                     required
+                                    type="text"
                                     className="form-control"
                                     id="type"
                                     name="type"
                                     value={newRoomType.type}
                                     onChange={handleRoomInputChange}
-                                >
-                                    <option value="">Select Room Type</option>
-                                    {roomTypes.map(roomType => (
-                                        <option key={roomType.id} value={roomType.id}>
-                                            {roomType.type}
-                                        </option>
-                                    ))}
-                                </select>
+                                />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="price" className="form-label">

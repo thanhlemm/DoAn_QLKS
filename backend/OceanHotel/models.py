@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from userauths.models import User
 import uuid
+from django.db.models import Avg
 
 
 class BaseModel(models.Model):
@@ -38,6 +39,9 @@ class Branch(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def average_rating(self):
+        return self.feedbacks.aggregate(Avg('rating'))['rating__avg'] or 0
 
 
 class RoomType(BaseModel):
@@ -152,3 +156,19 @@ class Coupon(BaseModel):
     def is_valid(self):
         """Check if coupon is valid based on current date."""
         return self.valid_from <= timezone.now() <= self.valid_to
+
+
+class Feedback(BaseModel):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="feedbacks")
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="feedbacks")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    rating = models.PositiveIntegerField(default=5)  # Rating out of 5 stars
+    comment = models.TextField()
+    feedback_date = models.DateTimeField(auto_now_add=True)
+    response = models.TextField(null=True, blank=True, help_text="Optional response from the branch")
+
+    def __str__(self):
+        return f"Feedback for Booking {self.booking.id} by {self.user.username if self.user else 'Anonymous'} - Rating: {self.rating}/5"
+
+    class Meta:
+        verbose_name_plural = "Feedbacks"
