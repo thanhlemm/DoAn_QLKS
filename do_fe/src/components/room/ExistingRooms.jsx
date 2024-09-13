@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { deleteRoom, getAllRooms, api, getRoomTypes } from "../utils/ApiFunctions";
 import { Col, Row } from "react-bootstrap";
@@ -19,15 +20,20 @@ const ExistingRooms = () => {
   const [selectedBranch, setSelectedBranch] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  
 
   useEffect(() => {
     fetchRooms();
     fetchBranches();
+    fetchRoomTypes(); // Fetch all room types on component mount
   }, []);
+  
 
   useEffect(() => {
     if (selectedBranch) {
-      fetchRoomTypes(selectedBranch);
+      fetchRoomTypes(selectedBranch); // Fetch room types theo branch
+    } else {
+      fetchRoomTypes(); // Fetch all room types if no branch is selected
     }
   }, [selectedBranch]);
 
@@ -53,15 +59,36 @@ const ExistingRooms = () => {
     }
   };
 
-  const fetchRoomTypes = async (branchId) => {
+  // const fetchRoomTypes = async (branchId) => {
+  //   try {
+  //     const response = await getRoomTypes(branchId); // Assume this function can take branchId as a parameter
+  //     setRoomTypes(response);
+  //     setFilteredRoomTypes(response); // Update filtered room types based on branch
+  //   } catch (error) {
+  //     console.error("Error fetching room types:", error);
+  //   }
+  // };
+  const fetchRoomTypes = async (branchId = null) => {
     try {
-      const response = await getRoomTypes(branchId); // Assume this function can take branchId as a parameter
-      setRoomTypes(response);
-      setFilteredRoomTypes(response); // Update filtered room types based on branch
+      let response;
+      if (branchId) {
+        response = await getRoomTypes(branchId); // Lấy room types theo branch
+      } else {
+        response = await api.get('/hotel/roomtypes/'); // Lấy toàn bộ room types
+      }
+  
+      if (Array.isArray(response.data)) {
+        setRoomTypes(response.data);
+        setFilteredRoomTypes(response.data); // Set danh sách room types
+      } else {
+        setRoomTypes([]);
+        setFilteredRoomTypes([]);
+      }
     } catch (error) {
       console.error("Error fetching room types:", error);
     }
   };
+  
 
   useEffect(() => {
     if (selectedRoomType === "") {
@@ -139,7 +166,7 @@ const ExistingRooms = () => {
         <p>Loading existing rooms</p>
       ) : (
         <>
-          <section className="mt-5 mb-5 container">
+          <section className="flex-1 p-10 bg-neutral-50">
             <div className="d-flex justify-content-between mb-3 mt-5">
               <h2>Existing Rooms</h2>
             </div>
@@ -161,7 +188,7 @@ const ExistingRooms = () => {
               >
                 <Link
                   to={"/add-room"}
-                  className="btn btn-primary"
+                  className="bg-primary text-white rounded-md py-2 px-4 flex items-center"
                   style={{
                     backgroundColor: "#007bff",
                     borderColor: "#007bff",
@@ -178,28 +205,28 @@ const ExistingRooms = () => {
               </Col>
             </Row>
 
-            <table className="table table-bordered table-hover">
+            <table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
               <thead>
-                <tr className="text-center">
-                  <th>ID</th>
-                  <th>Branch</th>
-                  <th>Room Type</th>
-                  <th>Room Number</th>
-                  <th>Room Price</th>
-                  <th>Available</th>
-                  <th>Actions</th>
+                <tr className="bg-neutral-100 border-b border-neutral-300">
+                  <th className="p-4 text-left">ID</th>
+                  <th className="p-4 text-left">Branch</th>
+                  <th className="p-4 text-left">Room Type</th>
+                  <th className="p-4 text-left">Room Number</th>
+                  <th className="p-4 text-left">Room Price</th>
+                  <th className="p-4 text-left">Available</th>
+                  <th className="p-4 text-left">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {currentRooms.map((room) => (
-                  <tr key={room.id} className="text-center">
-                    <td>{room.id}</td>
-                    <td>{getBranchName(room.branch)}</td>
-                    <td>{getRoomTypeName(room.room_type)}</td>
-                    <td>{room.room_number}</td>
-                    <td>{getRoomTypePrice(room.room_type)}</td>
-                    <td>{room.is_available ? "Yes" : "No"}</td>
+                  <tr key={room.id} className="border-b border-neutral-300 hover:bg-neutral-100">
+                    <td className="p-4">{room.id}</td>
+                    <td className="p-4">{getBranchName(room.branch)}</td>
+                    <td className="p-4">{getRoomTypeName(room.room_type)}</td>
+                    <td className="p-4">{room.room_number}</td>
+                    <td className="p-4">{getRoomTypePrice(room.room_type)}</td>
+                    <td className="p-4">{room.is_available ? "Yes" : "No"}</td>
                     <td className="gap-2">
                       <Link to={`/edit-room/${room.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">

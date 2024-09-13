@@ -24,9 +24,12 @@ const AddCoupon = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(newCoupon)
       const success = await api.post('/hotel/coupon/', newCoupon);
+      console.log(success)
       if (success) {
         setSuccessMessage("A new coupon was added successfully!");
+        await api.post('/hotel/coupon/issue_coupon/', {coupon_id: success.data.id} )
         setNewCoupon({
           code: "",
           type: "percentage",

@@ -16,7 +16,6 @@ import Footer from "./components/layout/Footer"
 import BranchDetail from "./components/branch/branchdetail"
 import RoomSelection from "./components/room/RoomSelection"
 import RoomListing from "./components/room/RoomListing"
-// import RoomSearchResults from "./components/common/RoomSearchResult"
 import Admin from "./components/admin/Admin"
 import ExistingEmployees from "./components/employee/ExistingEmployees"
 import ExistingRooms from "./components/room/ExistingRooms"
@@ -46,43 +45,7 @@ function App() {
 			<BrowserRouter>
 			<MyUserContext.Provider value={user}>
 				<MyDispatchContext.Provider value={dispatch}>
-					{/* <NavBar/>
 					<Routes>
-						<Route path="/" element={<MainLayout><Home /></MainLayout>} /> 
-						<Route path="/edit-room/:roomId" element={<EditRoom />} />
-						<Route path="/existing-rooms" element={<ExistingRooms />} />
-						<Route path="/add-room" element={<AddRoom />} />
-						
-						<Route
-							path="/book-room/:roomId"
-							element={
-								<RequireAuth>
-									<Checkout />
-								</RequireAuth>
-							}
-						/>
-						<Route path="/cart" element={<Checkout/>} />
-
-						<Route path="/browse-all-rooms" element={<RoomListing />} />
-
-						<Route path="/admin" element={<Admin />} />
-						<Route path="/admin1" element={<Sidebar />} />
-
-						<Route path="/booking-success" element={<BookingSuccess />} />
-						<Route path="/existing-bookings" element={<Bookings />} />
-						<Route path="/find-booking" element={<FindBooking />} />
-						<Route path="/hotel/branch/:id"  element={<BranchDetail />}/>
-						<Route path="/hotel/branch/:id/roomtype/:roomname" element={<RoomSelection />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/register" element={<Registration />} />
-
-						<Route path="/profile" element={<Profile />} />
-						<Route path="/logout" element={<FindBooking />} />
-						
-					</Routes>
-					<Footer/> */}
-					<Routes>
-						{/* Routes sử dụng MainLayout */}
 						<Route path="/" element={<MainLayout><Home /></MainLayout>} />
 						<Route path="/browse-all-rooms" element={<MainLayout><RoomListing /></MainLayout>} />
 						<Route path="/booking-success" element={<MainLayout><BookingSuccess /></MainLayout>} />
@@ -94,7 +57,6 @@ function App() {
 						<Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
 						<Route path="/logout" element={<MainLayout><FindBooking /></MainLayout>} />
 
-						{/* Routes sử dụng AdminLayout được bảo vệ bởi RequireAdmin */}
 						<Route path="/admin" element={
 							<RequireAdmin>
 								<AdminLayout><Admin /></AdminLayout>

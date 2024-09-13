@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Branch, RoomType, Room, Booking, Coupon, Feedback
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification
 from userauths.serializers import UserSerializer
 from userauths.models import User
 
@@ -118,3 +118,12 @@ class FeedbackSerializer(serializers.ModelSerializer):
         model = Feedback
         fields = ['id', 'booking', 'branch', 'user', 'rating', 'comment', 'feedback_date', 'response']
         read_only_fields = ['feedback_date', 'response']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'booking', 'type', 'seen', 'date', 'content']

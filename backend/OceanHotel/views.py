@@ -4,10 +4,12 @@ from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
-from .models import Branch, RoomType, Room, Booking, Coupon, Feedback
-from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, BookingSerializer, CouponSerializer, FeedbackSerializer
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification
+from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
+    BookingSerializer, CouponSerializer, FeedbackSerializer, NotificationSerializer
 from rest_framework.response import Response
 from django.conf import settings
+from userauths.models import User
 
 
 class BranchViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -74,6 +76,7 @@ class RoomTypeViewSet(viewsets.ViewSet, generics.CreateAPIView,
         room_type.active = False
         room_type.save()
         return Response({'success': True, 'message': 'Room type has been deactivated.'}, status=status.HTTP_200_OK)
+
 
 class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
                   generics.RetrieveAPIView,
@@ -237,7 +240,8 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         booking = self.get_object()
 
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy trước đó!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy trước đó!'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         booking.is_active = False
         booking.save()
@@ -255,7 +259,8 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
                     coupon.save()
 
             except Coupon.DoesNotExist:
-                return Response({'success': False, 'message': 'Coupon không tồn tại!'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'success': False, 'message': 'Coupon không tồn tại!'},
+                                status=status.HTTP_404_NOT_FOUND)
 
         return Response({'success': True, 'message': 'Booking đã được hủy thành công!'})
 
@@ -263,10 +268,12 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
     def check_in_booking(self, request, pk=None):
         booking = self.get_object()
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if booking.checked_in:
-            return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         booking.checked_in = True
         booking.save()
@@ -276,17 +283,21 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
     def check_out_booking(self, request, pk=None):
         booking = self.get_object()
         if not booking.is_active:
-            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-out.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-out.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if not booking.checked_in:
-            return Response({'success': False, 'message': 'Booking chưa được check-in và không thể check-out.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking chưa được check-in và không thể check-out.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if booking.checked_out:
-            return Response({'success': False, 'message': 'Booking đã được check-out trước đó.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': 'Booking đã được check-out trước đó.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         booking.checked_out = True
         booking.save()
-        return Response({'success': True, 'message': 'Booking đã được check-out thành công.'}, status=status.HTTP_200_OK)
+        return Response({'success': True, 'message': 'Booking đã được check-out thành công.'},
+                        status=status.HTTP_200_OK)
 
 
 class SendEmailViewSet(viewsets.ViewSet):
@@ -304,6 +315,7 @@ class SendEmailViewSet(viewsets.ViewSet):
             return Response({'success': True})
         except Exception as e:
             return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 from django.utils import timezone
 
@@ -361,9 +373,48 @@ class CouponViewSet(viewsets.ViewSet, generics.CreateAPIView,
         coupon.save()
         return Response({'success': True, 'message': 'Coupon has been deactivated.'}, status=status.HTTP_200_OK)
 
+    # Action để phát hành coupon cho tất cả người dùng
+    @action(detail=False, methods=['post'], url_path='issue_coupon')
+    def issue_coupon(self, request):
+        try:
+            # Lấy dữ liệu coupon từ request
+            coupon_id = request.data.get('coupon_id')
+            if not coupon_id:
+                return Response({"error": "Coupon ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            coupon = Coupon.objects.get(id=coupon_id)
+
+            # Lấy tất cả người dùng và phát hành coupon
+            users = User.objects.filter(role=2)
+
+            for user in users:
+                # Tạo một bản sao của coupon cho từng người dùng
+                # new_coupon = Coupon.objects.create(
+                #     code=coupon.code,
+                #     user=user,
+                #     # các trường khác cần thiết, nếu có
+                # )
+
+                # Tạo thông báo cho từng người dùng về coupon được cung cấp
+                Notification.objects.create(
+                    user=user,
+                    type="Coupon Issued",
+                    booking=None,  # Không liên quan đến booking
+                    seen=False,
+                    content=f"Congratulations {user.username}! You've received a coupon. Your coupon code is: {coupon.code}",
+                )
+
+            return Response({"message": "Coupon issued to all users successfully."}, status=status.HTTP_200_OK)
+
+        except Coupon.DoesNotExist:
+            return Response({"error": "Coupon not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class FeedbackViewSet(viewsets.ViewSet, generics.CreateAPIView,
-                    generics.RetrieveAPIView,
-                    generics.ListAPIView):
+                      generics.RetrieveAPIView,
+                      generics.ListAPIView):
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
 
@@ -392,3 +443,34 @@ class FeedbackViewSet(viewsets.ViewSet, generics.CreateAPIView,
             serializer = FeedbackSerializer(feedbacks, many=True)
             return Response(serializer.data)
         return Response({"error": "Branch ID is required."}, status=400)
+
+
+class NotificationViewSet(viewsets.ViewSet, generics.CreateAPIView,
+                          generics.RetrieveAPIView,
+                          generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+    @action(detail=False, methods=['get'])
+    def user_notifications(self, request):
+        if request.user.is_authenticated:
+            notifications = Notification.objects.filter(user=request.user)
+            serializer = self.get_serializer(notifications, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'detail': 'Authentication credentials were not provided.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    @action(detail=True, methods=['patch'])
+    def mark_as_read(self, request, pk=None):
+        try:
+            notification = self.get_object()
+            if notification.user != request.user:
+                return Response({'detail': 'You do not have permission to modify this notification.'},
+                                status=status.HTTP_403_FORBIDDEN)
+            notification.seen = True
+            notification.save()
+            serializer = self.get_serializer(notification)
+            return Response(serializer.data)
+        except Notification.DoesNotExist:
+            return Response({'detail': 'Notification not found.'}, status=status.HTTP_404_NOT_FOUND)

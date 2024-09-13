@@ -63,7 +63,6 @@ const BookingForm = () => {
 					const roomPromises = roomIds.map(id => getRoomById(id));
 					const rooms = await Promise.all(roomPromises);
 					setRoomsInfo(rooms);
-					console.log(roomsInfo)
 					if (roomId) {
 						const response = await getRoomById(roomId);
 						setRoomPrice(response.price);
@@ -94,14 +93,11 @@ const BookingForm = () => {
 								room_type: rooms[0]?.room_type,
 								branch: rooms[0]?.branch
 							}));
-							console.log(booking)
-
 						} else {
 							// Nếu các phòng có room_type hoặc branch khác nhau, hiển thị lỗi
 							setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
 						}
 					}
-					console.log(booking)
 					setIsLoading(false);
 			} catch (error) {
 				setErrorMessage(error);
@@ -209,9 +205,15 @@ const BookingForm = () => {
 
 				recipient: booking.email,
 			  };
-			  console.log(emailData)
 			  // Gửi email xác nhận
-			  await api.post(endpoints['send_email'], emailData);
+			await api.post(endpoints['send_email'], emailData);
+			
+			// Tạo thông báo Booking Confirmed
+			await api.post('/hotel/notification/', {
+				user: user.id,
+				booking: booking.id,  
+				type: 'Booking Confirmed'
+			});
 			setIsSubmitted(true)
 			navigate("/booking-success", { state: { message: confirmationCode } })
 		} catch (error) {

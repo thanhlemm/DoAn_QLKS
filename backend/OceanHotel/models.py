@@ -172,3 +172,23 @@ class Feedback(BaseModel):
 
     class Meta:
         verbose_name_plural = "Feedbacks"
+
+
+NOTIFICATION_TYPE = (
+    ("Booking Confirmed", "Booking Confirmed"),
+    ("Booking Cancelled", "Booking Cancelled"),
+    ("Coupon Issued", "Coupon Issued"),
+    ("Coupon Expired", "Coupon Expired")
+)
+
+
+class Notification(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True)
+    type = models.CharField(max_length=100, choices=NOTIFICATION_TYPE)
+    seen = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
+    content = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.type} - {self.date}"

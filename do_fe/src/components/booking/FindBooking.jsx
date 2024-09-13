@@ -40,51 +40,52 @@ const FindBooking = () => {
 	}
 
 	const handleFormSubmit = async (event) => {
-		event.preventDefault()
-		setIsLoading(true)
-
+		event.preventDefault();
+		setIsLoading(true);
+	
 		try {
-			const data = await getBookingByConfirmationCode(confirmationCode)
-			console.log('Booking Data:', data);
-
-			setBookingInfo(data)
-			setError(null)
-
-			const rt = await authAPI().get(endpoints.roomtypeById(data.room_type))
-			setRoomType(rt.data)
-
-			// const rooms = data.rooms || [];
-			// const roomDetails = await Promise.all(rooms.map(roomId => getRoomById(roomId)));
-        	// setRoom(roomDetails);
-			const roomIds = Array.isArray(data.room) ? data.room : [data.room]
-
-			const fetchRooms = async (roomIds) => {
-				const rooms = await Promise.all(roomIds.map(async id => {
-					const response = await getRoomById(id);
-					return response;
-				}));
-				return rooms;
-			};
-			
-
-			const roomsData = await fetchRooms(roomIds);
-			setRoom(roomsData);
-			console.log(roomsData);
-		} catch (error) {
-			setBookingInfo(emptyBookingInfo)
-			if (error.response && error.response.status === 404) {
-				setError(error.response.data.message)
+			const data = await getBookingByConfirmationCode(confirmationCode);	
+			// Check if the booking is active
+			if (!data.is_active) {
+				setError('Booking not found or is cancelled.');
+				setBookingInfo(emptyBookingInfo);
+				setRoom([]);
 			} else {
-				setError(error.message)
+				setBookingInfo(data);
+				setError(null);
+	
+				const rt = await authAPI().get(endpoints.roomtypeById(data.room_type));
+				setRoomType(rt.data);
+	
+				const roomIds = Array.isArray(data.room) ? data.room : [data.room];
+	
+				const fetchRooms = async (roomIds) => {
+					const rooms = await Promise.all(roomIds.map(async id => {
+						const response = await getRoomById(id);
+						return response;
+					}));
+					return rooms;
+				};
+	
+				const roomsData = await fetchRooms(roomIds);
+				setRoom(roomsData);
+			}
+		} catch (error) {
+			setBookingInfo(emptyBookingInfo);
+			if (error.response && error.response.status === 404) {
+				setError('Booking not found.');
+			} else {
+				setError(error.message);
 			}
 		}
-
-		setTimeout(() => setIsLoading(false), 2000)
+	
+		setTimeout(() => setIsLoading(false), 2000);
 	}
+	
 
 	const handleBookingCancellation = async (bookingId) => {
 		try {
-			await cancelBooking(bookingInfo.id)
+			await cancelBooking(bookingId)
 			setIsDeleted(true)
 			setSuccessMessage("Booking has been cancelled successfully!")
 			setBookingInfo(emptyBookingInfo)
