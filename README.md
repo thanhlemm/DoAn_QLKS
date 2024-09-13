@@ -4,6 +4,44 @@ Mục tiêu chính của đồ án là xây dựng một hệ thống quản lý
 
 Hệ thống được phát triển bằng Python Django (backend), MySQL để lưu trữ dữ liệu  và ReactJS (frontend) nhằm dễ sử dụng và linh hoạt cho admin, khách hàng và các nhân viên.
 
+## Features
+
+### 👤 Customer
+
+- **📝 Đăng ký:** Đăng ký tài khoản bằng các thông tin cá nhân.
+- **🔐 Đăng nhập:** Đăng nhập bằng tài khoản trên hệ thống hoặc bằng Google và Facebook.
+- **👤 Profile :** Cập nhật thông tin cá nhân hoặc tạo/đổi mật khẩu.
+- **🔔 Notifications:** Nhận thông báo về các phiếu đặt phòng và mã giảm giá.
+- **💬 Rating:** Sau khi đặt phòng có thể đánh giá về chi nhánh đó.
+- **🗓️ Đặt phòng trực tuyến**
+- **💸 Thanh toán trực tuyến:** Có thể thánh toán qua VNPay.
+- **🛒 Thêm phòng vào giỏ hàng**
+- **💬 Nhắn tin:** Khách hàng có thể nhắn tin với lễ tân của chi nhánh để được tư vấn.
+
+
+
+### 🏨 Receptionist
+- **📝 Check in:** Khi khách hàng đến nhận phòng thì vào hệ thống nhấn checkin .
+- **📝 Check out:** Khi khách hàng trả phòng thì vào hệ thống nhấn checkout.
+- **⚙️ Quản lý booking**
+- **🗓️ Đặt phòng:** Khi khách hàng chưa đặt phòng online.
+- **💬 Nhắn tin:** Nhắn tin để tư vấn cho khách hàng.
+
+
+### 🛠️ Admin
+
+- **👥 Quản lý nhân viên** 
+- **🛌 Quản lý loại phòng** 
+- **🛌 Quản lý phòng** 
+- **🏷️ Quản lý mã giảm giá** 
+
+## 🛠️ Technologies Used
+
+- **Backend:** Django, MySQL
+- **Frontend:** ReactJs, Bootstrap
+- **Authentication:** OAuth 2.0 (Google, Facebook)
+- **Messaging:** WebSockets
+
 ## Hình ảnh website
 
 ## Cài Đặt và Sử Dụng
