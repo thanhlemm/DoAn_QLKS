@@ -48,7 +48,7 @@ body {
   color: rgb(25, 24, 24);
 }
 
- @media screen and (min-width: 992px){
+ @media screen and (max-width: 992px){
   .navbar{
   padding: 0;
   background-color: rgba(0, 0, 0, 0.5) !important;
@@ -88,8 +88,8 @@ body {
     font-size:medium;
   }
   .vertical-rule{
-    border-left: '0.5px solid black';
-    height: '100vh'
+    border-left: 0.5px solid black;
+    height: 100vh
   }
 
 
@@ -254,10 +254,6 @@ body {
 
 .shadow {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
-}
-
-.hotel-color {
-  color: rgb(169, 77, 123) !important;
 }
 
 .star-rating {

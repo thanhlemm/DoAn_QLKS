@@ -108,17 +108,11 @@ const Checkout = () => {
 										<tbody>
 											<tr>
 												<th>Room Type:</th>
-												<td>{roomInfo.room_type?.type}</td>
+												<td>{getRoomTypeName(roomInfo.room_type)}</td>
 											</tr>
 											<tr>
 												<th>Price per night:</th>
 												<td>${roomInfo.price}</td>
-											</tr>
-											<tr>
-												<th>Room Service:</th>
-												<td>
-													{/* Các dịch vụ phòng hiển thị tại đây */}
-												</td>
 											</tr>
 										</tbody>
 									</table>
@@ -145,7 +139,8 @@ const Checkout = () => {
 										<tr>
 											<td colSpan="2">
 												<button
-													className="btn btn-danger btn-sm"
+													className="btn btn-sm"
+													style={{backgroundColor:"#C40000"}}
 													onClick={() => handleRemoveRoom(room.id)}
 												>
 													<FaTrash />

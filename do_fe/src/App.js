@@ -37,6 +37,7 @@ import RequireAdmin from "./components/auth/RequireAdmin"
 import RequireReceptionist from "./components/auth/RequireReceptionist"
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import "./App.css"
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
