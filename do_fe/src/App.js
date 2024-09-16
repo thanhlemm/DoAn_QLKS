@@ -37,6 +37,8 @@ import RequireAdmin from "./components/auth/RequireAdmin"
 import RequireReceptionist from "./components/auth/RequireReceptionist"
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import ReceptionistLayout from './components/layout/ReceptionistLayout'
+import Receptionist from './components/receptionist/Receptionist'
 import "./App.css"
 
 function App() {
@@ -139,6 +141,12 @@ function App() {
 							<RequireAuth>
 								<MainLayout><Checkout /></MainLayout>
 							</RequireAuth>
+						} />
+
+						<Route path='/receptionist' element={
+							<RequireReceptionist>
+								<ReceptionistLayout><Receptionist /></ReceptionistLayout>
+							</RequireReceptionist>
 						} />
 					</Routes>
 				</MyDispatchContext.Provider>

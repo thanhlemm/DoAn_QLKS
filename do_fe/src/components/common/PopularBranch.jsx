@@ -4,6 +4,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { getAllBranches } from "../utils/ApiFunctions";
+import { FaMapMarkerAlt } from "react-icons/fa";
+
 
 const PopularBranch = () => {
     const [branches, setBranches] = useState([]);
@@ -52,7 +54,7 @@ const PopularBranch = () => {
                                 </Link>
                                 <Card.Body>
                                     <Card.Title className="hotel-color">{branch.name}</Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted">{branch.address}</Card.Subtitle>
+                                    <Card.Subtitle className="mb-2 text-muted"><i class="fa fa-location-arrow" aria-hidden="true"></i>{branch.address}</Card.Subtitle>
                                     <Card.Text as="div">
                                         <div className="mb-2">
                                             <i className="fa fa-phone"></i> {branch.phone}
@@ -60,7 +62,7 @@ const PopularBranch = () => {
                                         <div className="mb-2">
                                             <i className="fa fa-envelope"></i> {branch.email}
                                         </div>
-                                        <div className="d-flex align-items-center">
+                                        <div className="mb-2">
                                             <div className="star-rating">⭐️{branch.average_rating.toFixed(1)}/5</div>
                                             {/* <div className="ml-4"><i className="fa fa-eye"></i> {branch.views}</div> */}
                                         </div>

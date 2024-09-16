@@ -13,10 +13,13 @@ body {
 .card {
   opacity: 0.9;
 }
+.card-body{
+  text-align: left;
+}
 
 /* Navigation bar definitions */
- .navbar{
-  padding: 0;
+ /* .navbar{
+  padding: 2rem;
  }
  .navbar .navbar-nav .nav-link{
   padding: 1em;
@@ -50,7 +53,7 @@ body {
 
  @media screen and (max-width: 992px){
   .navbar{
-  padding: 0;
+  padding: 2rem;
   background-color: rgba(0, 0, 0, 0.5) !important;
  }
  .navbar .navbar-nav .nav-link{
@@ -59,7 +62,7 @@ body {
  .navbar .navbar-nav .nav-item{
   margin: 0 1em;
  }
- }
+ } */
 
  
 
@@ -258,6 +261,7 @@ body {
 
 .star-rating {
   color: gold;
+  font-weight: bold ;
 }
 
 /* Căn giữa tiêu đề và đoạn văn trong section */

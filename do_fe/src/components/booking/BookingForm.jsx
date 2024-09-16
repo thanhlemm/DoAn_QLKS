@@ -234,7 +234,7 @@ const BookingForm = () => {
 							<Form noValidate validated={validated} onSubmit={handleSubmit}>
 								<Form.Group>
 									<Form.Label htmlFor="guestFirstName" className="hotel-color">
-										FirstName
+										First Name
 									</Form.Label>
 									<FormControl
 										required
@@ -251,7 +251,7 @@ const BookingForm = () => {
 								</Form.Group>
 								<Form.Group>
 									<Form.Label htmlFor="guestLasttName" className="hotel-color">
-										LastName
+										Last Name
 									</Form.Label>
 									<FormControl
 										required

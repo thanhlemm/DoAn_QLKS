@@ -68,6 +68,8 @@ const Login = () => {
 
 				if (userdata.data.role && userdata.data.role.name === "Admin") {
                     navigate("/admin", { replace: true });
+                } else if (userdata.data.role && userdata.data.role.name === "Lễ tân") {
+                    navigate("/receptionist", { replace: true });
                 } else {
                     navigate("/", { replace: true }); // Redirect to the home page for non-admin users
                 }

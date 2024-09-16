@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col } from "react-bootstrap";
-import  { getAllRooms, getRoomTypes } from "../utils/ApiFunctions";
+import  { getAllRooms, getRoomTypes, api } from "../utils/ApiFunctions";
 import { Link } from "react-router-dom";
 
 const RoomCard = ({ room }) => {
   const [roomTypes, setRoomTypes] = useState([]);
+  const [branch, setBranch] = useState([]);
 
   useEffect(() => {
 		fetchRoomTypes();
-	  }, []);
+	  fetchBranch(room.branch);  // Fetch branch based on room's branch ID
+  }, [room.branch]);
 
   const fetchRoomTypes = async () => {
 		try {
@@ -18,6 +20,14 @@ const RoomCard = ({ room }) => {
 		  console.error("Error fetching room types:", error);
 		}
 	  };
+    const fetchBranch = async (id) => {
+      try {
+        const response = await api.get(`/hotel/branch/${id}/`);
+        setBranch(response.data);
+      } catch (error) {
+        console.error("Error fetching room branch:", error);
+      }
+      };
     const getRoomTypeImage = (id) => {
       const roomType = roomTypes.find(type => type.id === id);
       return roomType ? `${roomType.image}` : 'Unknown';
@@ -41,7 +51,7 @@ const RoomCard = ({ room }) => {
           </Link>
         </div>
         <Card.Body className="room-details">
-          <Card.Title className="room-type">{room.branch?.name}</Card.Title>
+          <Card.Title className="room-type">{branch.name}</Card.Title>
           {/* <Card.Text className="room-price">{`Price: ${room.roomType.price}`}</Card.Text> */}
           <Card.Text className="room-type">Loại phòng: {getRoomTypeName(room.room_type)}</Card.Text>
           <Card.Text className="room-type">Số phòng: {room.room_number}</Card.Text>

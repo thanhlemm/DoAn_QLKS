@@ -5,6 +5,9 @@
   text-align: center;
 }
 
+a {
+  text-decoration: inherit;
+}
 
 .logo {
   height: 6em;
@@ -35,7 +38,7 @@
 }
 
 .card {
-  padding: 2em;
+  padding: 0;
 }
 
 .read-the-docs {
@@ -97,9 +100,10 @@
 }
 
 .room-type {
-  font-size: 1.25rem;
+  /* font-size: 1.25rem; */
   font-weight: bold;
   color: #333;
+  
 }
 
 .room-price {
@@ -249,7 +253,7 @@
 
  @media screen and (min-width: 992px){
   .navbar{
-  padding: 0;
+  padding: 2rem;
   /* background-color: rgba(0, 0, 0, 0.5) !important; */
  }
  .navbar .navbar-nav .nav-link{

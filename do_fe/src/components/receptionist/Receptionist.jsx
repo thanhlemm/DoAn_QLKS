@@ -1,6 +1,6 @@
 import React from "react"
-import Header from "./Header"
-const Admin = () => {
+import Header from "../admin/Header"
+const Receptionist = () => {
 
 	return (
 		<div>
@@ -11,4 +11,4 @@ const Admin = () => {
 
 }
 
-export default Admin
+export default Receptionist
