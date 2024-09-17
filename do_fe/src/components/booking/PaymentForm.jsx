@@ -38,9 +38,10 @@ const PaymentForm = () => {
                     'X-CSRFToken': csrftoken                }
             });
             console.log('Payment form submitted successfully', response);
-
+            const bookingId = localStorage.getItem('bookingId');           
+            console.log(bookingId)
             if (response.data) {
-                localStorage.setItem('bookingId', booking.id);
+            
                 window.location.href = response.data;
               
              } 
@@ -49,21 +50,7 @@ const PaymentForm = () => {
         }
     };
 
-    const updateBookingStatus = async (bookingId, status) => {
-        try {
-            await api.post(`/hotel/booking/${bookingId}/change-status/`, {
-                payment_status: status
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                }
-            });
-        } catch (error) {
-            console.error('Error updating booking status:', error);
-        }
-    };
-
+    
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const result = queryParams.get('vnp_TransactionStatus');
