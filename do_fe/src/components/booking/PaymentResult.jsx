@@ -7,8 +7,7 @@ const PaymentResult = () => {
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
-        console.log('Location search:', location.search); // Debugging line
-        console.log('Query Parameters:', queryParams.toString()); // Debugging line
+        
         const result = queryParams.get('vnp_TransactionStatus');
         if (result) {
             setPaymentResult({

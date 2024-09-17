@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-
-
+import { useNavigate, useLocation } from "react-router-dom";
 import {  api, endpoints } from "../utils/ApiFunctions"
 import Cookies from 'react-cookies';
 import PaymentResult from './PaymentResult';
@@ -9,8 +7,9 @@ import PaymentResult from './PaymentResult';
 const PaymentForm = () => {
     const [paymentResult, setPaymentResult] = useState(null);
     const location = useLocation();
+    const navigate = useNavigate();
 
-    const { booking, payment } = location.state || {};
+    const { booking, payment, onConfirm } = location.state || {};
     const [formData, setFormData] = useState({
         order_type: 'topup',
         order_id: new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14),
@@ -44,6 +43,8 @@ const PaymentForm = () => {
             if (response.data) {
                 // Redirect to VNPay payment gateway URL
                 window.location.href = response.data;
+                onConfirm();
+                setTimeout(() => navigate('/booking-success'), 5000);
              } 
         } catch (error) {
             console.error('Error submitting payment form:', error);
