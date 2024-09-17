@@ -12,9 +12,6 @@ const PaymentResult = () => {
         
         const result = queryParams.get('vnp_TransactionStatus');
 
-        const savedBooking = JSON.parse(sessionStorage.getItem('booking'));
-        const savedPayment = sessionStorage.getItem('payment');
-        const savedOnConfirm = sessionStorage.getItem('onConfirm');
         if (result) {
             const isSuccess = result === '00';
             setPaymentResult({
@@ -27,20 +24,6 @@ const PaymentResult = () => {
                 vnpResponseCode: queryParams.get('vnp_ResponseCode'),
                 msg: queryParams.get('vnp_Message') || "No message provided"
             });
-            if (isSuccess && savedOnConfirm) {
-                // Call onConfirm if it exists
-                try {
-                    const onConfirm = new Function('return ' + savedOnConfirm)();
-                    onConfirm();
-                } catch (error) {
-                    console.error('Error calling onConfirm:', error);
-                }
-                // Redirect to booking success page
-                setTimeout(() => navigate('/booking-success'), 3000);
-            } else {
-                // Handle failure case
-                setTimeout(() => navigate('/booking-failure'), 3000);
-            }
         }
     }, [location.search]);
 
