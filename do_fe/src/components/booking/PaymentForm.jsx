@@ -38,8 +38,6 @@ const PaymentForm = () => {
                     'X-CSRFToken': csrftoken                }
             });
             console.log('Payment form submitted successfully', response);
-            const bookingId = localStorage.getItem('bookingId');           
-            console.log(bookingId)
             if (response.data) {
             
                 window.location.href = response.data;

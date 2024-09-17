@@ -19,6 +19,7 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 			// setIsBookingConfirmed(true)
 			onConfirm()
 			localStorage.setItem('bookingId', booking.id);
+			console.log(booking.id)
 			navigate("/payment-form", { state: { booking, payment} });
 		}, 3000)
 	}
