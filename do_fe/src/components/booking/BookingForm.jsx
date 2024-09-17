@@ -201,10 +201,32 @@ const BookingForm = () => {
 			// Tạo dữ liệu email
 			const emailData = {
 				subject: 'Booking Confirmation',
-				message: `Your booking is confirmed. Your confirmation code is ${confirmationCode.confirmationCode}`,
+				message: `
+					Dear Customer,
+			
+					Your booking has been successfully confirmed. Here are the details of your reservation:
+			
+					- **Confirmation Code:** ${confirmationCode.confirmationCode}
+					- **Check-in Date:** ${confirmationCode.check_in_date}
+					- **Check-out Date:** ${confirmationCode.check_out_date}
+					- **Room Type:** ${confirmationCode.room_type} (Please specify if you have more details on room type)
+					- **Total Payment:** $${confirmationCode.total}
+					- **Discount Applied:** $${confirmationCode.before_discount - confirmationCode.total} (if applicable, else you can set it to 0)
+					- **Phone Number:** ${confirmationCode.phone}
+					- **Email:** ${confirmationCode.email}
 
+					This is an unpaid booking. If you have already paid, please go to the front desk to show the receipt before checking in.
+					If you have any questions or need further assistance, please contact us.
+			
+					Thank you for choosing our service.
+			
+					Best regards,
+					[Your Company Name]
+					[Contact Information]
+				`,
 				recipient: booking.email,
-			  };
+			};
+			
 			  // Gửi email xác nhận
 			await api.post(endpoints['send_email'], emailData);
 			
@@ -212,10 +234,10 @@ const BookingForm = () => {
 			await api.post('/hotel/notification/', {
 				user: user.id,
 				booking: booking.id,  
-				type: 'Booking Confirmed'
+				type: "Booking Confirmed"
 			});
 			setIsSubmitted(true)
-			navigate("/booking-success", { state: { message: confirmationCode } })
+			// navigate("/booking-success", { state: { message: confirmationCode } })
 		} catch (error) {
 			const errorMessage = error.message
 			console.log(errorMessage)
