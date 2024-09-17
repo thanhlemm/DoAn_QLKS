@@ -197,9 +197,10 @@ const BookingForm = () => {
 		try {
 
 			const confirmationCode = await bookRoom(booking, couponCode)
+			console.log(confirmationCode)
 			localStorage.setItem('bookingId', confirmationCode.id);
-
-			// Tạo dữ liệu email
+			const bookingID = localStorage.getItem('bookingId'); // Lấy booking ID từ localStorage
+			console.log(bookingID);			// Tạo dữ liệu email
 			const emailData = {
 				subject: 'Booking Confirmation',
 				message: `
