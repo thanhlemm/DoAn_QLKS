@@ -40,6 +40,7 @@ const PaymentForm = () => {
             console.log('Payment form submitted successfully', response);
 
             if (response.data) {
+                localStorage.setItem('bookingId', booking.id);
                 window.location.href = response.data;
               
              } 
@@ -48,10 +49,26 @@ const PaymentForm = () => {
         }
     };
 
+    const updateBookingStatus = async (bookingId, status) => {
+        try {
+            await api.post(`/hotel/booking/${bookingId}/change-status/`, {
+                payment_status: status
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            });
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+        }
+    };
+
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const result = queryParams.get('vnp_TransactionStatus');
         if (result) {
+            const isSuccess = result === '00';
             setPaymentResult({
                 title: result === '00' ? "Payment Success" : "Payment Failure",
                 result: result === '00' ? "Success" : "Failed",
@@ -64,6 +81,8 @@ const PaymentForm = () => {
             });
         }
     }, [location.search]);
+
+    
 
     return (
         <div className="container">

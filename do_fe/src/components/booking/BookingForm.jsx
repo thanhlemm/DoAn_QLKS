@@ -32,6 +32,7 @@ const BookingForm = () => {
 		total: 0,
 		saved: 0,
 		total_days: 0,
+		payment_status: "unpaid"
 	})
 
 	const { roomId } = useParams()
@@ -229,11 +230,11 @@ const BookingForm = () => {
 			
 			  // Gửi email xác nhận
 			await api.post(endpoints['send_email'], emailData);
-			
+
 			// Tạo thông báo Booking Confirmed
 			await api.post('/hotel/notification/', {
 				user: user.id,
-				booking: booking.id,  
+				booking: confirmationCode.id,  
 				type: "Booking Confirmed"
 			});
 			setIsSubmitted(true)

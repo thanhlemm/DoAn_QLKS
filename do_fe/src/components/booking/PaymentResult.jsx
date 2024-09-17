@@ -1,11 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { api } from '../utils/ApiFunctions'; // Đảm bảo bạn có sẵn phương thức này
+import Cookies from 'react-cookies';
 
 const PaymentResult = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
     const [paymentResult, setPaymentResult] = useState(null);
+    const csrftoken = Cookies.load('csrftoken');
+
+
+    const updateBookingStatus = async (bookingId, status) => {
+        try {
+            await api.post(`/hotel/booking/${bookingId}/change-status/`, {
+                payment_status: status
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            });
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+        }
+    };
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -24,6 +43,13 @@ const PaymentResult = () => {
                 vnpResponseCode: queryParams.get('vnp_ResponseCode'),
                 msg: queryParams.get('vnp_Message') || "No message provided"
             });
+
+            const bookingId = localStorage.getItem('bookingId');
+            if (isSuccess && bookingId) {
+                updateBookingStatus(bookingId, 'paid');
+                // Sau khi cập nhật trạng thái thành công, có thể xóa `bookingId` khỏi localStorage
+                localStorage.removeItem('bookingId');
+            }
         }
     }, [location.search]);
 
