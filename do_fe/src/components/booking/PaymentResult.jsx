@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const PaymentResult = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+
     const [paymentResult, setPaymentResult] = useState(null);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         
         const result = queryParams.get('vnp_TransactionStatus');
+
+        const savedBooking = JSON.parse(sessionStorage.getItem('booking'));
+        const savedPayment = sessionStorage.getItem('payment');
+        const savedOnConfirm = sessionStorage.getItem('onConfirm');
         if (result) {
+            const isSuccess = result === '00';
             setPaymentResult({
                 title: result === '00' ? "Payment Success" : "Payment Failure",
                 result: result === '00' ? "Success" : "Failed",
@@ -20,6 +27,20 @@ const PaymentResult = () => {
                 vnpResponseCode: queryParams.get('vnp_ResponseCode'),
                 msg: queryParams.get('vnp_Message') || "No message provided"
             });
+            if (isSuccess && savedOnConfirm) {
+                // Call onConfirm if it exists
+                try {
+                    const onConfirm = new Function('return ' + savedOnConfirm)();
+                    onConfirm();
+                } catch (error) {
+                    console.error('Error calling onConfirm:', error);
+                }
+                // Redirect to booking success page
+                setTimeout(() => navigate('/booking-success'), 3000);
+            } else {
+                // Handle failure case
+                setTimeout(() => navigate('/booking-failure'), 3000);
+            }
         }
     }, [location.search]);
 

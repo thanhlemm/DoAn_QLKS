@@ -42,9 +42,12 @@ const PaymentForm = () => {
 
             if (response.data) {
                 // Redirect to VNPay payment gateway URL
+                sessionStorage.setItem('booking', JSON.stringify(booking));
+                sessionStorage.setItem('payment', payment);
+                sessionStorage.setItem('onConfirm', JSON.stringify(onConfirm.toString()));
+
                 window.location.href = response.data;
-                onConfirm();
-                setTimeout(() => navigate('/booking-success'), 5000);
+              
              } 
         } catch (error) {
             console.error('Error submitting payment form:', error);
