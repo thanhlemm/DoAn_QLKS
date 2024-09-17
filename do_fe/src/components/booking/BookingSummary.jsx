@@ -16,8 +16,9 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 		setIsProcessingPayment(true)
 		setTimeout(() => {
 			setIsProcessingPayment(false)
-			setIsBookingConfirmed(true)
-			onConfirm()
+			// setIsBookingConfirmed(true)
+			// onConfirm()
+			navigate("/payment-form", { state: { booking, payment } });
 		}, 3000)
 	}
 
@@ -30,7 +31,7 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 	return (
 		<div className="row">
 			<div className="col-md-6"></div>
-			<div className="card card-body mt-5">
+			<div className="card card-body mt-5 p-4">
 				<h4 className="card-title hotel-color">Reservation Summary</h4>
 				<p>
 					Email: <strong>{booking.email}</strong>

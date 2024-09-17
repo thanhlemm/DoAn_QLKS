@@ -39,6 +39,9 @@ import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import ReceptionistLayout from './components/layout/ReceptionistLayout'
 import Receptionist from './components/receptionist/Receptionist'
+import PaymentForm from './components/booking/PaymentForm'
+import PaymentResult from './components/booking/PaymentResult'
+
 import "./App.css"
 
 function App() {
@@ -59,6 +62,8 @@ function App() {
 						<Route path="/register" element={<MainLayout><Registration /></MainLayout>} />
 						<Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
 						<Route path="/logout" element={<MainLayout><FindBooking /></MainLayout>} />
+						<Route path="/payment-form" element={<MainLayout><PaymentForm /></MainLayout>} />
+						<Route path="/payment-result" element={<MainLayout><PaymentResult /></MainLayout>} />
 
 						<Route path="/admin" element={
 							<RequireAdmin>

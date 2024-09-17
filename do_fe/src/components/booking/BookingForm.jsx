@@ -228,7 +228,7 @@ const BookingForm = () => {
 			<div className="container mb-5">
 				<div className="row">
 					<div className="col-md-6">
-						<div className="card card-body mt-5">
+						<div className="card card-body mt-5 p-4">
 							<h4 className="card-title">Booking</h4>
 
 							<Form noValidate validated={validated} onSubmit={handleSubmit}>
