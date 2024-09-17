@@ -2,6 +2,8 @@ from rest_framework import routers
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from .payment import PaymentViewSet
+
 #
 
 r = routers.DefaultRouter()
@@ -13,6 +15,8 @@ r.register(r'sendemail', views.SendEmailViewSet, basename='sendemail')
 r.register(r'coupon', views.CouponViewSet, basename='coupon')
 r.register(r'feedback', views.FeedbackViewSet, basename='feedback')
 r.register(r'notification', views.NotificationViewSet, basename='notification')
+r.register(r'payment', PaymentViewSet, basename='payment')
+
 
 urlpatterns = [
     path('', include(r.urls)),
