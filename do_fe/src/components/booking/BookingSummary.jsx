@@ -17,8 +17,8 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 		setTimeout(() => {
 			setIsProcessingPayment(false)
 			// setIsBookingConfirmed(true)
-			// onConfirm()
-			navigate("/payment-form", { state: { booking, payment, onConfirm } });
+			onConfirm()
+			navigate("/payment-form", { state: { booking, payment} });
 		}, 3000)
 	}
 
