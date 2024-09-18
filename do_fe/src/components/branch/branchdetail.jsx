@@ -7,58 +7,6 @@ import { getBranchDetails, getRoomTypesByBranchId, checkRoomAvailability } from 
 import Header from "../common/Header";
 import BranchFeedback from './BranchFeedback';
 
-const Container = styled.div`
-  max-width: 100%;
-  margin: 0 auto;
-`;
-
-const BranchImage = styled.img`
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  margin-bottom: 20px;
-`;
-
-const BranchInfo = styled.div`
-  text-align: left;
-  width: 80%;
-  margin-left: 50px;
-  margin-top: -200px;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.h1`
-  margin-bottom: 10px;
-  color: white;
-
-`;
-
-const Address = styled.p`
-  margin: 0;
-  color: gray;
-  color: white;
-
-`;
-
-const Contact = styled.div`
-  margin-top: 10px;
-  font-size: 0.9em;
-  color: white;
-`;
-
-const Tags = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
-`;
-
-const Tag = styled.span`
-  background-color: purple;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  margin-right: 5px;
-  font-size: 12px;
-`;
 
 const BranchDetail = () => {
   const { id } = useParams();
@@ -219,5 +167,56 @@ const BranchDetail = () => {
     </Container>
   );
 };
+const Container = styled.div`
+  max-width: 100%;
+  margin: 0 auto;
+`;
 
+const BranchImage = styled.img`
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  margin-bottom: 20px;
+`;
+
+const BranchInfo = styled.div`
+  text-align: left;
+  width: 80%;
+  margin-left: 50px;
+  margin-top: -200px;
+  margin-bottom: 20px;
+`;
+
+const Title = styled.h1`
+  margin-bottom: 10px;
+  color: white;
+
+`;
+
+const Address = styled.p`
+  margin: 0;
+  color: gray;
+  color: white;
+
+`;
+
+const Contact = styled.div`
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: white;
+`;
+
+const Tags = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+`;
+
+const Tag = styled.span`
+  background-color: purple;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-right: 5px;
+  font-size: 12px;
+`;
 export default BranchDetail;

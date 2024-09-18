@@ -10,6 +10,7 @@ from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, R
 from rest_framework.response import Response
 from django.conf import settings
 from userauths.models import User
+from rest_framework import status as drf_status
 
 
 class BranchViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -298,6 +299,37 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         booking.save()
         return Response({'success': True, 'message': 'Booking đã được check-out thành công.'},
                         status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='change-status')
+    def change_status(self, request, pk=None):
+        try:
+            booking = Booking.objects.get(id=pk)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found."}, status=drf_status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('payment_status')
+
+        # valid_statuses = [status[0] for status in Booking.PAYMENT_STATUS]  # Lấy danh sách các giá trị hợp lệ
+        # if new_status not in valid_statuses:
+        #     return Response({"error": "Invalid status"}, status=drf_status.HTTP_400_BAD_REQUEST)
+
+        booking.payment_status = new_status
+        booking.save()
+
+        return Response({"message": "Booking payment status updated successfully", "status": new_status},
+                        status=drf_status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='checked-out-unpaid')
+    def get_checked_out_unpaid_bookings(self, request):
+        checked_out_bookings = Booking.objects.filter(checked_out=True, is_active=True, payment_status='unpaid')
+        serializer = BookingSerializer(checked_out_bookings, many=True)
+        return Response(serializer.data, status=drf_status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='checked-out')
+    def get_checked_out_bookings(self, request):
+        checked_out_bookings = Booking.objects.filter(checked_out=False, is_active=True)
+        serializer = BookingSerializer(checked_out_bookings, many=True)
+        return Response(serializer.data, status=drf_status.HTTP_200_OK)
 
 
 class SendEmailViewSet(viewsets.ViewSet):

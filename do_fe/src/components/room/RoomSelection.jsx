@@ -90,20 +90,6 @@ const RoomSelection = () => {
     }));
   };
 
-  // const handleCheckAvailability = async() => {
-  //   const { checkin, checkout, roomType } = bookingDetails;
-
-  //   if (id && roomType && checkin && checkout) {
-  //     try {
-  //       await fetchAvailableRooms()
-  //     } catch (error) {
-  //       alert('Failed to check room availability');
-  //     }
-  //   } else {
-  //     alert('Please fill in all fields');
-  //   }
-  // };
-
   
   const loadSelectionData = () => {
     // Lấy dữ liệu giỏ hàng của user từ localStorage
@@ -240,6 +226,10 @@ const RoomSelection = () => {
 			navigate("/booking-success", { state: { error: errorMessage } })
 		}
 	}
+  const getRoomTypeCapicity = (id) => {
+    const roomType = roomTypes.find(type => type.id === id);
+    return roomType ? `${roomType.room_capacity}` : 'Unknown';
+  };
 
   return (
         <Container >
@@ -257,7 +247,7 @@ const RoomSelection = () => {
                     <Card.Text>
                         <span className="text-2xl font-bold">${room.price} <span className="text-muted">/Per Night</span></span><br />
                         Beds: {room.number_of_beds}<br />
-                        Room Capacity: {room.room_type.room_capacity}
+                        Room Capacity: {getRoomTypeCapicity(room.room_type)}
                     </Card.Text>
                     <Button 
                       variant="primary" 

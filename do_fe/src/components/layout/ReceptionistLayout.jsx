@@ -1,47 +1,31 @@
-// import React from 'react';
-// import { Outlet } from "react-router-dom";
-
-// import Sidebar from "../receptionist/Sidebar"
-// import Main from "../Container/Main"
-// import Header from "../admin/Header"
-// import Content from "../Container/Content"
-
-// const ReceptionistLayout = ({children}) => {
-//   return (
-//       <div className="shadow-lg rounded-lg bg-neutral-50 flex">
-// 			<Sidebar />
-// 			<Main>
-// 				<Content>
-//           {children}
-// 				</Content>
-// 			</Main>
-// 		</div>
-
-        
-//   );
-// };
-
-// export default ReceptionistLayout;
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import { Link } from "react-router-dom"
+
 
 const ReceptionistLayout = ({children}) => (
   <div css={containerStyle}>
     <div css={mainContainerStyle}>
       <nav css={navStyle}>
-        <h2 css={navHeaderStyle}>Lễ tân</h2>
+        <Link to={"/receptionist"}>
+          <h2 css={navHeaderStyle}>Lễ tân</h2>
+        </Link>
         <ul css={navListStyle}>
           <li>
-            <button css={buttonStyle}>Đặt Phòng</button>
+            <Link  to="/existing-bookings">
+            <button css={buttonStyle}>Check in/Check out</button>
+            </Link>
           </li>
           <li>
-            <button css={buttonStyle}>Thanh Toán</button>
+          <Link  to="/payment-bookings">
+            <button css={buttonStyle}>Pay</button>
+          </Link>
           </li>
           <li>
-            <button css={buttonStyle}>Hoá Đơn</button>
+            <button css={buttonStyle}>Bill</button>
           </li>
           <li>
-            <button css={buttonStyle}>Nhắn Tin</button>
+            <button css={buttonStyle}>Message</button>
           </li>
         </ul>
       </nav>
@@ -55,8 +39,8 @@ const ReceptionistLayout = ({children}) => (
 const containerStyle = css`
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100vh;
+  // width: 100vw;
+  // height: 100vh;
   align-items: center;
   justify-content: center;
   background-color: #9ca3af;
@@ -67,14 +51,14 @@ const mainContainerStyle = css`
   width: 100%;
   height: 100%;
   background-color: #fff;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   display: flex;
 `;
 
 const navStyle = css`
   width: 250px;
   background-color: #fff;
-  height: 100%;
+  height: 1300px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -87,6 +71,7 @@ const navHeaderStyle = css`
   line-height: 36px;
   font-weight: 700;
   margin-bottom: 24px;
+  color: #333;
 `;
 
 const navListStyle = css`

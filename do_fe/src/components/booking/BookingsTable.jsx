@@ -64,8 +64,9 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const handleCheckIn = async (bookingId) => {
         try {
             await api.post(endpoints.check_in(bookingId));
-            const updatedBookings = await getAllBookings();
-            const activeBookings = updatedBookings.filter(booking => booking.is_active);
+            const data = await api.get('/hotel/booking/checked-out/');
+            const activeBookings = data.data;
+				
             setFilteredBookings(activeBookings);
         } catch (error) {
             console.error('Error checking in:', error);
@@ -75,8 +76,8 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const handleCheckOut = async (bookingId) => {
         try {
             await api.post(endpoints.check_out(bookingId));
-            const updatedBookings = await getAllBookings();
-            const activeBookings = updatedBookings.filter(booking => booking.is_active);
+            const data = await api.get('/hotel/booking/checked-out/');
+            const activeBookings = data.data;
             setFilteredBookings(activeBookings);
         } catch (error) {
             console.error('Error checking out:', error);
@@ -116,21 +117,21 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                                 <td>{booking.confirmationCode}</td>
                                 <td>
                                     <button
-                                        className="btn btn-danger btn-sm"
+                                        className="btn btn-sm mb-2"
                                         onClick={() => handleBookingCancellation(booking.id)}
                                     >
                                         Cancel
                                     </button>
                                     {booking.checked_in ? (
                                         <button
-                                            className="btn btn-success btn-sm ml-2"
+                                            className="btn btn-sm ml-2"
                                             onClick={() => handleCheckOut(booking.id)}
                                         >
                                             Check-Out
                                         </button>
                                     ) : (
                                         <button
-                                            className="btn btn-primary btn-sm ml-2"
+                                            className="btn btn-sm ml-2"
                                             onClick={() => handleCheckIn(booking.id)}
                                         >
                                             Check-In

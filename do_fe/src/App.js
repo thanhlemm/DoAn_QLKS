@@ -3,16 +3,8 @@ import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
 import "/node_modules/bootstrap/dist/js/bootstrap.min.js"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./components/home/Home"
-import EditRoom from "./components/room/EditRoom"
-import EditRoomType from "./components/roomtype/EditRoomType"
-import EditEmployee from "./components/employee/EditEmployee"
-import EditCoupon from "./components/coupon/EditCoupon"
-import AddRoom from "./components/room/AddRoom"
-import AddRoomType from "./components/roomtype/AddRoomType"
-import AddEmployee from "./components/employee/AddEmployee"
-import AddCoupon from "./components/coupon/AddCoupon"
-import NavBar from "./components/layout/NavBar"
-import Footer from "./components/layout/Footer"
+// import NavBar from "./components/layout/NavBar"
+// import Footer from "./components/layout/Footer"
 import BranchDetail from "./components/branch/branchdetail"
 import RoomSelection from "./components/room/RoomSelection"
 import RoomListing from "./components/room/RoomListing"
@@ -21,7 +13,14 @@ import ExistingEmployees from "./components/employee/ExistingEmployees"
 import ExistingRooms from "./components/room/ExistingRooms"
 import ExistingRoomTypes from "./components/roomtype/ExistingRoomTypes"
 import ExistingCoupons from "./components/coupon/ExistingCoupons"
-
+import EditRoom from "./components/room/EditRoom"
+import EditRoomType from "./components/roomtype/EditRoomType"
+import EditEmployee from "./components/employee/EditEmployee"
+import EditCoupon from "./components/coupon/EditCoupon"
+import AddRoom from "./components/room/AddRoom"
+import AddRoomType from "./components/roomtype/AddRoomType"
+import AddEmployee from "./components/employee/AddEmployee"
+import AddCoupon from "./components/coupon/AddCoupon"
 import Checkout from "./components/booking/Checkout"
 import BookingSuccess from "./components/booking/BookingSuccess"
 import Bookings from "./components/booking/Bookings"
@@ -41,6 +40,8 @@ import ReceptionistLayout from './components/layout/ReceptionistLayout'
 import Receptionist from './components/receptionist/Receptionist'
 import PaymentForm from './components/booking/PaymentForm'
 import PaymentResult from './components/booking/PaymentResult'
+import BookingPayment_Receptionist from './components/receptionist/BookingPayment_Receptionist'
+
 
 import "./App.css"
 
@@ -120,11 +121,6 @@ function App() {
 								<AdminLayout><EditCoupon /></AdminLayout>
 							</RequireAdmin>
 						} />
-						<Route path="/existing-bookings" element={
-							<RequireReceptionist>
-								<AdminLayout><Bookings /></AdminLayout>
-							</RequireReceptionist>
-						} />
 
 						<Route path="/book-room/:roomId" element={
 							<RequireAuth>
@@ -153,6 +149,17 @@ function App() {
 								<ReceptionistLayout><Receptionist /></ReceptionistLayout>
 							</RequireReceptionist>
 						} />
+						<Route path="/existing-bookings" element={
+							<RequireReceptionist>
+								<ReceptionistLayout><Bookings /></ReceptionistLayout>
+							</RequireReceptionist>
+						} />
+						<Route path="/payment-bookings" element={
+							<RequireReceptionist>
+								<ReceptionistLayout><BookingPayment_Receptionist /></ReceptionistLayout>
+							</RequireReceptionist>
+						} />
+
 					</Routes>
 				</MyDispatchContext.Provider>
 			</MyUserContext.Provider>

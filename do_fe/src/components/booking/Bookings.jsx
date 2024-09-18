@@ -15,10 +15,8 @@ const Bookings = () => {
 	useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const data = await getAllBookings();
-                // Lọc dữ liệu để chỉ lấy booking còn hoạt động
-                const activeBookings = data.filter(booking => booking.is_active);
-				console.log(activeBookings)
+                const data = await api.get('/hotel/booking/checked-out/');
+                const activeBookings = data.data;
                 setBookingInfo(activeBookings);
                 setIsLoading(false);
             } catch (error) {

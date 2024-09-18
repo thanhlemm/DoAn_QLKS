@@ -156,7 +156,7 @@ const NavBar = () => {
                           e.preventDefault();
                           markNotificationAsRead(notification.id);
                         }}
-                        style={{ whiteSpace: "normal", wordWrap: "break-word" }}
+                        style={{ whiteSpace: "normal", wordWrap: "break-word", fontSize: "10px"}}
                       >
                         {notification.type === "Booking Confirmed"
                           ? `Your booking ${notification.booking} has been placed.`

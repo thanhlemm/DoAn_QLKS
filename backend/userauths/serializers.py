@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Role
+from OceanHotel.models import Branch
 from django.contrib.auth.models import AnonymousUser
 
 
@@ -47,11 +48,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
     avatar = serializers.SerializerMethodField()
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all(), required=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex',
-                  'role']
+                  'role', 'branch']
         extra_kwargs = {'password': {'write_only': True}}
 
     def get_avatar(self, obj):
@@ -85,6 +87,7 @@ class UserSerializer(serializers.ModelSerializer):
     #         instance.set_password(validated_data['password'])
     #     instance.save()
     #     return instance
+
 
 class EmployeeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -133,3 +136,22 @@ class EmployeeSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])  # Hash the password before saving
         user.save()
         return user
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def get_avatar(self, obj):
+        if isinstance(obj, AnonymousUser):
+            return None
+        return obj.avatar.url if obj.avatar else None
+
+    def to_representation(self, instance):
+        if isinstance(instance, AnonymousUser):
+            return {}
+        return super().to_representation(instance)
