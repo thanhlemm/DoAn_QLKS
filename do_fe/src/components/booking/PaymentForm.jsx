@@ -1,21 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import {  api, endpoints } from "../utils/ApiFunctions"
 import Cookies from 'react-cookies';
 import PaymentResult from './PaymentResult';
+import { MyUserContext } from '../utils/MyContext';
+
 
 const PaymentForm = () => {
     const [paymentResult, setPaymentResult] = useState(null);
     const location = useLocation();
+    const user = useContext(MyUserContext);
+
 
     const { booking, payment } = location.state || {};
+    const bookingId = Number(localStorage.getItem('bookingId'));
+    const bookingConfirmationCode = localStorage.getItem('bookingConfirmationCode');
     const [formData, setFormData] = useState({
         order_type: 'topup',
         order_id: new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14),
         amount: payment || 10000,
-        order_desc: `Thanh toan don hang thoi gian: ${new Date().toLocaleString()}`,
+        order_desc: `Thanh toan don dat phong ${bookingConfirmationCode} thoi gian: ${new Date().toLocaleString()}`,
         bank_code: '',
-        language: 'vn'
+        language: 'vn',
+        booking_id: bookingId ,
+        user: user.id,
     });
 
     const handleChange = (e) => {
@@ -37,17 +45,18 @@ const PaymentForm = () => {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken                }
             });
-            console.log('Payment form submitted successfully', response);
-            if (response.data) {
-            
+         
+            if (response) {
                 window.location.href = response.data;
-              
-             } 
+            } else {
+                console.error('Payment URL is not available in response.');
+            }
         } catch (error) {
             console.error('Error submitting payment form:', error);
         }
     };
 
+    
     
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
@@ -73,6 +82,17 @@ const PaymentForm = () => {
         <div className="container">
             <h3>Thanh toán</h3>
             <form onSubmit={handleSubmit}>
+                 <div className="form-group">
+                    <label htmlFor="booking_id">Confirmation Code</label>
+                    <input
+                        className="form-control"
+                        id="booking_id"
+                        name="booking_id"
+                        type="text"
+                        value={bookingConfirmationCode}
+                        onChange={handleChange}
+                    />
+                </div>
                 <div className="form-group">
                     <label htmlFor="order_type">Loại hàng hóa</label>
                     <select
@@ -82,9 +102,7 @@ const PaymentForm = () => {
                         value={formData.order_type}
                         onChange={handleChange}
                     >
-                        <option value="topup">Nạp tiền điện thoại</option>
                         <option value="billpayment">Thanh toán hóa đơn</option>
-                        <option value="fashion">Thời trang</option>
                         <option value="other">Khác - Xem thêm tại VNPAY</option>
                     </select>
                 </div>

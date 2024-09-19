@@ -20,6 +20,8 @@ const BookingForm = () => {
 	const user = useContext(MyUserContext);
 
 	const [booking, setBooking] = useState({
+		id: null, 
+    	confirmationCode: "",
 		user: user.id,
 		email: user.email,
 		phone: "",
@@ -191,16 +193,19 @@ const BookingForm = () => {
 		return total;
 	}
 	
-	
-
 	const handleFormSubmit = async () => {
 		try {
 
 			const confirmationCode = await bookRoom(booking, couponCode)
 			console.log(confirmationCode)
+			setBooking(prevState => ({
+				...prevState,
+				id: confirmationCode.id,
+				confirmationCode: confirmationCode.confirmationCode
+			}));
+			console.log(booking)
 			localStorage.setItem('bookingId', confirmationCode.id);
-			const bookingID = localStorage.getItem('bookingId'); // Lấy booking ID từ localStorage
-			console.log(bookingID);			// Tạo dữ liệu email
+			localStorage.setItem('bookingConfirmationCode', confirmationCode.confirmationCode);
 			const emailData = {
 				subject: 'Booking Confirmation',
 				message: `
@@ -246,7 +251,8 @@ const BookingForm = () => {
 			navigate("/booking-success", { state: { error: errorMessage } })
 		}
 	}
-
+	
+	
 	return (
 		<>
 			<div className="container mb-5">

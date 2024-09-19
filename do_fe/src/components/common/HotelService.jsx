@@ -21,7 +21,7 @@ const HotelService = () => {
 					<h4 className="text-center">
 						Services at <span className="hotel-color"> Ocean - </span>Hotel
 						<span className="gap-2">
-							<FaClock className="ml-5" /> 24-Hour Front Desk
+							<FaClock className="ml-5" style={{margin:"auto"}} /> 24-Hour Front Desk
 						</span>
 					</h4>
 				</Row>
@@ -29,9 +29,9 @@ const HotelService = () => {
 
 				<Row xs={1} md={2} lg={3} className="g-4 mt-2">
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
-								<Card.Title className="hotel-color">
+								<Card.Title className="hotel-color" >
 									<FaWifi /> WiFi
 								</Card.Title>
 								<Card.Text>Stay connected with high-speed internet access.</Card.Text>
@@ -39,7 +39,7 @@ const HotelService = () => {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
 								<Card.Title className="hotel-color">
 									<FaUtensils /> Breakfast
@@ -49,7 +49,7 @@ const HotelService = () => {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
 								<Card.Title className="hotel-color">
 									<FaTshirt /> Laundry
@@ -59,7 +59,7 @@ const HotelService = () => {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
 								<Card.Title className="hotel-color">
 									<FaCocktail /> Mini-bar
@@ -69,7 +69,7 @@ const HotelService = () => {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
 								<Card.Title className="hotel-color">
 									<FaParking /> Parking
@@ -79,7 +79,7 @@ const HotelService = () => {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{padding:"2rem"}}>
 							<Card.Body>
 								<Card.Title className="hotel-color">
 									<FaSnowflake /> Air conditioning

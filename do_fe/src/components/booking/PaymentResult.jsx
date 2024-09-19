@@ -26,6 +26,23 @@ const PaymentResult = () => {
         }
     };
 
+    const updateVnpResponseCode = async (bookingId, vnpResponseCode) => {
+        try {
+            await api.patch(`/hotel/invoices/update_vnp_response_code_by_booking/`, {
+                booking_id: bookingId,
+                vnp_response_code: vnpResponseCode,
+                status: "paid"
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            });
+        } catch (error) {
+            console.error('Error updating VNPay response code:', error);
+        }
+    };
+
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         
@@ -47,8 +64,10 @@ const PaymentResult = () => {
             const bookingId = localStorage.getItem('bookingId');
             if (isSuccess && bookingId) {
                 updateBookingStatus(bookingId, 'paid');
+                updateVnpResponseCode(bookingId, queryParams.get('vnp_ResponseCode'));
                 // Sau khi cập nhật trạng thái thành công, có thể xóa `bookingId` khỏi localStorage
                 localStorage.removeItem('bookingId');
+                localStorage.removeItem('bookingConfirmationCode');
             }
         }
     }, [location.search]);
