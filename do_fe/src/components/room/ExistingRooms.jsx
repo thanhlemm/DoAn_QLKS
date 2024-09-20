@@ -133,13 +133,11 @@ const ExistingRooms = () => {
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
   const currentRooms = filteredRooms.slice(indexOfFirstRoom, indexOfLastRoom);
 
-  // Helper function to get branch name by ID
   const getBranchName = (id) => {
     const branch = branches.find(branch => branch.id === id);
     return branch ? branch.name : 'Unknown';
   };
 
-  // Helper function to get room type details by ID
   const getRoomTypeName = (id) => {
     const roomType = roomTypes.find(type => type.id === id);
     return roomType ? `${roomType.type} ` : 'Unknown';
@@ -208,13 +206,13 @@ const ExistingRooms = () => {
             <table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
               <thead>
                 <tr className="bg-neutral-100 border-b border-neutral-300">
-                  <th className="p-4 text-left">ID</th>
-                  <th className="p-4 text-left">Branch</th>
-                  <th className="p-4 text-left">Room Type</th>
-                  <th className="p-4 text-left">Room Number</th>
-                  <th className="p-4 text-left">Room Price</th>
-                  <th className="p-4 text-left">Available</th>
-                  <th className="p-4 text-left">Actions</th>
+                  <th className="p-4 text-center">ID</th>
+                  <th className="p-4 text-center">Branch</th>
+                  <th className="p-4 text-center">Room Type</th>
+                  <th className="p-4 text-center">Room Number</th>
+                  <th className="p-4 text-center">Room Price</th>
+                  <th className="p-4 text-center">Available</th>
+                  <th className="p-4 text-center">Actions</th>
                 </tr>
               </thead>
 

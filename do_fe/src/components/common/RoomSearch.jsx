@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Form, Button, Row, Col, Container } from "react-bootstrap"
 import moment from "moment"
 import { checkRoomAvailability } from "../utils/ApiFunctions"
@@ -18,6 +19,7 @@ const RoomSearch = () => {
     const [availableRooms, setAvailableRooms] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [searchPerformed, setSearchPerformed] = useState(false) // Thêm biến trạng thái
+    const navigate = useNavigate()
 
     const handleSearch = (e) => {
         e.preventDefault()
@@ -36,6 +38,7 @@ const RoomSearch = () => {
         checkRoomAvailability(searchQuery.branch, searchQuery.roomType, searchQuery.checkInDate, searchQuery.checkOutDate)
             .then((response) => {
                 setAvailableRooms(response.available_rooms)
+                navigate("/", { state: { availableRooms: response.available_rooms } })  // Navigate to results page
                 setTimeout(() => setIsLoading(false), 2000)
             })
             .catch((error) => {
@@ -123,15 +126,16 @@ const RoomSearch = () => {
                         </Col>
                     </Row>
                 </Form>
-
-                {isLoading ? (
+                {isLoading && <p className="mt-4">Finding available rooms....</p>}
+                {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                {/* {isLoading ? (
                     <p className="mt-4">Finding available rooms....</p>
                 ) : searchPerformed && availableRooms.length === 0 ? (
                     <p className="mt-4">No rooms available for the selected dates and room type.</p>
                 ) : (
                     availableRooms.length > 0 && <RoomSearchResults results={availableRooms} onClearSearch={handleClearSearch} />
                 )}
-                {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                {errorMessage && <p className="text-danger">{errorMessage}</p>} */}
             </Container>
         </>
     )

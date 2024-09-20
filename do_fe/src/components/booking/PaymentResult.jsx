@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { api } from '../utils/ApiFunctions'; // Đảm bảo bạn có sẵn phương thức này
 import Cookies from 'react-cookies';
 
 const PaymentResult = () => {
     const location = useLocation();
-    const navigate = useNavigate();
 
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken');

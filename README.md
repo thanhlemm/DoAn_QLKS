@@ -1,6 +1,6 @@
 # DoAn_QLKS
 ## Giới thiệu
-Mục tiêu chính của đồ án là xây dựng một hệ thống quản lý khách sạn hiện đại, thân thiện với người dùng và đáp ứng các nhu cầu cơ bản như quản lý phòng, quản lý khách hàng, dịch vụ, đặt phòng và còn tích hợp cả thanh toán trực tuyến giúp khách hàng giao dịch nhanh chóng và an toàn hơn. 
+Mục tiêu chính của đồ án là xây dựng một hệ thống quản lý khách sạn hiện đại, thân thiện với người dùng và đáp ứng các nhu cầu cơ bản như quản lý phòng, quản lý khách hàng, dịch vụ, đặt phòng và còn tích hợp cả thanh toán trực tuyến VNPay giúp khách hàng giao dịch nhanh chóng và an toàn hơn. 
 
 Hệ thống được phát triển bằng Python Django (backend), MySQL để lưu trữ dữ liệu  và ReactJS (frontend) nhằm dễ sử dụng và linh hoạt cho admin, khách hàng và các nhân viên.
 
@@ -11,11 +11,11 @@ Hệ thống được phát triển bằng Python Django (backend), MySQL để 
 - **📝 Đăng ký:** Đăng ký tài khoản bằng các thông tin cá nhân.
 - **🔐 Đăng nhập:** Đăng nhập bằng tài khoản trên hệ thống hoặc bằng Google và Facebook.
 - **👤 Profile :** Cập nhật thông tin cá nhân hoặc tạo/đổi mật khẩu.
-- **🔔 Notifications:** Nhận thông báo về các phiếu đặt phòng và mã giảm giá.
-- **💬 Rating:** Sau khi đặt phòng có thể đánh giá về chi nhánh đó.
+- **🔔 Notifications:** Nhận thông báo về trạng thái phiếu đặt phòng và mã giảm giá.
+- **💬 Rating:** Đánh giá về chi nhánh đã từng đặt phòng.
 - **🗓️ Đặt phòng trực tuyến**
-- **💸 Thanh toán trực tuyến:** Có thể thánh toán qua VNPay.
 - **🛒 Thêm phòng vào giỏ hàng**
+- **💸 Thanh toán trực tuyến:** Có thể thánh toán qua VNPay.
 - **💬 Nhắn tin:** Khách hàng có thể nhắn tin với lễ tân của chi nhánh để được tư vấn.
 
 
@@ -26,6 +26,7 @@ Hệ thống được phát triển bằng Python Django (backend), MySQL để 
 - **⚙️ Quản lý booking**
 - **🗓️ Đặt phòng:** Khi khách hàng chưa đặt phòng online.
 - **💬 Nhắn tin:** Nhắn tin để tư vấn cho khách hàng.
+- **🧾 Xuất hoá đơn:** Xuất hoá đơn cho những khách hàng cần.
 
 
 ### 🛠️ Admin
@@ -40,7 +41,7 @@ Hệ thống được phát triển bằng Python Django (backend), MySQL để 
 - **Backend:** Django, MySQL
 - **Frontend:** ReactJs, Bootstrap
 - **Authentication:** OAuth 2.0 (Google, Facebook)
-- **Messaging:** WebSockets
+- **Messaging:** WebSockets, Djando Channels
 
 ## Hình ảnh website
 

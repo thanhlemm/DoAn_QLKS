@@ -104,18 +104,33 @@ const Checkout = () => {
 										alt="Room in the hotel"
 										style={{ width: "100%", height: "200px" }}
 									/>
-									<table className="table table-bordered">
-										<tbody>
-											<tr>
-												<th>Room Type:</th>
-												<td>{getRoomTypeName(roomInfo.room_type)}</td>
-											</tr>
-											<tr>
-												<th>Price per night:</th>
-												<td>${roomInfo.price}</td>
-											</tr>
-										</tbody>
-									</table>
+									<table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
+									<tbody>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100">
+												<th className="text-center">Room Number:</th>
+												<td>{roomInfo.room_number}</td>
+										</tr>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100"> 
+											<th className="text-center">Room Type:</th>
+											<td>{getRoomTypeName(roomInfo.room_type)}</td>
+										</tr>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100">
+											<th className="text-center">Price per night:</th>
+											<td>${roomInfo.price}</td>
+										</tr>
+										<tr >
+											<td colSpan="2" className="p-2">
+												<button
+													className="btn btn-sm"
+													style={{backgroundColor:"#C40000"}}
+													onClick={() => handleRemoveRoom(roomInfo.id)}
+												>
+													<FaTrash />
+												</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
 								</div>
 							) : (
 							roomsInfo.length > 0 ? (
@@ -124,20 +139,24 @@ const Checkout = () => {
 								<img
 									src={getRoomTypeImage(room.room_type).replace("image/upload/", "")}
 									alt="Room in the hotel"
-									style={{ width: "100%", height: "200px" }}
+									style={{ width: "100%", height: "200px", borderRadius: "24px" }}
 								/>
-								<table className="table table-bordered">
+								<table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
 									<tbody>
-										<tr>
-											<th>Room Type:</th>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100">
+												<th className="text-center">Room Number:</th>
+												<td>{room.room_number}</td>
+										</tr>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100"> 
+											<th className="text-center">Room Type:</th>
 											<td>{getRoomTypeName(room.room_type)}</td>
 										</tr>
-										<tr>
-											<th>Price per night:</th>
+										<tr className="border-b border-neutral-300 hover:bg-neutral-100">
+											<th className="text-center">Price per night:</th>
 											<td>${room.price}</td>
 										</tr>
-										<tr>
-											<td colSpan="2">
+										<tr >
+											<td colSpan="2" className="p-2">
 												<button
 													className="btn btn-sm"
 													style={{backgroundColor:"#C40000"}}

@@ -1,4 +1,4 @@
-import React, {useEffect, useContext} from "react"  
+import React, {useEffect, useContext, useState} from "react"  
 import MainHeader from "../layout/MainHeader"
 import HotelService from "../common/HotelService"
 import Parallax from "../common/Parallax"
@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import cookie from "react-cookies";
 import { MyDispatchContext } from '../utils/MyContext';
 import { authAPI,endpoints } from "../utils/ApiFunctions"
-
+import RoomSearchResult from "../common/RoomSearchResult"
 
 
 
@@ -18,6 +18,8 @@ const Home = () => {
 	const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useContext(MyDispatchContext);
+    const [availableRooms, setAvailableRooms] = useState([]);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -55,6 +57,13 @@ const Home = () => {
 
         fetchData();
     }, [navigate, dispatch]);
+
+    useEffect(() => {
+        if (location.state && location.state.availableRooms) {
+            setAvailableRooms(location.state.availableRooms);
+        }
+    }, [location.state]);
+
 	const message = location.state && location.state.message
 	const currentUser = localStorage.getItem("userId")
 	return (
@@ -65,6 +74,9 @@ const Home = () => {
 			)}
 			<MainHeader />
 			<div className="container">
+                {availableRooms.length > 0 && (
+                    <RoomSearchResult results={availableRooms} onClearSearch={() => setAvailableRooms([])} />
+                )}
 				<PopularBranch />
 				<Parallax />
 				<RoomCarousel />

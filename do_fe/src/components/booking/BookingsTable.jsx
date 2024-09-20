@@ -88,24 +88,25 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
         <section className="bookings-table-container">
             <DateSlider onDateChange={filterBookings} onFilterChange={filterBookings} />
             <div className="table-responsive">
-                <table className="table table-striped table-bordered">
+                <table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
                     <thead>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Booking ID</th>
-                            <th>Room Number</th>
-                            <th>Room Type</th>
-                            <th>Check-In Date</th>
-                            <th>Check-Out Date</th>
-                            <th>Guest Name</th>
-                            <th>Guest Email</th>
-                            <th>Confirmation Code</th>
-                            <th>Actions</th>
+                        <tr className="bg-neutral-100 border-b border-neutral-300">
+                            <th className="p-4 text-center">S/N</th>
+                            <th className="p-4 text-center">Booking ID</th>
+                            <th className="p-4 text-center">Room Number</th>
+                            <th className="p-4 text-center">Room Type</th>
+                            <th className="p-4 text-center">Check-In Date</th>
+                            <th className="p-4 text-center">Check-Out Date</th>
+                            <th className="p-4 text-center">Guest Name</th>
+                            <th className="p-4 text-center">Guest Email</th>
+                            <th className="p-4 text-center">Confirmation Code</th>
+                            <th className="p-4 text-center">Payment Status</th>
+                            <th className="p-4 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredBookings.map((booking, index) => (
-                            <tr key={booking.id}>
+                            <tr key={booking.id} className="border-b border-neutral-300 hover:bg-neutral-100">
                                 <td>{index + 1}</td>
                                 <td>{booking.id}</td>
                                 <td>{Array.isArray(booking.room) ? booking.room.map(id => getRoom(id)).join(', ') : getRoom(booking.room)}</td>
@@ -115,7 +116,9 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                                 <td>{getGuestName(booking.user)}</td>
                                 <td>{booking.email}</td>
                                 <td>{booking.confirmationCode}</td>
-                                <td>
+                                <td>{booking.payment_status}</td>
+
+                                <td className="gap-2">
                                     <button
                                         className="btn btn-sm mb-2"
                                         onClick={() => handleBookingCancellation(booking.id)}

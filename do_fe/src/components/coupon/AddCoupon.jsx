@@ -28,6 +28,7 @@ const AddCoupon = () => {
       const success = await api.post('/hotel/coupon/', newCoupon);
       console.log(success)
       if (success) {
+        alert("A new coupon was added successfully!");
         setSuccessMessage("A new coupon was added successfully!");
         await api.post('/hotel/coupon/issue_coupon/', {coupon_id: success.data.id} )
         setNewCoupon({
@@ -41,6 +42,7 @@ const AddCoupon = () => {
         });
         setErrorMessage("");
       } else {
+        alert("Error adding new coupon");
         setErrorMessage("Error adding new coupon");
       }
     } catch (error) {

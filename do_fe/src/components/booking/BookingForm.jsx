@@ -1,7 +1,7 @@
-import React, { useEffect, useContext } from "react"
+import React, { useEffect, useContext, useCallback } from "react"
 import moment from "moment"
 import { useState } from "react"
-import { Form, FormControl, Button } from "react-bootstrap"
+import { Form, FormControl } from "react-bootstrap"
 import BookingSummary from "./BookingSummary"
 import { bookRoom, getRoomById, api, endpoints } from "../utils/ApiFunctions"
 import { useNavigate, useParams } from "react-router-dom"
@@ -57,63 +57,71 @@ const BookingForm = () => {
 		setErrorMessage("");
 	}
 
-
 	
-		const fetchRoomData = async () => {
-			try {
-					const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
-					const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
-					const roomPromises = roomIds.map(id => getRoomById(id));
-					const rooms = await Promise.all(roomPromises);
-					setRoomsInfo(rooms);
-					if (roomId) {
-						const response = await getRoomById(roomId);
-						setRoomPrice(response.price);
-						setRoomInfo(response);
-						console.log(response)
-						const roomTypeId = response.room_type.id;
-						const branchId = response.branch.id;
-						console.log(branchId)
+	const fetchRoomData = useCallback(async () => {
+        try {
+            const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
+            const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+            const roomPromises = roomIds.map(id => getRoomById(id));
+            const rooms = await Promise.all(roomPromises);
+            setRoomsInfo(rooms);
+            if (roomId) {
+                const response = await getRoomById(roomId);
+                setRoomPrice(response.price);
+                setRoomInfo(response);
+                const roomTypeId = response.room_type.id;
+                const branchId = response.branch.id;
 
-						setBooking(prevState => ({
-							...prevState,
-							room_type: roomTypeId, 
-							branch: branchId,      
-							room: [roomId]         
-						}));
-					}else{
-						
-						const allSameRoomType = rooms.every(room => room.room_type.id === rooms[0].room_type.id);
-						const allSameBranch = rooms.every(room => room.branch.id === rooms[0].branch.id);
-						if (allSameRoomType && allSameBranch) {
-							// Nếu tất cả các phòng đều có cùng room_type và branch
-							const firstRoomPrice = rooms[0]?.price || 0;
-							setRoomPrice(firstRoomPrice);
+                setBooking(prevState => ({
+                    ...prevState,
+                    room_type: roomTypeId, 
+                    branch: branchId,      
+                    room: [roomId]         
+                }));
+            } else {
+                const allSameRoomType = rooms.every(room => room.room_type.id === rooms[0].room_type.id);
+                const allSameBranch = rooms.every(room => room.branch.id === rooms[0].branch.id);
+                if (allSameRoomType && allSameBranch) {
+                    const firstRoomPrice = rooms[0]?.price || 0;
+                    setRoomPrice(firstRoomPrice);
 
-							setBooking(prevState => ({
-								...prevState,
-								room: roomIds,
-								room_type: rooms[0]?.room_type,
-								branch: rooms[0]?.branch
-							}));
-						} else {
-							// Nếu các phòng có room_type hoặc branch khác nhau, hiển thị lỗi
-							setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
-						}
-					}
-					setIsLoading(false);
-			} catch (error) {
-				setErrorMessage(error);
-				setIsLoading(false);
-			}
-		};
-	
-		useEffect(() => {
-			fetchRoomData();
-		},[roomId, user.id]);
-	useEffect(() => {
-		calculatePayment();
-	}, [booking.saved, booking.before_discount, booking.check_in_date, booking.check_out_date, roomPrice]);	
+                    setBooking(prevState => ({
+                        ...prevState,
+                        room: roomIds,
+                        room_type: rooms[0]?.room_type,
+                        branch: rooms[0]?.branch
+                    }));
+                } else {
+                    setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
+                }
+            }
+            setIsLoading(false);
+        } catch (error) {
+            setErrorMessage(error.message);
+            setIsLoading(false);
+        }
+    }, [roomId, user.id]);
+
+    useEffect(() => {
+        fetchRoomData();
+    }, [fetchRoomData]);
+
+    const calculatePayment = useCallback(() => {
+        const checkInDate = moment(booking.check_in_date);
+        const checkOutDate = moment(booking.check_out_date);
+        const diffInDays = checkOutDate.diff(checkInDate, "days");
+        const paymentPerDay = roomPrice ? roomPrice : 0;
+
+        const beforeDiscount = diffInDays * paymentPerDay;
+        const saved = booking.saved || 0; 
+        const total = beforeDiscount - saved;
+
+        return total;
+    }, [booking.check_in_date, booking.check_out_date, booking.saved, roomPrice]);
+
+    useEffect(() => {
+        calculatePayment();
+    }, [booking.saved, booking.before_discount, booking.check_in_date, booking.check_out_date, roomPrice, calculatePayment]);
 	
 
 	const isCheckOutDateValid = () => {
@@ -179,19 +187,7 @@ const BookingForm = () => {
 	}
 	
 	
-	const calculatePayment = () => {
-		const checkInDate = moment(booking.check_in_date);
-		const checkOutDate = moment(booking.check_out_date);
-		const diffInDays = checkOutDate.diff(checkInDate, "days");
-		const paymentPerDay = roomPrice ? roomPrice : 0;
 	
-		const beforeDiscount = diffInDays * paymentPerDay;
-	
-		const saved = booking.saved || 0; 
-		const total = beforeDiscount - saved;
-	
-		return total;
-	}
 	
 	const handleFormSubmit = async () => {
 		try {

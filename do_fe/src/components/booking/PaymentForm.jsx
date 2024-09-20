@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
-import {  api, endpoints } from "../utils/ApiFunctions"
+import {  useLocation } from "react-router-dom";
+import {  api,  } from "../utils/ApiFunctions"
 import Cookies from 'react-cookies';
 import PaymentResult from './PaymentResult';
 import { MyUserContext } from '../utils/MyContext';
@@ -46,8 +46,9 @@ const PaymentForm = () => {
                     'X-CSRFToken': csrftoken                }
             });
          
-            if (response) {
-                window.location.href = response.data;
+            const paymentUrl = response?.data?.payment_url;
+            if (paymentUrl && typeof paymentUrl === 'string' && paymentUrl.startsWith('http')) {
+                window.open(paymentUrl, '_blank');
             } else {
                 console.error('Payment URL is not available in response.');
             }
@@ -56,7 +57,6 @@ const PaymentForm = () => {
         }
     };
 
-    
     
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
