@@ -40,7 +40,7 @@ import ReceptionistLayout from './components/layout/ReceptionistLayout'
 import Receptionist from './components/receptionist/Receptionist'
 import PaymentForm from './components/booking/PaymentForm'
 import PaymentResult from './components/booking/PaymentResult'
-import BookingPayment_Receptionist from './components/receptionist/BookingPayment_Receptionist'
+import ExistingBill from './components/receptionist/ExistingBill'
 
 
 import "./App.css"
@@ -154,9 +154,9 @@ function App() {
 								<ReceptionistLayout><Bookings /></ReceptionistLayout>
 							</RequireReceptionist>
 						} />
-						<Route path="/payment-bookings" element={
+						<Route path="/existing-bills" element={
 							<RequireReceptionist>
-								<ReceptionistLayout><BookingPayment_Receptionist /></ReceptionistLayout>
+								<ReceptionistLayout><ExistingBill /></ReceptionistLayout>
 							</RequireReceptionist>
 						} />
 

@@ -113,7 +113,6 @@ const BranchDetail = () => {
           ))}
         </Tags>
       </BranchInfo>
-      <Header title={"RoomTypes"} />
       <Row>
         <Col md={8}>
           {roomTypes.map((roomType) => (

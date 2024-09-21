@@ -19,6 +19,7 @@ export const endpoints = {
 	'verify_coupon': '/hotel/coupon/get-coupon/',
 	'booking_info': (id) => `/hotel/booking/${id}/`,
 	'get_couponByID': (id) => `/hotel/coupon/${id}`,
+	'get_invoices': "/hotel/invoices/"
 };
 
 

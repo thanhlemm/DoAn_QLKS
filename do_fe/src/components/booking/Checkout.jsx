@@ -62,7 +62,11 @@ const Checkout = () => {
 				const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
 				const roomPromises = roomIds.map(id => getRoomById(id));
 				const rooms = await Promise.all(roomPromises);
-				setRoomsInfo(rooms);
+				// setRoomsInfo(rooms);
+				const availableRooms = rooms.filter(room => room.is_available);
+				if (availableRooms.length > 0) {
+					setRoomsInfo(availableRooms);
+				}
 				setIsLoading(false);
 			  }
 			} catch (err) {
@@ -98,7 +102,7 @@ const Checkout = () => {
 							<p>Error: {error.message || "An error occurred"}</p>
 						  
 						) : roomId ? (
-								<div className="room-info mb-4">
+								<div className="mb-4">
 									<img
 										src={getRoomTypeImage(roomInfo.room_type).replace("image/upload/", "")}
 										alt="Room in the hotel"
@@ -135,7 +139,7 @@ const Checkout = () => {
 							) : (
 							roomsInfo.length > 0 ? (
 							roomsInfo.map((room, index) => (
-								<div key={index} className="room-info mb-4">
+								<div key={index} className="mb-4">
 								<img
 									src={getRoomTypeImage(room.room_type).replace("image/upload/", "")}
 									alt="Room in the hotel"

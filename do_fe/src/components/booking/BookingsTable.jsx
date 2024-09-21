@@ -2,11 +2,19 @@ import React, { useState, useEffect } from "react";
 import { parseISO } from "date-fns";
 import DateSlider from "../common/DateSlider";
 import { getUser, getRoomById, getAllBookings, endpoints, api } from '../utils/ApiFunctions';
+import InvoiceModal from "../receptionist/InvoiceModal"
+import Cookies from 'react-cookies';
+
 
 const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const [filteredBookings, setFilteredBookings] = useState(bookingInfo);
     const [userNames, setUserNames] = useState({});
     const [room, setRoom] = useState({});
+    const [error, setError] = useState("");
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const csrftoken = Cookies.load('token');
+
 
     const filterBookings = (startDate, endDate) => {
         let filtered = bookingInfo;
@@ -63,11 +71,29 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
 
     const handleCheckIn = async (bookingId) => {
         try {
-            await api.post(endpoints.check_in(bookingId));
-            const data = await api.get('/hotel/booking/checked-out/');
-            const activeBookings = data.data;
-				
-            setFilteredBookings(activeBookings);
+            const booking = await api.post(endpoints.check_in(bookingId));
+            const currentDate = new Date();
+            const checkInDate = new Date(booking.data.check_in_date);
+
+            if (booking.data.is_active===false) {
+                alert('Booking đã bị hủy và không thể check-in.');
+                return;
+            }
+
+            else if (checkInDate > currentDate) {
+                alert('Chưa đến ngày check-in.');
+                return;
+            }
+
+             else if (booking.data.checked_in) {
+                alert('Booking đã được check-in trước đó.');
+                return;
+            }
+            else{
+                const data = await api.get('/hotel/booking/checked-out/');
+                const activeBookings = data.data;
+                setFilteredBookings(activeBookings);
+            }
         } catch (error) {
             console.error('Error checking in:', error);
         }
@@ -75,12 +101,49 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
 
     const handleCheckOut = async (bookingId) => {
         try {
-            await api.post(endpoints.check_out(bookingId));
-            const data = await api.get('/hotel/booking/checked-out/');
-            const activeBookings = data.data;
-            setFilteredBookings(activeBookings);
+            const booking = await api.get(`/hotel/booking/${bookingId}/`); 
+            if (booking.data.payment_status === 'unpaid') {
+                setShowInvoiceModal(true);
+                setSelectedBooking(booking.data); 
+            } else {
+                const check = await api.post(endpoints.check_out(bookingId));
+                console.log(check)
+                if (check.status === 200){
+                    alert("Check out thành công")
+                }
+                const data = await api.get('/hotel/booking/checked-out/');
+                const activeBookings = data.data;
+                setFilteredBookings(activeBookings);
+            }
         } catch (error) {
             console.error('Error checking out:', error);
+        }
+    };
+
+    const confirmPayment = async (bookingId) => {
+        try {
+            // Thực hiện thanh toán ở đây
+            // const response = await api.post('/hotel/payment/', { booking: bookingId });
+            const response = await api.post(`/hotel/booking/${bookingId}/change-status/`, {
+                payment_status: "paid"
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            });
+           
+            if (response.status === 200) {
+                alert("Cập nhật trạng thái thanh toán thành công")
+                // Cập nhật danh sách booking sau khi thanh toán thành công
+                await api.post(endpoints.check_out(bookingId));
+                const data = await api.get('/hotel/booking/checked-out/');
+                const activeBookings = data.data;
+                setFilteredBookings(activeBookings);
+                setShowInvoiceModal(false);
+            }
+        } catch (error) {
+            setError(error.message);
         }
     };
 
@@ -149,7 +212,14 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                     <p className="no-booking-message">No bookings found for the selected dates</p>
                 )}
             </div>
+            <InvoiceModal
+                show={showInvoiceModal}
+                onHide={() => setShowInvoiceModal(false)}
+                booking={selectedBooking} 
+                onConfirmPayment={confirmPayment} 
+            />
         </section>
+        
     );
 };
 

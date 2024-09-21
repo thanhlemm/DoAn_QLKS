@@ -42,8 +42,8 @@ const Bookings = () => {
 					type: 'Booking Cancelled'
 					});
 			}
-			const data = await getAllBookings()
-			const activeBookings = data.filter(booking => booking.is_active);
+			const data = await api.get('/hotel/booking/checked-out/');
+            const activeBookings = data.data;
 			setBookingInfo(activeBookings)
 		} catch (error) {
 			setError(error.message)

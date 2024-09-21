@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import moment from "moment"
-import { cancelBooking, getBookingByConfirmationCode, endpoints, authAPI, getRoomById } from "../utils/ApiFunctions"
+import { cancelBooking, getBookingByConfirmationCode, endpoints, authAPI, getRoomById, api } from "../utils/ApiFunctions"
 
 const FindBooking = () => {
 	const [confirmationCode, setConfirmationCode] = useState("")
@@ -85,7 +85,19 @@ const FindBooking = () => {
 
 	const handleBookingCancellation = async (bookingId) => {
 		try {
-			await cancelBooking(bookingId)
+			const booking = await api.get(`/hotel/booking/${bookingId}/`); 
+			const currentDate = new Date();
+			const checkInDate = new Date(booking.data.check_in_date);
+			const timeDiff = checkInDate - currentDate;
+			const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+		
+			if (daysDiff < 2) {
+				alert('Bạn không thể hủy booking trong vòng 2 ngày trước khi check-in!! Nếu muốn huỷ hãy gọi cho lễ tân');
+				return;
+			}else{
+				await cancelBooking(bookingId)
+			}
+			
 			setIsDeleted(true)
 			setSuccessMessage("Booking has been cancelled successfully!")
 			setBookingInfo(emptyBookingInfo)

@@ -29,6 +29,7 @@ const Profile = () => {
             if (user && user.id) {
                 try {
                     const response = await getBookingsByUserId(user.id);
+                    console.log(response)
                     setBookings(response);
                 } catch (error) {
                     console.error('Error fetching bookings:', error.message);
@@ -137,7 +138,7 @@ const Profile = () => {
                                 <th scope="col">Room Type</th>
                                 <th scope="col">Check In Date</th>
                                 <th scope="col">Check Out Date</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">Status payment</th>
                                 <th scope="col">Feedback</th>
                             </tr>
                         </thead>
@@ -146,10 +147,10 @@ const Profile = () => {
                                 <tr key={index}>
                                     <td>{booking.id}</td>
                                     <td>{booking.room}</td>
-                                    <td>{booking.room_type?.type}</td>
+                                    <td>{booking.room_type}</td>
                                     <td>{moment(booking.check_in_date).format('MMM Do, YYYY')}</td>
                                     <td>{moment(booking.check_out_date).format('MMM Do, YYYY')}</td>
-                                    <td className="text-success">On-going</td>
+                                    <td className="text-success">{booking.payment_status}</td>
                                     <td>
                                         {hasFeedback(booking.id) ? (
                                             <span className="text-muted">Feedback submitted</span>

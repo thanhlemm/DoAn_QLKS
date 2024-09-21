@@ -64,7 +64,12 @@ const BookingForm = () => {
             const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
             const roomPromises = roomIds.map(id => getRoomById(id));
             const rooms = await Promise.all(roomPromises);
-            setRoomsInfo(rooms);
+			const availableRooms = rooms.filter(room => room.is_available);
+			if (availableRooms.length > 0) {
+				setRoomsInfo(availableRooms);
+			}
+			const roomIdList = availableRooms.map(room => room.id);
+			 // setRoomsInfo(rooms);
             if (roomId) {
                 const response = await getRoomById(roomId);
                 setRoomPrice(response.price);
@@ -79,17 +84,17 @@ const BookingForm = () => {
                     room: [roomId]         
                 }));
             } else {
-                const allSameRoomType = rooms.every(room => room.room_type.id === rooms[0].room_type.id);
-                const allSameBranch = rooms.every(room => room.branch.id === rooms[0].branch.id);
+                const allSameRoomType = availableRooms.every(room => room.room_type.id === rooms[0].room_type.id);
+                const allSameBranch = availableRooms.every(room => room.branch.id === rooms[0].branch.id);
                 if (allSameRoomType && allSameBranch) {
-                    const firstRoomPrice = rooms[0]?.price || 0;
+                    const firstRoomPrice = availableRooms[0]?.price || 0;
                     setRoomPrice(firstRoomPrice);
 
                     setBooking(prevState => ({
                         ...prevState,
-                        room: roomIds,
-                        room_type: rooms[0]?.room_type,
-                        branch: rooms[0]?.branch
+                        room: roomIdList,
+                        room_type: availableRooms[0]?.room_type,
+                        branch: availableRooms[0]?.branch
                     }));
                 } else {
                     setErrorMessage("Rooms have different room types or branches. Please select rooms from the same room type and branch.");
@@ -137,7 +142,7 @@ const BookingForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const form = e.currentTarget;
-	
+		console.log(booking)
 		if (form.checkValidity() === false || !isCheckOutDateValid()) {
 			e.stopPropagation();
 		} else {
@@ -187,11 +192,8 @@ const BookingForm = () => {
 	}
 	
 	
-	
-	
 	const handleFormSubmit = async () => {
 		try {
-
 			const confirmationCode = await bookRoom(booking, couponCode)
 			console.log(confirmationCode)
 			setBooking(prevState => ({
@@ -199,7 +201,6 @@ const BookingForm = () => {
 				id: confirmationCode.id,
 				confirmationCode: confirmationCode.confirmationCode
 			}));
-			console.log(booking)
 			localStorage.setItem('bookingId', confirmationCode.id);
 			localStorage.setItem('bookingConfirmationCode', confirmationCode.confirmationCode);
 			const emailData = {
@@ -387,8 +388,8 @@ const BookingForm = () => {
 									/>
 								</Form.Group>
 
-								<div className="fom-group mt-2 mb-2">
-									<button type="submit" className="btn btn-hotel">
+								<div className="fom-group mt-2 mb-2 text-center">
+									<button type="submit" className="hover:bg-purple-600 bg-purple-400 p-2 rounded-md  text-white w-[100px]">
 										Continue
 									</button>
 								</div>

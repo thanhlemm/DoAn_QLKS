@@ -8,6 +8,7 @@ const PaymentResult = () => {
 
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken');
+    const token = Cookies.load('token');
 
 
     const updateBookingStatus = async (bookingId, status) => {
@@ -33,6 +34,7 @@ const PaymentResult = () => {
                 status: "paid"
             }, {
                 headers: {
+                    'Authorization':`Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken
                 }

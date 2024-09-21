@@ -17,12 +17,9 @@ const ReceptionistLayout = ({children}) => (
             </Link>
           </li>
           <li>
-          <Link  to="/payment-bookings">
-            <button css={buttonStyle}>Pay</button>
-          </Link>
-          </li>
-          <li>
+          <Link  to="/existing-bills">
             <button css={buttonStyle}>Bill</button>
+          </Link>
           </li>
           <li>
             <button css={buttonStyle}>Message</button>

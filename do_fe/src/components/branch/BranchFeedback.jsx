@@ -15,26 +15,22 @@ const BranchFeedback = ({ branchId }) => {
                 const response = await api.get(`/feedback/get_by_branch/?branch_id=${branchId}`);
                 let feedbackData = Array.isArray(response) ? response : response.data;
 
-                console.log('Feedback Data:', feedbackData); 
                 setFeedbacks(feedbackData);
                 setLoading(false);
 
                 const userIds = feedbackData.map(feedback => feedback.user);
                 const uniqueUserIds = [...new Set(userIds)]; // Lọc ID duy nhất
-                console.log('Unique User IDs:', uniqueUserIds);
 
                 // Fetch thông tin người dùng từ các ID
                 const userResponses = await Promise.all(
                     uniqueUserIds.map(id => api.get(`/auth/user/${id}/`))
                 );
                 const userMap = userResponses.reduce((acc, userResponse) => {
-                    console.log('User Response:', userResponse.data);
                     acc[userResponse.data.id] = userResponse.data;
                     return acc;
                 }, {});
 
                 setUsers(userMap);
-                console.log('User Map:', userMap);
             } catch (error) {
                 console.error('Error fetching feedbacks:', error.message);
                 setLoading(false);

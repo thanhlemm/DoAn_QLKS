@@ -49,9 +49,6 @@ const BookingSummary = ({ booking, payment, isFormValid, onConfirm }) => {
 					Number of Days Booked: <strong>{numberOfDays}</strong>
 				</p>
 				<p>
-					Total Payment: <strong>${payment}</strong>
-				</p>
-				<p>
 					Discount Applied: <strong>${booking.saved || 0}</strong>
 				</p>
 
