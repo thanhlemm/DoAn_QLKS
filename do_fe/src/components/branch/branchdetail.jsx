@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getBranchDetails, getRoomTypesByBranchId, checkRoomAvailability } from '../utils/ApiFunctions';
 import Header from "../common/Header";
 import BranchFeedback from './BranchFeedback';
+import ChatBubble from '../chat/ChatBubble';
 
 
 const BranchDetail = () => {
@@ -161,6 +162,7 @@ const BranchDetail = () => {
           </Card>
         </Col>
       </Row>
+      <ChatBubble branch={id}/>
       <Header title={"Feedbacks"} />
       <BranchFeedback branchId={id} />
     </Container>
