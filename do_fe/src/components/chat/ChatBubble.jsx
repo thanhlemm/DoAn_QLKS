@@ -40,7 +40,7 @@ const ChatBubble = ({branch}) => {
                 alert("Vui lòng đợi vài phút để tìm lễ tân...")
                 const roomName = encodeURIComponent(response.data.branch);
                 const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-                const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/${response.data.customer}/`;
+                const wsEndpoint = `${websocketProtocol}://oceanhotel.pythonanywhere.com/ws/${response.data.customer}/`;
                 const socket = new WebSocket(wsEndpoint);
                 // const wsUrl = `wss://oceanhotel.pythonanywhere.com/ws/${response.data.room_id}/`;
                 // console.log(wsUrl);  // In ra URL để kiểm tra
