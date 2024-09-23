@@ -57,7 +57,12 @@ const ChatBubble = ({branch}) => {
                 };
                 
                 socket.onerror = function (e) {
-                    console.error('WebSocket error:', e);
+                    console.error("WebSocket error:", e);
+                    // Retry connection
+                    setTimeout(() => {
+                      // Attempt reconnect
+                      new WebSocket(wsEndpoint);
+                    }, 5000); // retry after 5 seconds
                 };
                 
                 socket.onmessage = function (e) {
