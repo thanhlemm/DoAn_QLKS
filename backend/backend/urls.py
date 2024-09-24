@@ -37,7 +37,7 @@ urlpatterns = [
     path('hotel/', include('OceanHotel.urls')),
     path('auth/', include('userauths.urls')),
     # path('dashboard/', include('user_dashboard.urls')),
-    # path('addons/', include('addon.urls')),
+    path('addons/', include('addon.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0),
             name='schema-json'),

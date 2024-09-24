@@ -143,6 +143,7 @@ const ExistingEmployees = () => {
               <thead>
                 <tr className="text-center">
                   <th>ID</th>
+                  <th>User name</th>
                   <th>First name</th>
                   <th>Last name</th>
                   <th>Role</th>
@@ -154,6 +155,7 @@ const ExistingEmployees = () => {
                 {currentEmployees.map((employee) => (
                   <tr key={employee.id} className="text-center">
                     <td>{employee.id}</td>
+                    <td>{employee.username}</td>
                     <td>{employee.first_name}</td>
                     <td>{employee.last_name}</td>
                     <td>{employee.role?.name}</td>

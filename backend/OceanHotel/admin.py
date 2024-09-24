@@ -1,6 +1,6 @@
 from django.contrib import admin
 # from django.contrib.auth.admin import UserAdmin
-from OceanHotel.models import Branch, Booking, Room, RoomType, StaffBooking, Coupon, Feedback, Notification
+from OceanHotel.models import Branch, Booking, Room, RoomType, StaffBooking, Coupon, Feedback, Notification, Invoice
 
 
 class HotelAdmin(admin.ModelAdmin):
@@ -15,4 +15,5 @@ admin.site.register(StaffBooking)
 admin.site.register(Coupon)
 admin.site.register(Feedback)
 admin.site.register(Notification)
+admin.site.register(Invoice)
 

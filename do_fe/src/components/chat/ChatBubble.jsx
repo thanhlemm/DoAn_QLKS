@@ -27,6 +27,7 @@ const ChatBubble = ({branch}) => {
     };
 
     const handleSendMessage = async () => {
+        alert("Chức năng này đang được triển khai")
         try {
             setIsChatOpen(false); // Make sure the chat is open
             setIsChatMessageOpen(true);
@@ -40,12 +41,11 @@ const ChatBubble = ({branch}) => {
                 alert("Vui lòng đợi vài phút để tìm lễ tân...")
                 const roomName = encodeURIComponent(response.data.branch);
                 const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-                const wsEndpoint = `${websocketProtocol}://oceanhotel.pythonanywhere.com/ws/${response.data.customer}/`;
+                // const wsEndpoint = `${websocketProtocol}://oceanhotel.pythonanywhere.com/ws/${response.data.customer}/`;
+                const wsEndpoint = `${websocketProtocol}://127.0.0.1:8000/ws/${response.data.customer}/`;
+
                 const socket = new WebSocket(wsEndpoint);
-                // const wsUrl = `wss://oceanhotel.pythonanywhere.com/ws/${response.data.room_id}/`;
-                // console.log(wsUrl);  // In ra URL để kiểm tra
                 
-                // const socket = new WebSocket(wsUrl);
                 setChatSocket(socket);
                 
                 socket.onopen = function (e) {
@@ -59,11 +59,11 @@ const ChatBubble = ({branch}) => {
                 
                 socket.onerror = function (e) {
                     console.error("WebSocket error:", e);
-                    // Retry connection
+                    
                     setTimeout(() => {
-                      // Attempt reconnect
+                      
                       new WebSocket(wsEndpoint);
-                    }, 5000); // retry after 5 seconds
+                    }, 5000); 
                 };
                 
                 socket.onmessage = function (e) {
@@ -74,7 +74,6 @@ const ChatBubble = ({branch}) => {
             }
 
             setIsChatMessageOpen(true);
-            // setChatLog('Chat room created successfully. Start messaging...');
         } catch (error) {
             if (error.response && error.response.data) {
                 setChatLog('Error: ' + error.response.data.message);
@@ -90,7 +89,7 @@ const ChatBubble = ({branch}) => {
                 message: messageInput,
                 sender: senderId,
             }));
-            setMessageInput(''); // Reset input field
+            setMessageInput(''); 
         } else {
             console.error('WebSocket is not open');
         }

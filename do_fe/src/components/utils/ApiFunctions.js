@@ -2,8 +2,8 @@ import axios from "axios"
 // import moment from "moment";
 import cookie from "react-cookies";
 
-// const BASE_URL="http://127.0.0.1:8000"
-const BASE_URL="https://oceanhotel.pythonanywhere.com"
+const BASE_URL="http://127.0.0.1:8000"
+// const BASE_URL="https://oceanhotel.pythonanywhere.com"
 export const endpoints = {
     'login': '/o/token/',
 	'current_user': '/auth/user/current-user/',
@@ -298,15 +298,38 @@ export async function deleteRoom(roomId) {
 }
 
 /* This function update a room */
+// export async function updateRoom(roomId, roomData) {
+// 	const formData = new FormData()
+// 	formData.append("roomType", roomData.roomType)
+// 	formData.append("roomPrice", roomData.roomPrice)
+// 	formData.append("photo", roomData.photo)
+// 	const response = await api.patch(`/hotel/rooms/${roomId}/`, formData,{
+// 		// headers: getHeader()
+// 	})
+// 	return response
+// }
 export async function updateRoom(roomId, roomData) {
-	const formData = new FormData()
-	formData.append("roomType", roomData.roomType)
-	formData.append("roomPrice", roomData.roomPrice)
-	formData.append("photo", roomData.photo)
-	const response = await api.put(`/rooms/update/${roomId}`, formData,{
-		// headers: getHeader()
-	})
-	return response
+	const formData = new FormData();
+
+	formData.append("room_type", roomData.room_type); 
+	formData.append("room_price", roomData.roomPrice);
+	formData.append("is_available", roomData.is_available);
+
+	if (roomData.photo instanceof File) {
+		formData.append("photo", roomData.photo);
+	}
+
+	try {
+		const response = await api.patch(`/hotel/rooms/${roomId}/`, formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+		return response;
+	} catch (error) {
+		console.error("Error updating room:", error);
+		throw error;
+	}
 }
 
 /* This function gets a room by Id*/

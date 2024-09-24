@@ -196,9 +196,9 @@ const Login = () => {
 				<button type="button" onClick={handleGoogleLogin} style={{ marginBottom: "10px" }}>
                     Login with Google
                 </button>
-				{/* <button type="button" onClick={handleFacebookLogin} style={{ marginTop: "10px" }}>
+				<button type="button" onClick={handleFacebookLogin} style={{ marginTop: "10px" }}>
                     Facebook
-                </button> */}
+                </button>
 				{/* <FacebookLogin
 					appId={process.env.REACT_APP_FACEBOOK_APP_ID}
 					autoLoad={false}

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification, Invoice
 from userauths.serializers import UserSerializer
 from userauths.models import User
 
@@ -127,3 +127,48 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'user', 'booking', 'type', 'seen', 'date', 'content']
+
+
+class InvoiceCreateSerializer(serializers.ModelSerializer):
+    booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'id',  # Thêm nếu bạn muốn hiển thị ID
+            'user',
+            'booking',
+            'order_id',
+            'amount',
+            'description',
+            'payment_method',
+            'transaction_date',
+            'bank_code',
+            'status',
+            'vnp_response_code',
+        ]
+
+    def create(self, validated_data):
+        return Invoice.objects.create(**validated_data)
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    booking_id = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'id',
+            'user',
+            'booking_id',
+            'order_id',
+            'amount',
+            'description',
+            'payment_method',
+            'transaction_date',
+            'bank_code',
+            'status',
+            'vnp_response_code',
+        ]

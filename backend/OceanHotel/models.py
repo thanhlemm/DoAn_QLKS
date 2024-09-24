@@ -31,7 +31,7 @@ class Branch(BaseModel):
     phone = models.CharField(max_length=15)
     email = models.EmailField(max_length=100)
     image = CloudinaryField()
-    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='managed_branches')
     status = models.CharField(max_length=20, choices=HOTEL_STATUS, default="Live")
     tags = models.CharField(max_length=200, help_text="Seperate tags with comma")
     views = models.IntegerField(default=0)  # Số lượt xem chi nhánh
@@ -82,15 +82,12 @@ class Room(BaseModel):
 
 
 PAYMENT_STATUS = (
-    ("paid", "Paid"),
-    ("pending", "Pending"),
-    ("processing", "Processing"),
-    ("cancelled", "Cancelled"),
-    ("failed", "Failed"),
-    ("refunding", "Refunding"),
-    ("refunded", "Refunded"),
-    ("unpaid", "Unpaid"),
-    ("expired", "Expired"),
+    ("paid", "Paid"),  # Đã thanh toán
+    ("pending", "Pending"),  # Đang chờ xử lý
+    ("failed", "Failed"),  # Thất bại
+    ("cancelled", "Cancelled"),  # Đã hủy
+    ("refunded", "Refunded"),  # Đã hoàn tiền
+    ("unpaid", "Unpaid"),  # Chưa thanh toán
 )
 
 
@@ -192,3 +189,25 @@ class Notification(BaseModel):
 
     def __str__(self):
         return f"{self.user.username} - {self.type} - {self.date}"
+
+
+class Invoice(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link invoice to a user
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, null=True)
+    order_id = models.CharField(max_length=255)  # VNPay order ID
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Amount paid
+    description = models.CharField(max_length=255)  # Order description
+    payment_method = models.CharField(max_length=50)  # VNPay or other methods
+    transaction_date = models.DateTimeField(default=timezone.now)  # Date of payment
+    bank_code = models.CharField(max_length=50, blank=True, null=True)  # Bank code used for payment
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')  # Payment status
+    vnp_response_code = models.CharField(max_length=10, blank=True, null=True)  # VNPay response code
+
+    def __str__(self):
+        return f"Invoice {self.order_id} - {self.user.username} - {self.booking.confirmationCode}"

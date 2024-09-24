@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-vo%o6ll8zsnlvr6k+4f$w)dwczr#2*^h*j(#f*nuxsv2t*-p)_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['oceanhotel.pythonanywhere.com']
+ALLOWED_HOSTS = ['oceanhotel.pythonanywhere.com', '127.0.0.1', 'oceanhotel.vercel.app']
 CORS_ALLOW_ALL_ORIGINS = True
 
 
@@ -87,7 +87,7 @@ VNPAY_RETURN_URL = 'https://oceanhotel.vercel.app/payment-result'
 
 INSTALLED_APPS = [
     'jazzmin',
-
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -95,6 +95,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+
+    # Chat
+    'channels',
 
     # Google
     "sslserver",
@@ -109,7 +112,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'drf_yasg',
     'corsheaders',
-
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -147,6 +150,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+
+ASGI_APPLICATION = 'backend.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

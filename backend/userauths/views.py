@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
-from .serializers import UserRegisterSerializer, UserSerializer, RoleSerializer, EmployeeSerializer
+from .serializers import UserRegisterSerializer, UserSerializer, RoleSerializer, EmployeeSerializer, CustomerSerializer
 from .models import User, UserProfile, Role
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -74,7 +74,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-    @action(detail=True, methods=['put', 'patch'], url_path='update-employee')
+    @action(detail=True, methods=['patch'], url_path='update-employee')
     def update_employee(self, request, pk=None):
         try:
             user = self.get_object()  # Lấy đối tượng user cần cập nhật dựa vào pk
@@ -159,6 +159,21 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
         user.save()
 
         return Response({'detail': 'Password changed successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='search-customer-phone')
+    def search_customer(self, request):
+        phone_number = request.query_params.get('phone', None)
+
+        if phone_number is None:
+            return Response({'error': 'Phone number is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            customer = User.objects.get(phone=phone_number)
+        except User.DoesNotExist:
+            return Response({'error': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CustomerSerializer(customer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GoogleOAuth2LoginCallbackView(APIView):

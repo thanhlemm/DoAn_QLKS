@@ -16,6 +16,8 @@ r.register(r'coupon', views.CouponViewSet, basename='coupon')
 r.register(r'feedback', views.FeedbackViewSet, basename='feedback')
 r.register(r'notification', views.NotificationViewSet, basename='notification')
 r.register(r'payment', PaymentViewSet, basename='payment')
+r.register(r'invoices', views.InvoiceViewSet, basename='invoice')
+
 
 
 urlpatterns = [

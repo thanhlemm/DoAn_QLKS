@@ -4,9 +4,11 @@ from requests import Response
 from rest_framework import viewsets, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
-from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification
-from .serializers import BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer, \
-    BookingSerializer, CouponSerializer, FeedbackSerializer, NotificationSerializer
+from rest_framework.permissions import IsAuthenticated
+from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification, Invoice
+from .serializers import (BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer,
+                          BookingSerializer, CouponSerializer, FeedbackSerializer, NotificationSerializer,
+                          InvoiceSerializer, InvoiceCreateSerializer)
 from rest_framework.response import Response
 from django.conf import settings
 from userauths.models import User
@@ -100,6 +102,20 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            print("Error during partial update:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
     @action(detail=True, methods=['patch'], url_path='delete-room')
     def delete_roomtypes(self, request, pk=None):
         room = self.get_object()
@@ -120,6 +136,7 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
             available_rooms = Room.objects.filter(
                 branch_id=branch_id,
                 room_type_id=room_type_id,
+                is_available=True,
             ).exclude(
                 # Q(booking__check_in_date__lt=checkout,
                 #   booking__check_out_date__lte=checkout) |  # Phòng đã được đặt và kết thúc trước khi hoặc đúng thời gian bạn check-out.
@@ -247,6 +264,11 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         booking.is_active = False
         booking.save()
 
+        if booking.room.exists():  # Kiểm tra nếu booking có phòng liên quan
+            for r in booking.room.all():
+                r.is_available = True
+                r.save()
+
         # Lấy mã coupon từ request nếu có
         coupon_code = request.data.get('code', None)
 
@@ -278,6 +300,7 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         booking.checked_in = True
         booking.save()
+
         return Response({'success': True, 'message': 'Booking đã được check-in thành công.'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='check-out')
@@ -297,6 +320,11 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         booking.checked_out = True
         booking.save()
+
+        for r in booking.room.all():  # Iterate through the related rooms
+            r.is_available = True
+            r.save()
+
         return Response({'success': True, 'message': 'Booking đã được check-out thành công.'},
                         status=status.HTTP_200_OK)
 
@@ -506,3 +534,53 @@ class NotificationViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(serializer.data)
         except Notification.DoesNotExist:
             return Response({'detail': 'Notification not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class InvoiceViewSet(viewsets.ViewSet,
+                     generics.RetrieveAPIView,
+                     generics.ListAPIView):
+    queryset = Invoice.objects.all().order_by('-transaction_date')
+    serializer_class = InvoiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if user.role.name == 'Lễ tân':
+            return queryset
+        return queryset.filter(user=user)
+
+    @action(detail=False, methods=['post'])
+    def create_invoice(self, request):
+        """
+        Tạo một hóa đơn mới dựa trên dữ liệu được gửi.
+        """
+        serializer = InvoiceCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            invoice = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['patch'])
+    def update_vnp_response_code_by_booking(self, request):
+        """
+        Cập nhật vnp_response_code cho hóa đơn dựa trên booking_id.
+        """
+        booking_id = request.data.get('booking_id')
+        vnp_response_code = request.data.get('vnp_response_code')
+        new_status = request.data.get('status', 'paid')
+
+        if not booking_id:
+            return Response({'error': 'Missing booking_id or vnp_response_code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            invoice = Invoice.objects.get(booking_id=booking_id)
+        except Invoice.DoesNotExist:
+            return Response({'error': 'Invoice not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        invoice.vnp_response_code = vnp_response_code
+        invoice.status = new_status
+        invoice.save()
+
+        serializer = self.get_serializer(invoice)
+        return Response(serializer.data, status=status.HTTP_200_OK)
