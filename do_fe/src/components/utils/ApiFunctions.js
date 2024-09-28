@@ -39,49 +39,6 @@ export const authAPI = (accessToken) => {
     });
 };
 
-
-export const googleLogin = async () => {
-    try {
-        const response = await api.get(`/auth/login/google/`);
-        return response.data;
-    } catch (error) {
-        console.error('Error during Google login:', error);
-        throw error;
-    }
-};
-
-export const googleLoginCallback = async (authCode) => {
-    try {
-        const response = await api.get(`/auth/google/callback/login/?code=${authCode}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error during Google login callback:', error);
-        throw error;
-    }
-};
-
-export const googleSignUp = async () => {
-    try {
-        const response = await api.get(`/auth/signup/google/`);
-        return response.data;
-    } catch (error) {
-        console.error('Error during Google sign up:', error);
-        throw error;
-    }
-};
-
-export const googleSignUpCallback = async (authCode) => {
-    try {
-        const response = await api.get(`/auth/google/callback/signup/?code=${authCode}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error during Google sign up callback:', error);
-        throw error;
-    }
-};
-
-
-
 export const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
