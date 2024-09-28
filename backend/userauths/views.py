@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import redirect
 from django.urls import reverse
-from userauths.utils import  upload_image_from_url, facebook_callback
+from userauths.utils import upload_image_from_url, facebook_callback
 
 from userauths.utils import google_callback
 from django.http import JsonResponse
@@ -52,7 +52,6 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
             # Trả về lỗi nếu dữ liệu không hợp lệ
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     @action(methods=['get'], url_path='current-user', detail=False)
     def get_current_user(self, request):
         # Đã được chứng thực rồi thì không cần truy vấn nữa => Xác định đây là người dùng luôn
@@ -73,12 +72,12 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
             return Response(UserSerializer(user).data)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
     @action(detail=True, methods=['patch'], url_path='update-employee')
     def update_employee(self, request, pk=None):
         try:
             user = self.get_object()  # Lấy đối tượng user cần cập nhật dựa vào pk
-            serializer = self.get_serializer(user, data=request.data, partial=True)  # partial=True cho phép cập nhật từng phần
+            serializer = self.get_serializer(user, data=request.data,
+                                             partial=True)  # partial=True cho phép cập nhật từng phần
 
             if serializer.is_valid():
                 serializer.save()  # Lưu lại các thay đổi sau khi cập nhật
@@ -119,7 +118,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         if user.is_authenticated:
             # Kiểm tra xem người dùng có mật khẩu không
-            has_password = user.password and  user.password.startswith('pbkdf2_sha256$')
+            has_password = user.password and user.password.startswith('pbkdf2_sha256$')
             message = 'Password exists' if has_password else 'Password not set'
             return Response({'message': message}, status=status.HTTP_200_OK)
         else:
@@ -226,6 +225,7 @@ class GoogleOAuth2LoginCallbackView(APIView):
         redirect_url = f"{frontend_url}/?token={access_token.token}"
         return redirect(redirect_url)
 
+
 class RoleViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
@@ -274,6 +274,5 @@ class FacebookLoginCallbackView(APIView):
         )
 
         return Response({
-                'access_token': access_token.token,
+            'access_token': access_token.token,
         })
-

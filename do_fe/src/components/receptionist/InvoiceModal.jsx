@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { getUser } from '../utils/ApiFunctions'; 
 
-const InvoiceModal = ({ show, onHide, booking, onConfirmPayment }) => {
+const InvoiceModal = ({ show, onHide, booking, invoice, onConfirmPayment }) => {
     const [guestFirstName, setGuestFirstName] = useState('');
     const [guestLastName, setGuestLastName] = useState('');
 
@@ -46,7 +46,7 @@ const InvoiceModal = ({ show, onHide, booking, onConfirmPayment }) => {
                 <Button variant="secondary" onClick={onHide}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={() => onConfirmPayment(booking.id)}>
+                <Button variant="primary" onClick={() => onConfirmPayment(invoice.id)}>
                     Confirm Payment
                 </Button>
             </Modal.Footer>

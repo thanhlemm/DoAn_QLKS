@@ -584,3 +584,26 @@ class InvoiceViewSet(viewsets.ViewSet,
 
         serializer = self.get_serializer(invoice)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='confirm-payment')
+    def confirm_payment(self, request, pk=None):
+        """
+        Confirm the payment for a specific invoice.
+        """
+        # Fetch the invoice using the pk (invoice_id)
+        invoice = get_object_or_404(Invoice, pk=pk)
+
+        # Check if the invoice is already paid
+        if invoice.status == 'paid':
+            return Response({"detail": "Invoice already paid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the invoice status to 'paid'
+        invoice.status = 'paid'
+        invoice.save()
+
+        if invoice.booking:  # Ensure the invoice has an associated booking
+            invoice.booking.update_status_to_paid()
+
+        # Serialize and return the updated invoice
+        serializer = InvoiceSerializer(invoice)
+        return Response(serializer.data, status=status.HTTP_200_OK)

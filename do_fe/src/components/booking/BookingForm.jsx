@@ -74,8 +74,8 @@ const BookingForm = () => {
                 const response = await getRoomById(roomId);
                 setRoomPrice(response.price);
                 setRoomInfo(response);
-                const roomTypeId = response.room_type.id;
-                const branchId = response.branch.id;
+                const roomTypeId = response.room_type;
+                const branchId = response.branch;
 
                 setBooking(prevState => ({
                     ...prevState,
@@ -194,6 +194,7 @@ const BookingForm = () => {
 	
 	const handleFormSubmit = async () => {
 		try {
+			console.log(booking)
 			const confirmationCode = await bookRoom(booking, couponCode)
 			console.log(confirmationCode)
 			setBooking(prevState => ({
@@ -230,7 +231,7 @@ const BookingForm = () => {
 				`,
 				recipient: booking.email,
 			};
-			
+			console.log(emailData)
 			  // Gửi email xác nhận
 			await api.post(endpoints['send_email'], emailData);
 

@@ -54,7 +54,7 @@ const PopularBranch = () => {
                                 </Link>
                                 <Card.Body>
                                     <Card.Title className="hotel-color">{branch.name}</Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted"><i class="fa fa-location-arrow" aria-hidden="true"></i>{branch.address}</Card.Subtitle>
+                                    <Card.Subtitle className="mb-2 text-muted"><i className="fa fa-location-arrow" aria-hidden="true"></i>{branch.address}</Card.Subtitle>
                                     <Card.Text as="div">
                                         <div className="mb-2">
                                             <i className="fa fa-phone"></i> {branch.phone}

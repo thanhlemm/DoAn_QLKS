@@ -42,7 +42,7 @@ const ChatBubble = ({branch}) => {
                 const roomName = encodeURIComponent(response.data.branch);
                 const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
                 // const wsEndpoint = `${websocketProtocol}://oceanhotel.pythonanywhere.com/ws/${response.data.customer}/`;
-                const wsEndpoint = `${websocketProtocol}://127.0.0.1:8000/ws/${response.data.customer}/`;
+                const wsEndpoint = `${websocketProtocol}://127.0.0.1:8000/ws/${response.data.room_id}/`;
 
                 const socket = new WebSocket(wsEndpoint);
                 
@@ -50,6 +50,7 @@ const ChatBubble = ({branch}) => {
                 
                 socket.onopen = function (e) {
                     console.log('WebSocket is connected.');
+                    socket.send("Message send");
                     setSenderId(response.data.sender_id); // Lưu sender ID
                 };
                 
@@ -75,6 +76,7 @@ const ChatBubble = ({branch}) => {
 
             setIsChatMessageOpen(true);
         } catch (error) {
+            alert("Có thể bạn chưa đăng ký tài khoản!! Vui lòng đăng ký tài khoản")
             if (error.response && error.response.data) {
                 setChatLog('Error: ' + error.response.data.message);
             } else {

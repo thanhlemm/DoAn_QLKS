@@ -54,7 +54,7 @@ cloudinary.config(
     cloud_name='thanhlem',
     api_key='791132312397797',
     api_secret='_m9UIrPJn3_6VrSV3y9NiCvALng',
-    api_proxy = "http://proxy.server:3128",
+    # api_proxy="http://proxy.server:3128",
 )
 import cloudinary.uploader
 import cloudinary.api
@@ -80,7 +80,8 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 VNPAY_TMN_CODE = os.environ.get("VNPAY_TMN_CODE")
 VNPAY_HASH_SECRET_KEY = os.environ.get("VNPAY_HASH_SECRET_KEY")
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-VNPAY_RETURN_URL = 'https://oceanhotel.vercel.app/payment-result'
+# VNPAY_RETURN_URL = 'https://oceanhotel.vercel.app/payment-result'
+VNPAY_RETURN_URL = 'http://localhost:3000/payment-result'
 
 
 # Application definition

@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { api, endpoints } from '../utils/ApiFunctions'; // Đảm bảo rằng bạn có API và các endpoint phù hợp
 import InvoiceModal from '../receptionist/InvoiceModal';
 import Cookies from 'react-cookies';
+import ReactToPrint from 'react-to-print';
+import InvoiceToPrint from './InvoiceToPrint';
+
 
 const ExistingBill = () => {
     const [invoices, setInvoices] = useState([]);  // Lưu danh sách hóa đơn
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [showPrintModal, setShowPrintModal] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [selectedBooking, setSelectedBooking] = useState(null);
     const token = Cookies.load('token');
+    const componentRef = useRef();
 
     // Hàm lấy dữ liệu hóa đơn từ API
     const fetchInvoices = async () => {
@@ -17,38 +23,79 @@ const ExistingBill = () => {
                     'Authorization': `Bearer ${token}`,
                 }
             }); 
-            console.log(response)
             setInvoices(response.data);
         } catch (error) {
             console.error('Error fetching invoices:', error);
         }
     };
 
+    const fetchBooking = async (bookingId) => {
+        try {
+            const response = await api.get(`/hotel/booking/${bookingId}/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            setSelectedBooking(response.data); // Store the fetched booking
+        } catch (error) {
+            console.error('Error fetching booking:', error);
+        }
+    };
+
     // Hàm để hiển thị modal xem chi tiết hóa đơn
-    const handleViewInvoice = (invoice) => {
+    const handleViewInvoice = async (invoice) => {
         setSelectedInvoice(invoice);
+        await fetchBooking(invoice.booking_id);
         setShowInvoiceModal(true);
     };
 
-    // Hàm xác nhận thanh toán (nếu cần thiết)
     const confirmPayment = async (invoiceId) => {
         try {
-            const response = await api.post(`/hotel/invoice/${invoiceId}/confirm-payment/`, {
+            const response = await api.post(`/hotel/invoices/${invoiceId}/confirm-payment/`, {}, {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': token
                 }
             });
             if (response.status === 200) {
                 alert("Xác nhận thanh toán thành công");
-                fetchInvoices(); // Cập nhật lại danh sách hóa đơn sau khi thanh toán
+                fetchInvoices(); // Update the invoice list after payment
                 setShowInvoiceModal(false);
             }
         } catch (error) {
             console.error('Error confirming payment:', error);
+            alert('Error confirming payment: ' + error.response?.data?.detail || 'Something went wrong');
         }
     };
+    // const handlePrintInvoice = async (invoice) => {
+    //     const input = invoiceRef.current; // Lấy tham chiếu đến thành phần hóa đơn
 
+    //     // Đảm bảo tất cả hình ảnh đã tải xong
+    //     const images = input.getElementsByTagName('img');
+    //     const imagePromises = Array.from(images).map(img => {
+    //         return new Promise((resolve) => {
+    //             if (img.complete) {
+    //                 resolve();
+    //             } else {
+    //                 img.onload = resolve;
+    //                 img.onerror = resolve; // Để tránh treo khi có lỗi hình ảnh
+    //             }
+    //         });
+    //     });
+
+    //     await Promise.all(imagePromises); // Chờ tất cả hình ảnh tải
+
+    //     const canvas = await html2canvas(input);
+    //     const imgData = canvas.toDataURL('image/png');
+    //     const pdf = new jsPDF();
+    //     pdf.addImage(imgData, 'PNG', 0, 0);
+    //     pdf.save(`invoice_${invoice.id}.pdf`);
+    // };
+    const handlePrintBooking = async(booking) => {
+        // console.log(selectedBooking);
+        await fetchBooking(booking);
+        setShowPrintModal(true); // Mở modal in booking
+    };
     useEffect(() => {
         fetchInvoices();  // Lấy dữ liệu hóa đơn khi trang được load
     }, []);
@@ -82,14 +129,21 @@ const ExistingBill = () => {
                                 >
                                     View Invoice
                                 </button>
-                                {invoice.status === 'pending' || invoice.status === 'failed' && (
+                                {invoice.status === 'pending' || invoice.status === 'failed' ? (
                                     <button
                                         className="btn btn-sm ml-2"
                                         onClick={() => confirmPayment(invoice.id)}
                                     >
                                         Confirm Payment
                                     </button>
-                                )}
+                                ) : invoice.status === 'paid' ? (
+                                    <button
+                                        className="btn btn-sm ml-2"
+                                        onClick={() => handlePrintBooking(invoice.booking_id)} // Gọi hàm in booking
+                                    >
+                                        Print Invoice
+                                    </button>
+                                ) : null}
                             </td>
                         </tr>
                     ))}
@@ -100,8 +154,16 @@ const ExistingBill = () => {
             <InvoiceModal
                 show={showInvoiceModal}
                 onHide={() => setShowInvoiceModal(false)}
-                booking={selectedInvoice} 
+                booking={selectedBooking} 
+                invoice={selectedInvoice}
                 onConfirmPayment={confirmPayment} 
+            />
+
+            <InvoiceToPrint
+                show={showPrintModal}
+                onHide={() => setShowPrintModal(false)}
+                booking={selectedBooking} 
+                ref={componentRef}
             />
         </div>
     );

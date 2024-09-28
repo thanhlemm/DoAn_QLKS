@@ -36,6 +36,12 @@ const RoomCard = ({ room }) => {
       const roomType = roomTypes.find(type => type.id === id);
       return roomType ? `${roomType.type}` : 'Unknown';
     };
+    const handleBookingClick = (e) => {
+      if (!room.is_available) {
+        e.preventDefault(); // Prevent navigation if room is not available
+        alert("Room is not available for booking.");
+      }
+    };
   return (
     <Col key={room.id} className="mb-4" xs={12} md={6} lg={4}>
       <Card className="room-card">
@@ -58,8 +64,12 @@ const RoomCard = ({ room }) => {
           <Card.Text className="room-price">
             {room.price ? `${room.price} USD` : "Price not available"}
           </Card.Text>
-          <Link to={`/book-room/${room.id}`} className="btn btn-primary btn-block">
-            Book Now
+          <Link
+            to={`/book-room/${room.id}`}
+            className={`btn btn-primary btn-block ${!room.is_available ? "disabled" : ""}`}
+            onClick={handleBookingClick}
+          >
+            {room.is_available ? "Book Now" : "Unavailable"}
           </Link>
         </Card.Body>
       </Card>

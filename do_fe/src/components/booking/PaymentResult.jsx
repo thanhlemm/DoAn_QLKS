@@ -64,7 +64,8 @@ const PaymentResult = () => {
 
             const bookingId = localStorage.getItem('bookingId');
             if (isSuccess && bookingId) {
-                updateBookingStatus(bookingId, 'paid');
+                const r = updateBookingStatus(bookingId, 'paid');
+                console.log(r)
                 updateVnpResponseCode(bookingId, queryParams.get('vnp_ResponseCode'));
                 // Sau khi cập nhật trạng thái thành công, có thể xóa `bookingId` khỏi localStorage
                 localStorage.removeItem('bookingId');

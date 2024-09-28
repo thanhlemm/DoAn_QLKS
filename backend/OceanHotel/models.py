@@ -112,11 +112,16 @@ class Booking(models.Model):
     checked_out_tracker = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
     confirmationCode = models.CharField(max_length=36, unique=True, blank=True, null=True)
+    invoice = models.OneToOneField('Invoice', on_delete=models.CASCADE, related_name='booking_invoice', null=True)
 
     def save(self, *args, **kwargs):
         if not self.confirmationCode:
             self.confirmationCode = str(uuid.uuid4())
         super().save(*args, **kwargs)
+
+    def update_status_to_paid(self):
+        self.payment_status = 'paid'
+        self.save()
 
     def __str__(self):
         return f"Booking ID: {self.id}"
@@ -199,7 +204,8 @@ class Invoice(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link invoice to a user
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, null=True)
+    # booking = models.ForeignKey(Booking, on_delete=models.CASCADE, null=True, related_name='invoice')
+    booking = models.OneToOneField('Booking', on_delete=models.CASCADE, related_name='invoice_booking', null=True)
     order_id = models.CharField(max_length=255)  # VNPay order ID
     amount = models.DecimalField(max_digits=10, decimal_places=2)  # Amount paid
     description = models.CharField(max_length=255)  # Order description

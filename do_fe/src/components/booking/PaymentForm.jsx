@@ -45,8 +45,9 @@ const PaymentForm = () => {
           'X-CSRFToken': csrftoken,
         }
       });
-
+      console.log(response)
       const paymentUrl = response?.data?.payment_url;
+      // const paymentUrl = response?.data[0];
       if (paymentUrl && typeof paymentUrl === 'string' && paymentUrl.startsWith('http')) {
         window.open(paymentUrl, '_blank');
       } else {

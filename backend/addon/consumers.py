@@ -3,8 +3,8 @@ import json
 from asgiref.sync import sync_to_async
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-# from .models import ChatRoom, Message
-# from userauths.models import User
+from .models import ChatRoom, Message
+from userauths.models import User
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -50,8 +50,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #         }
     #     )
     async def receive(self, text_data):
-        from .models import ChatRoom, Message
-        from userauths.models import User
+        # from .models import ChatRoom, Message
+        # from userauths.models import User
         data = json.loads(text_data)
         message = data.get('message')
         sender_id = data.get('sender')
@@ -88,3 +88,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message': message,
             'sender': sender
         }))
+
