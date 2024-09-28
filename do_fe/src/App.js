@@ -26,6 +26,7 @@ import BookingSuccess from "./components/booking/BookingSuccess"
 import Bookings from "./components/booking/Bookings"
 import FindBooking from "./components/booking/FindBooking"
 import Login from "./components/auth/Login"
+import FaceBookCallBack from "./components/auth/FaceBookCallBack"
 import MyUserReducer from './components/Myreducer/MyUserReducer';
 import cookie from "react-cookies";
 import { MyDispatchContext, MyUserContext } from './components/utils/MyContext';
@@ -65,6 +66,8 @@ function App() {
 						<Route path="/logout" element={<MainLayout><FindBooking /></MainLayout>} />
 						<Route path="/payment-form" element={<MainLayout><PaymentForm /></MainLayout>} />
 						<Route path="/payment-result" element={<MainLayout><PaymentResult /></MainLayout>} />
+						<Route path="/auth/facebook/callback" element={<FaceBookCallBack />} />
+
 
 						<Route path="/admin" element={
 							<RequireAdmin>

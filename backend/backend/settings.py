@@ -68,7 +68,7 @@ GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
 FACEBOOK_CLIENT_ID = os.environ.get("FACEBOOK_CLIENT_ID")
 FACEBOOK_CLIENT_SECRET = os.environ.get("FACEBOOK_CLIENT_SECRET")
-FACEBOOK_REDIRECT_URI = "http://127.0.0.1:8000/oauth/facebook/callback/"
+FACEBOOK_REDIRECT_URI = "http://localhost:3000/auth/facebook/callback"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

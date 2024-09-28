@@ -11,7 +11,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import redirect
 from django.urls import reverse
-from userauths.utils import upload_image_from_url, facebook_callback
+from userauths.utils import upload_image_from_url
+from django.conf import settings
 
 from userauths.utils import google_callback
 from django.http import JsonResponse
@@ -233,18 +234,35 @@ class RoleViewSet(viewsets.ViewSet, generics.ListAPIView):
 
 class FacebookLoginCallbackView(APIView):
     def post(self, request):
-        access_token = request.data.get('accessToken')
-        print(access_token)
-        if not access_token:
+        code = request.data.get('code')
+        if not code:
             return Response({'error': 'Access token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        facebook_url = f'https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email,picture'
+        facebook_token_url = 'https://graph.facebook.com/v9.0/oauth/access_token'
+        params = {
+            'client_id': settings.FACEBOOK_CLIENT_ID,
+            'redirect_uri': settings.FACEBOOK_REDIRECT_URI,
+            'client_secret': settings.FACEBOOK_CLIENT_SECRET,
+            'code': code,
+        }
+        response = requests.get(facebook_token_url, params=params)
 
-        response = requests.get(facebook_url)
         if response.status_code != 200:
             return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user_data = response.json()
+        params = response.json()
+        access_token = params.get('access_token')
+
+        if not access_token:
+            return Response({'error': 'Access token not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_info_url = f"https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email,picture"
+        user_info_response = requests.get(user_info_url)
+
+        if user_info_response.status_code != 200:
+            return Response({'error': 'Failed to obtain user information'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_data = user_info_response.json()
         user_email = user_data.get('email')
         user_name = user_data.get('name')
         user_picture = user_data.get('picture', {}).get('data', {}).get('url')
@@ -253,7 +271,7 @@ class FacebookLoginCallbackView(APIView):
             return Response({'error': 'Email not found in access token'}, status=status.HTTP_400_BAD_REQUEST)
 
         user, created = User.objects.get_or_create(
-            username=user_name,
+            username=user_email,
             defaults={'first_name': user_name, 'email': user_email, "role": Role.objects.get(id=3),
                       'avatar': upload_image_from_url(user_picture)})
 
@@ -276,3 +294,5 @@ class FacebookLoginCallbackView(APIView):
         return Response({
             'access_token': access_token.token,
         })
+
+
