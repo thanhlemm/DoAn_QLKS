@@ -1,21 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getBookingsByUserId, getUser, getFeedbacksByUser } from '../utils/ApiFunctions';
+import { getBookingsByUserId, getUser, getFeedbacksByUser, deleteUser } from '../utils/ApiFunctions';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { MyUserContext } from '../utils/MyContext';
 import Feedback from '../common/Feedback'; 
 import cookie from "react-cookies";
 
+import PasswordModal from '../common/PasswordModal'; 
+import { checkPasswordStatus, NewPassword, changePassword } from '../utils/ApiFunctions'; 
+
+
 
 const Profile = () => {
     const user = useContext(MyUserContext);
     const [bookings, setBookings] = useState([]);
-    const [feedbacks, setFeedbacks] = useState([]); // State for feedbacks
+    const [feedbacks, setFeedbacks] = useState([]); 
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [selectedBooking, setSelectedBooking] = useState(null); // Selected booking for feedback
+    const [selectedBooking, setSelectedBooking] = useState(null); 
     const navigate = useNavigate();
-    const [showFeedbackModal, setShowFeedbackModal] = useState(false); // Feedback modal
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false); 
+    const [showPasswordModal, setShowPasswordModal] = useState(false); 
+    const [isNewPassword, setIsNewPassword] = useState(false); 
+    const [passwordStatus, setPasswordStatus] = useState(null);
 
     const handleFeedbackClose = () => setShowFeedbackModal(false);
     const handleFeedbackShow = (booking) => {
@@ -55,6 +62,52 @@ const Profile = () => {
 
         fetchFeedbacks();
     }, [user]);
+
+    useEffect(() => {
+        const checkUserPasswordStatus = async () => {
+            const token = cookie.load('token');
+            try {
+                const status = await checkPasswordStatus(token);
+                setPasswordStatus(status);
+                setIsNewPassword(!status.message.includes('Password exists')); 
+                // setShowPasswordModal(true); 
+            } catch (error) {
+                console.error('Error checking password status:', error.message);
+            }
+        };
+
+        if (user && user.id) {
+            checkUserPasswordStatus();
+        }
+    }, [user]);
+
+    const handlePasswordSubmit = async (oldPassword, newPassword, confirmNewPassword) => {
+        const token = cookie.load('token');
+
+        try {
+            if (isNewPassword) {
+                await NewPassword(newPassword, confirmNewPassword, token);
+                setMessage('Password set successfully.');
+            } else {
+                await changePassword(oldPassword, newPassword, token);
+                setMessage('Password changed successfully.');
+            }
+            setShowPasswordModal(false); // Close modal after success
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        const token = cookie.load('token');
+        try {
+            const result = await deleteUser(user.id, token);
+            setMessage('Account deleted successfully.');
+            navigate('/login'); 
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    };
 
     const hasFeedback = (bookingId) => {
         return feedbacks.some(feedback => feedback.booking === bookingId); // Check for existing feedback
@@ -118,12 +171,20 @@ const Profile = () => {
                                                 <p className="card-text">{user.role?.name}</p>
                                             </div>
                                         </div>
+                                        <hr />
+                                        <button className="btn btn-primary" onClick={() => setShowPasswordModal(true)}>
+                                            {isNewPassword ? 'Create New Password' : 'Change Password'}
+                                        </button>
+                                        <button className="btn btn-danger ms-3 " style={{backgroundColor:"red"}} onClick={handleDeleteAccount}>
+                                            Delete Account
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
 
                 {/* Booking History */}
                 <h4 className="card-title text-center">Booking History</h4>
@@ -174,6 +235,13 @@ const Profile = () => {
             show={showFeedbackModal}
             handleClose={handleFeedbackClose}
             booking={selectedBooking}
+        />
+
+        <PasswordModal
+            show={showPasswordModal}
+            handleClose={() => setShowPasswordModal(false)}
+            isNewPassword={isNewPassword}
+            onSubmit={handlePasswordSubmit}
         />
         </>
     );

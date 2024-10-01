@@ -66,14 +66,19 @@ export async function registerUser(registration) {
 		}
 	}
 }
-
+const getCSRFToken = () => {
+    return cookie.load('csrftoken');
+};
 /* This isthe function to delete a user */
 export async function deleteUser(userId, token) {
 	try {
+		const csrfToken = getCSRFToken();
+
 		// Thực hiện yêu cầu xóa tài khoản với token xác thực
 		const response = await api.delete(`/auth/user/${userId}/delete-account/`, {
 			headers: {
-				'Authorization': `Bearer ${token}` // Thêm token vào header
+				'Authorization': `Bearer ${token}`, // Thêm token vào header
+				'X-CSRFToken': csrfToken,
 			}
 		});
 		return response.data
@@ -116,7 +121,7 @@ export const NewPassword = async (newPassword, confirmNewPassword, token) => {
     const response = await api.post(`/auth/user/set_password/`, { newPassword }, {
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${cookie.load('token')}`, // Sử dụng token nếu cần
+			'Authorization': `Bearer ${cookie.load('token')}`, 
 		},
 	});
 
