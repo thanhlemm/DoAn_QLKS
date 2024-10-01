@@ -8,10 +8,11 @@ const Registration = () => {
     const [registration, setRegistration] = useState({
         username: "",
         first_name: "",
+        last_name:"",
         email: "",
         password: "",
         password2: "",
-        role: 3,
+        role: 2,
         DOB: "",
         address: "",
         phone: "",
@@ -34,6 +35,7 @@ const Registration = () => {
             setRegistration({
                 username: "",
                 first_name: "",
+                last_name:"",
                 email: "",
                 password: "",
                 password2: "",
@@ -97,6 +99,17 @@ const Registration = () => {
                             className="form-control"
                             placeholder="first_name"
                             value={registration.first_name}
+                            onChange={handleInputChange}
+                        />
+                </div>
+                <div className="input-box">
+                        <input
+                            id="last_name"
+                            name="last_name"
+                            type="text"
+                            className="form-control"
+                            placeholder="last_name"
+                            value={registration.last_name}
                             onChange={handleInputChange}
                         />
                 </div>
