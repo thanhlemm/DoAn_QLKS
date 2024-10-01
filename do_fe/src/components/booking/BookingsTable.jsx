@@ -90,6 +90,7 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                 return;
             }
             else{
+                alert("Check in thành công")
                 const data = await api.get('/hotel/booking/checked-out/');
                 const activeBookings = data.data;
                 setFilteredBookings(activeBookings);

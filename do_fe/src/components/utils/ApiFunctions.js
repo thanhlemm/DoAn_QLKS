@@ -2,8 +2,8 @@ import axios from "axios"
 // import moment from "moment";
 import cookie from "react-cookies";
 
-const BASE_URL="http://127.0.0.1:8000"
-// const BASE_URL="https://oceanhotel.pythonanywhere.com"
+// const BASE_URL="http://127.0.0.1:8000"
+const BASE_URL="https://oceanhotel.pythonanywhere.com"
 export const endpoints = {
     'login': '/o/token/',
 	'current_user': '/auth/user/current-user/',
