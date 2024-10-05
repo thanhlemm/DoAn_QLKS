@@ -36,7 +36,8 @@ const Profile = () => {
             if (user && user.id) {
                 try {
                     const response = await getBookingsByUserId(user.id);
-                    setBookings(response);
+                    const activeBookings = response.filter(booking => booking.is_active === true);
+                    setBookings(activeBookings);
                 } catch (error) {
                     console.error('Error fetching bookings:', error.message);
                     setErrorMessage(error.message);

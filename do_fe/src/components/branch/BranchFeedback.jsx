@@ -12,7 +12,7 @@ const BranchFeedback = ({ branchId }) => {
     useEffect(() => {    
         const fetchFeedbacks = async () => {
             try {
-                const response = await api.get(`/feedback/get_by_branch/?branch_id=${branchId}`);
+                const response = await api.get(`/hotel/feedback/get_by_branch/?branch_id=${branchId}`);
                 let feedbackData = Array.isArray(response) ? response : response.data;
 
                 setFeedbacks(feedbackData);

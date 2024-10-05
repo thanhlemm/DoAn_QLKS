@@ -59,6 +59,10 @@ const PaymentForm = () => {
   };
 
   useEffect(() => {
+    // if (!sessionStorage.getItem('hasReloaded')) {
+    //   sessionStorage.setItem('hasReloaded', 'true');
+    //   window.location.reload();
+    // }
     const queryParams = new URLSearchParams(window.location.search);
     const result = queryParams.get('vnp_TransactionStatus');
     if (result) {
@@ -189,7 +193,7 @@ const PaymentForm = () => {
           <button className="bg-purple-400 p-3 rounded-full text-white w-[150px]" type="submit">Thanh toán</button>
         </form>
 
-      {paymentResult && (
+      {/* {paymentResult && (
         <PaymentResult
           title={paymentResult.title}
           result={paymentResult.result}
@@ -200,7 +204,7 @@ const PaymentForm = () => {
           vnpResponseCode={paymentResult.vnpResponseCode}
           msg={paymentResult.msg}
         />
-      )}
+      )} */}
     </div>
   );
 };

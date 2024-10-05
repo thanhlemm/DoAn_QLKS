@@ -105,9 +105,8 @@ const Login = () => {
 	
 		const clientId = process.env.REACT_APP_FACEBOOK_APP_ID;
 		const redirectUri = encodeURIComponent(window.location.origin + '/auth/facebook/callback');
-		const currentFrontendUrl = encodeURIComponent(window.location.origin);
-
-		const authUrl = `https://www.facebook.com/v9.0/dialog/oauth?reponse_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${currentFrontendUrl}&scope=email,public_profile`;
+		
+		const authUrl = `https://www.facebook.com/v9.0/dialog/oauth?reponse_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=email,public_profile`;
 
 		window.location.href = authUrl;
 	};

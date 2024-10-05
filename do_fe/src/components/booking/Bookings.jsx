@@ -40,9 +40,7 @@ const Bookings = () => {
 		try {
 			const booking = await api.get(`/hotel/booking/${bookingId}/`); 
             const userId = booking.data.user;
-			console.log(booking)
 			const response = await cancelBooking(bookingId)
-			console.log(response)
 			if(response.success === true){
 				await api.post('/hotel/notification/', {
 					user: userId,

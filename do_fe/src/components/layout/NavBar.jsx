@@ -40,16 +40,6 @@ const NavBar = () => {
   const isUserAdmin = user && user.role && user.role.name === "Admin";
   const isUserReceptionist = user && user.role && user.role.name === "Lễ tân";
 
-  // useEffect(() => {
-  //   if (user) {
-  //     const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || "{}");
-  //     const roomIds = Object.keys(selectionData).filter((key) => !isNaN(key));
-  //     setCartItemCount(roomIds.length);
-  //   } else {
-  //     setCartItemCount(0);
-  //   }
-  // }, [user]);
-
   useEffect(() => {
     const fetchNotifications = async () => {
       if (user) {
@@ -58,7 +48,11 @@ const NavBar = () => {
           const response = await api.get("/hotel/notification/user_notifications/", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          setNotifications(response.data);
+          // Lọc các thông báo có mark_as_read = True
+          const readNotifications = response.data.filter(notification => notification.mark_as_read === true);
+
+          // Set các thông báo đã đọc vào state
+          setNotifications(readNotifications);
         } catch (error) {
           console.error("Failed to fetch notifications:", error);
         }

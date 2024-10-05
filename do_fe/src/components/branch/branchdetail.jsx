@@ -36,7 +36,6 @@ const BranchDetail = () => {
 
         const receptionists = response.data;
 
-        console.log("Receptionists:", receptionists);
 
         if (receptionists.length > 0) {
             return receptionists[Math.floor(Math.random() * receptionists.length)];

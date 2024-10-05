@@ -62,21 +62,22 @@ const BookingForm = () => {
 	
 	const fetchRoomData = useCallback(async () => {
         try {
-            const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
-            const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
-            const roomPromises = roomIds.map(id => getRoomById(id));
-            const rooms = await Promise.all(roomPromises);
-			const availableRooms = rooms.filter(room => room.is_available);
-			if (availableRooms.length > 0) {
-				setRoomsInfo(availableRooms);
-				setCount(availableRooms.length)
-			}
-			const roomIdList = availableRooms.map(room => room.id);
+            // const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
+            // const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+            // const roomPromises = roomIds.map(id => getRoomById(id));
+            // const rooms = await Promise.all(roomPromises);
+			// const availableRooms = rooms.filter(room => room.is_available);
+			// if (availableRooms.length > 1) {
+			// 	setRoomsInfo(availableRooms);
+			// 	setCount(availableRooms.length)
+			// }
+			// const roomIdList = availableRooms.map(room => room.id);
 			 // setRoomsInfo(rooms);
             if (roomId) {
                 const response = await getRoomById(roomId);
                 setRoomPrice(response.price);
                 setRoomInfo(response);
+				setCount(1)
                 const roomTypeId = response.room_type;
                 const branchId = response.branch;
 
@@ -87,6 +88,16 @@ const BookingForm = () => {
                     room: [roomId]         
                 }));
             } else {
+				const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || '{}');
+				const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
+				const roomPromises = roomIds.map(id => getRoomById(id));
+				const rooms = await Promise.all(roomPromises);
+				const availableRooms = rooms.filter(room => room.is_available);
+				if (availableRooms.length > 1) {
+					setRoomsInfo(availableRooms);
+					setCount(availableRooms.length)
+				}
+				const roomIdList = availableRooms.map(room => room.id);
                 const allSameRoomType = availableRooms.every(room => room.room_type.id === rooms[0].room_type.id);
                 const allSameBranch = availableRooms.every(room => room.branch.id === rooms[0].branch.id);
                 if (allSameRoomType && allSameBranch) {
