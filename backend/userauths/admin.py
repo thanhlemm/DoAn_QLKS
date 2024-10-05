@@ -5,7 +5,7 @@ from userauths.models import User, Role
 # Register your models here.
 class UserAdmin(admin.ModelAdmin):
     search_fields = ['username']
-    list_display = ['username',  'email', 'phone', 'sex']
+    list_display = ['username',  'email', 'phone', 'sex', 'role']
 
 
 admin.site.register(User, UserAdmin)

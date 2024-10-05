@@ -47,7 +47,7 @@ class RoomAvailabilitySerializer(serializers.Serializer):
     checkout = serializers.DateField()
 
 
-class BookingSerializer(serializers.ModelSerializer):
+class BookingCreateSerializer(serializers.ModelSerializer):
     room = serializers.PrimaryKeyRelatedField(many=True, queryset=Room.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
@@ -80,6 +80,46 @@ class BookingSerializer(serializers.ModelSerializer):
             'date',
             'confirmationCode',
         ]
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    room = serializers.PrimaryKeyRelatedField(many=True, queryset=Room.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
+    room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+    invoice = serializers.PrimaryKeyRelatedField(queryset=Invoice.objects.all())
+
+    # room_type = RoomTypeSerializer()
+
+    class Meta:
+        model = Booking
+        fields = [
+            'id',
+            'user',
+            'payment_status',
+            'email',
+            'phone',
+            'branch',
+            'room_type',
+            'room',
+            'before_discount',
+            'total',
+            'saved',
+            'check_in_date',
+            'check_out_date',
+            'total_days',
+            'checked_in',
+            'checked_out',
+            'is_active',
+            'checked_in_tracker',
+            'checked_out_tracker',
+            'date',
+            'confirmationCode',
+            'invoice',
+        ]
+        extra_kwargs = {
+            'invoice': {'required': False}
+        }
 
 
 class CouponSerializer(serializers.ModelSerializer):

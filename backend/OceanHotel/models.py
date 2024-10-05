@@ -112,7 +112,7 @@ class Booking(models.Model):
     checked_out_tracker = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
     confirmationCode = models.CharField(max_length=36, unique=True, blank=True, null=True)
-    invoice = models.OneToOneField('Invoice', on_delete=models.CASCADE, related_name='booking_invoice', null=True)
+    invoice = models.OneToOneField('Invoice', on_delete=models.CASCADE, related_name='booking_invoice', null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.confirmationCode:

@@ -1,36 +1,28 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import ChatRoom
-from .serializers import ChatRoomCreateSerializer
-from userauths.models import User
+from .models import RoomChat
+from .serializers import RoomChatSerializer
+from django.db import models
 
 
-class ChatRoomViewSet(viewsets.ModelViewSet):
-    queryset = ChatRoom.objects.all()
-    serializer_class = ChatRoomCreateSerializer
+class RoomChatViewSet(viewsets.ViewSet,
+                      generics.RetrieveAPIView,
+                      generics.ListAPIView):
+    queryset = RoomChat.objects.all()
+    serializer_class = RoomChatSerializer
+    permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['post'], url_path='create-room')
-    def create_chat_room(self, request):
-        customer_identifier = request.data.get('customer')
+    def get_queryset(self):
+        branch = self.request.query_params.get('branch')
+        user = self.request.user  # Get the logged-in receptionist
 
-        # Kiểm tra username hoặc email có tồn tại hay không
-        try:
-            customer = User.objects.get(username=customer_identifier)
-        except User.DoesNotExist:
-            try:
-                customer = User.objects.get(email=customer_identifier)
-            except User.DoesNotExist:
-                return Response({"error": "User not found with the provided username or email"},
-                                status=status.HTTP_404_NOT_FOUND)
-
-        serializer = ChatRoomCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            chat_room = serializer.save()
-            return Response({
-                "message": "Chat room created successfully",
-                "room_id": chat_room.id,
-                "branch": chat_room.branch.name,
-                "customer": chat_room.customer.username
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Filter by branch and either sender or receiver being the receptionist
+        if branch:
+            return self.queryset.filter(branch_id=branch).filter(
+                models.Q(sender=user) | models.Q(receiver=user)
+            )
+        return self.queryset.filter(
+            models.Q(sender=user) | models.Q(receiver=user)
+        )

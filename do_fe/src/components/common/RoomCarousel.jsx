@@ -66,12 +66,11 @@ const RoomCarousel = () => {
         Browse all rooms
       </Link>
       <Container>
-        <Carousel indicators={false}>
+        <Carousel indicators={false} prevIcon={<span aria-hidden="true" className="carousel-control-prev-icon" />} nextIcon={<span aria-hidden="true" className="carousel-control-next-icon" />} className="room-carousel">
           {[...Array(Math.ceil(rooms.length / 4))].map((_, index) => (
             <Carousel.Item key={index}>
               <Row>
                 {rooms.slice(index * 4, index * 4 + 4).map((room) => {
-                  // Clean the image URL for each room
                   return (
                     <Col key={room.id} className="mb-4" xs={12} md={6} lg={3}>
                       <Card>

@@ -73,7 +73,7 @@ const PaymentForm = () => {
         msg: queryParams.get('vnp_Message') || "No message provided"
       });
     }
-  }, [location.search]);
+  }, [location.search, bookingId, bookingConfirmationCode]);
 
   return (
     <div className='p-6 space-y-4 flex flex-col items-center'>

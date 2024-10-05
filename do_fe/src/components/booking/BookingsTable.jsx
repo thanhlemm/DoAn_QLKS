@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { parseISO } from "date-fns";
 import DateSlider from "../common/DateSlider";
 import { getUser, getRoomById, getAllBookings, endpoints, api } from '../utils/ApiFunctions';
 import InvoiceModal from "../receptionist/InvoiceModal"
 import Cookies from 'react-cookies';
+import { MyUserContext } from '../utils/MyContext';
+
 
 
 const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
@@ -13,8 +15,20 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const [error, setError] = useState("");
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const[invoiceId, setInvoiceId] = useState(null);
+    const[bookingId, setBookingId] = useState(null);
+    const [branchId, setBranchId] = useState(null);
+    const user = useContext(MyUserContext);
+
+
+
     const csrftoken = Cookies.load('token');
 
+    useEffect(() => {
+        if (user.branch) {
+            setBranchId(user.branch); 
+        }
+    }, [user, branchId]);
 
     const filterBookings = (startDate, endDate) => {
         let filtered = bookingInfo;
@@ -91,7 +105,7 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
             }
             else{
                 alert("Check in thành công")
-                const data = await api.get('/hotel/booking/checked-out/');
+                const data = await api.get(`/hotel/booking/checked-out/?branch=${branchId}`);
                 const activeBookings = data.data;
                 setFilteredBookings(activeBookings);
             }
@@ -103,6 +117,9 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     const handleCheckOut = async (bookingId) => {
         try {
             const booking = await api.get(`/hotel/booking/${bookingId}/`); 
+            setInvoiceId(booking.data.invoice)
+            console.log(invoiceId)
+            setBookingId(booking.data.id)
             if (booking.data.payment_status === 'unpaid') {
                 setShowInvoiceModal(true);
                 setSelectedBooking(booking.data); 
@@ -112,7 +129,7 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                 if (check.status === 200){
                     alert("Check out thành công")
                 }
-                const data = await api.get('/hotel/booking/checked-out/');
+                const data = await api.get(`/hotel/booking/checked-out/?branch=${branchId}`);
                 const activeBookings = data.data;
                 setFilteredBookings(activeBookings);
             }
@@ -122,9 +139,7 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
     };
 
     const confirmPayment = async (bookingId) => {
-        try {
-            // Thực hiện thanh toán ở đây
-            // const response = await api.post('/hotel/payment/', { booking: bookingId });
+        try {           
             const response = await api.post(`/hotel/booking/${bookingId}/change-status/`, {
                 payment_status: "paid"
             }, {
@@ -217,7 +232,8 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                 show={showInvoiceModal}
                 onHide={() => setShowInvoiceModal(false)}
                 booking={selectedBooking} 
-                onConfirmPayment={confirmPayment} 
+                onConfirmPayment={() => confirmPayment(bookingId)}
+                invoice={invoiceId}
             />
         </section>
         

@@ -10,10 +10,12 @@ import hashlib
 import hmac
 import random
 import requests
-from .models import Invoice
+from .models import Invoice, Booking
 from .forms import PaymentForm
 from .vnpay import vnpay
 from .serializers import InvoiceCreateSerializer
+from django.db import transaction
+
 
 
 class PaymentViewSet(viewsets.ViewSet):
@@ -22,62 +24,74 @@ class PaymentViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def create_payment(self, request):
-        form = PaymentForm(request.data)
+        with transaction.atomic():
+            form = PaymentForm(request.data)
 
-        if not request.data.get('booking_id'):
-            return Response({"error": "Missing booking_id"}, status=status.HTTP_400_BAD_REQUEST)
+            if not request.data.get('booking_id'):
+                return Response({"error": "Missing booking_id"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if form.is_valid():
+            if form.is_valid():
 
-            order_type = form.cleaned_data['order_type']
-            order_id = form.cleaned_data['order_id']
-            amount = form.cleaned_data['amount']
-            order_desc = form.cleaned_data['order_desc']
-            bank_code = form.cleaned_data['bank_code']
-            language = form.cleaned_data['language']
-            ipaddr = get_client_ip(request)
-            booking_id = form.cleaned_data['booking_id']
-            user_id = form.cleaned_data['user']
+                order_type = form.cleaned_data['order_type']
+                order_id = form.cleaned_data['order_id']
+                amount = form.cleaned_data['amount']
+                order_desc = form.cleaned_data['order_desc']
+                bank_code = form.cleaned_data['bank_code']
+                language = form.cleaned_data['language']
+                ipaddr = get_client_ip(request)
+                booking_id = form.cleaned_data['booking_id']
+                user_id = form.cleaned_data['user']
 
-            vnp = vnpay()
-            vnp.requestData['vnp_Version'] = '2.1.0'
-            vnp.requestData['vnp_Command'] = 'pay'
-            vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
-            vnp.requestData['vnp_Amount'] = amount * 100
-            vnp.requestData['vnp_CurrCode'] = 'VND'
-            vnp.requestData['vnp_TxnRef'] = order_id
-            vnp.requestData['vnp_OrderInfo'] = order_desc
-            vnp.requestData['vnp_OrderType'] = order_type
-            vnp.requestData['vnp_Locale'] = language if language else 'vn'
-            if bank_code:
-                vnp.requestData['vnp_BankCode'] = bank_code
+                vnp = vnpay()
+                vnp.requestData['vnp_Version'] = '2.1.0'
+                vnp.requestData['vnp_Command'] = 'pay'
+                vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
+                vnp.requestData['vnp_Amount'] = amount * 100
+                vnp.requestData['vnp_CurrCode'] = 'VND'
+                vnp.requestData['vnp_TxnRef'] = order_id
+                vnp.requestData['vnp_OrderInfo'] = order_desc
+                vnp.requestData['vnp_OrderType'] = order_type
+                vnp.requestData['vnp_Locale'] = language if language else 'vn'
+                if bank_code:
+                    vnp.requestData['vnp_BankCode'] = bank_code
 
-            vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
-            vnp.requestData['vnp_IpAddr'] = ipaddr
-            vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
-            vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
+                vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+                vnp.requestData['vnp_IpAddr'] = ipaddr
+                vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
+                vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
 
-            if not Invoice.objects.filter(booking__id=booking_id).exists():
-                invoice_data = {
-                    'user': user_id,
-                    'booking': booking_id,
-                    'order_id': order_id,
-                    'amount': amount,
-                    'description': order_desc,
-                    'payment_method': 'VNPay',
-                    'bank_code': bank_code,
-                    'status': 'pending',
-                    'vnp_response_code': request.data.get('vnp_ResponseCode'),
-                }
+                if not Invoice.objects.filter(booking__id=booking_id).exists():
+                    invoice_data = {
+                        'user': user_id,
+                        'booking': booking_id,
+                        'order_id': order_id,
+                        'amount': amount,
+                        'description': order_desc,
+                        'payment_method': 'VNPay',
+                        'bank_code': bank_code,
+                        'status': 'pending',
+                        'vnp_response_code': request.data.get('vnp_ResponseCode'),
+                    }
 
-                invoice_serializer = InvoiceCreateSerializer(data=invoice_data)
-                if invoice_serializer.is_valid():
-                    invoice_serializer.save()
+                    invoice_serializer = InvoiceCreateSerializer(data=invoice_data)
+                    print(invoice_serializer)
+                    if invoice_serializer.is_valid():
+                        invoice = invoice_serializer.save()
+                        print(invoice)
+                        try:
+                            booking = Booking.objects.select_for_update().get(id=booking_id)
+                            booking.invoice = invoice
+                            booking.save()
+                        except Booking.DoesNotExist:
+                            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            # Trả về URL thanh toán
-            return Response({'payment_url': vnpay_payment_url}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"error": invoice_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"error": "Form input not valid"}, status=status.HTTP_400_BAD_REQUEST)
+                # Trả về URL thanh toán
+                return Response({'payment_url': vnpay_payment_url}, status=status.HTTP_200_OK)
+
+            return Response({"error": "Form input not valid"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def payment_ipn(self, request):

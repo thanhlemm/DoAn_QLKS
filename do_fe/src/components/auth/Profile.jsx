@@ -87,12 +87,14 @@ const Profile = () => {
         try {
             if (isNewPassword) {
                 await NewPassword(newPassword, confirmNewPassword, token);
+                alert('Password set successfully.')
                 setMessage('Password set successfully.');
             } else {
                 await changePassword(oldPassword, newPassword, token);
+                alert('Password changed successfully.')
                 setMessage('Password changed successfully.');
             }
-            setShowPasswordModal(false); // Close modal after success
+            setShowPasswordModal(false); 
         } catch (error) {
             setErrorMessage(error.message);
         }
@@ -211,13 +213,26 @@ const Profile = () => {
                                     <td>{moment(booking.check_in_date).format('MMM Do, YYYY')}</td>
                                     <td>{moment(booking.check_out_date).format('MMM Do, YYYY')}</td>
                                     <td className="text-success">{booking.payment_status}</td>
-                                    <td>
+                                    {/* <td>
                                         {hasFeedback(booking.id) ? (
                                             <span className="text-muted">Feedback submitted</span>
                                         ) : (
                                             <button className="btn btn-sm btn-primary" onClick={() => handleFeedbackShow(booking)}>
                                                 Feedback
                                             </button>
+                                        )}
+                                    </td> */}
+                                    <td>
+                                        {booking.checked_out ? (
+                                            hasFeedback(booking.id) ? (
+                                                <span className="text-muted">Feedback submitted</span>
+                                            ) : (
+                                                <button className="btn btn-sm btn-primary" onClick={() => handleFeedbackShow(booking)}>
+                                                    Feedback
+                                                </button>
+                                            )
+                                        ) : (
+                                            <span className="text-muted">Not checked out</span>
                                         )}
                                     </td>
                                 </tr>

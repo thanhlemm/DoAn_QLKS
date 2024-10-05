@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { registerUser, endpoints } from "../utils/ApiFunctions";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
+
 import '../../Login.css';
 
 
@@ -12,13 +14,14 @@ const Registration = () => {
         email: "",
         password: "",
         password2: "",
-        role: 2,
+        role: 3,
         DOB: "",
         address: "",
         phone: "",
         sex: 2 
     });
 
+    const navigate = useNavigate()
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -39,12 +42,13 @@ const Registration = () => {
                 email: "",
                 password: "",
                 password2: "",
-                role: 1,
+                role: 3,
                 DOB: "",
                 address: "",
                 phone: "",
                 sex: 2
             });
+            navigate("/login")
         } catch (error) {
             setSuccessMessage("");
             setErrorMessage(`Registration error: ${error.message}`);

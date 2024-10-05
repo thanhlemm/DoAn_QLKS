@@ -9,7 +9,7 @@ import '../../index.css';
 const NavBar = () => {
   const [showAccount, setShowAccount] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [cartItemCount, setCartItemCount] = useState(0);
+  // const [cartItemCount, setCartItemCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const user = useContext(MyUserContext);
 
@@ -40,15 +40,15 @@ const NavBar = () => {
   const isUserAdmin = user && user.role && user.role.name === "Admin";
   const isUserReceptionist = user && user.role && user.role.name === "Lễ tân";
 
-  useEffect(() => {
-    if (user) {
-      const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || "{}");
-      const roomIds = Object.keys(selectionData).filter((key) => !isNaN(key));
-      setCartItemCount(roomIds.length);
-    } else {
-      setCartItemCount(0);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     const selectionData = JSON.parse(localStorage.getItem(`selection_data_${user.id}`) || "{}");
+  //     const roomIds = Object.keys(selectionData).filter((key) => !isNaN(key));
+  //     setCartItemCount(roomIds.length);
+  //   } else {
+  //     setCartItemCount(0);
+  //   }
+  // }, [user]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -124,11 +124,11 @@ const NavBar = () => {
             <li className="nav-item">
               <NavLink className="nav-link position-relative" to="/cart">
                 <i className="fa fa-shopping-cart"></i> 
-                {cartItemCount > 0 && (
+                {/* {cartItemCount > 0 && (
                   <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">
                     {cartItemCount}
                   </span>
-                )}
+                )} */}
               </NavLink>
             </li>
 

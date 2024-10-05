@@ -25,26 +25,6 @@ def google_callback(redirect_uri: str, auth_uri: str):
     return user_data
 
 
-def facebook_callback(redirect_uri: str, auth_uri: str):
-    session = OAuth2Session(
-        settings.FACEBOOK_CLIENT_ID,
-        redirect_uri=redirect_uri,
-        scope=["email", "public_profile"],
-    )
-
-    # Trao đổi mã xác thực lấy access token từ Facebook
-    session.fetch_token(
-        "https://graph.facebook.com/v9.0/oauth/access_token",
-        client_secret=settings.FACEBOOK_CLIENT_SECRET,
-        authorization_response=auth_uri,
-    )
-
-    # Lấy thông tin người dùng từ Facebook
-    user_data = session.get("https://graph.facebook.com/me?fields=id,name,email,first_name,last_name,picture").json()
-
-    return user_data
-
-
 def upload_image_from_url(imageURL):
     response = requests.get(imageURL)
     if response.status_code == 200:

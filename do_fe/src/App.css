@@ -298,4 +298,27 @@ a {
   }
 }
 
+.room-carousel .carousel-control-prev,
+.room-carousel .carousel-control-next {
+  width: auto; 
+  height: 5rem; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  background-color: #79b9fe; 
+  border-radius: 100%; 
+}
+
+.room-carousel .carousel-control-prev {
+  left: -50px; 
+}
+
+.room-carousel .carousel-control-next {
+  right: -50px; 
+}
+
+.room-carousel .carousel-control-prev-icon,
+.room-carousel .carousel-control-next-icon {
+  background-size: 100%, 100%; 
+}
+
 

@@ -22,7 +22,9 @@ const ReceptionistLayout = ({children}) => (
           </Link>
           </li>
           <li>
-            <button css={buttonStyle}>Message</button>
+            <Link  to="/existing-messages">
+              <button css={buttonStyle}>Message</button>
+            </Link>
           </li>
         </ul>
       </nav>

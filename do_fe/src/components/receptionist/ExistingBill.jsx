@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { api, endpoints } from '../utils/ApiFunctions'; // Đảm bảo rằng bạn có API và các endpoint phù hợp
+import { api, endpoints } from '../utils/ApiFunctions'; 
 import InvoiceModal from '../receptionist/InvoiceModal';
 import Cookies from 'react-cookies';
 import ReactToPrint from 'react-to-print';
@@ -7,7 +7,7 @@ import InvoiceToPrint from './InvoiceToPrint';
 
 
 const ExistingBill = () => {
-    const [invoices, setInvoices] = useState([]);  // Lưu danh sách hóa đơn
+    const [invoices, setInvoices] = useState([]);  
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [showPrintModal, setShowPrintModal] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -15,7 +15,6 @@ const ExistingBill = () => {
     const token = Cookies.load('token');
     const componentRef = useRef();
 
-    // Hàm lấy dữ liệu hóa đơn từ API
     const fetchInvoices = async () => {
         try {
             const response = await api.get(endpoints.get_invoices,{
@@ -67,30 +66,7 @@ const ExistingBill = () => {
             alert('Error confirming payment: ' + error.response?.data?.detail || 'Something went wrong');
         }
     };
-    // const handlePrintInvoice = async (invoice) => {
-    //     const input = invoiceRef.current; // Lấy tham chiếu đến thành phần hóa đơn
-
-    //     // Đảm bảo tất cả hình ảnh đã tải xong
-    //     const images = input.getElementsByTagName('img');
-    //     const imagePromises = Array.from(images).map(img => {
-    //         return new Promise((resolve) => {
-    //             if (img.complete) {
-    //                 resolve();
-    //             } else {
-    //                 img.onload = resolve;
-    //                 img.onerror = resolve; // Để tránh treo khi có lỗi hình ảnh
-    //             }
-    //         });
-    //     });
-
-    //     await Promise.all(imagePromises); // Chờ tất cả hình ảnh tải
-
-    //     const canvas = await html2canvas(input);
-    //     const imgData = canvas.toDataURL('image/png');
-    //     const pdf = new jsPDF();
-    //     pdf.addImage(imgData, 'PNG', 0, 0);
-    //     pdf.save(`invoice_${invoice.id}.pdf`);
-    // };
+   
     const handlePrintBooking = async(booking) => {
         // console.log(selectedBooking);
         await fetchBooking(booking);
@@ -117,7 +93,7 @@ const ExistingBill = () => {
                 <tbody>
                     {invoices.map((invoice, index) => (
                         <tr key={invoice.id} className="border-b border-neutral-300 hover:bg-neutral-100">
-                            <td>{index + 1}</td>
+                            <td>{index + 1}</td>  
                             <td>{invoice.id}</td>
                             <td>{invoice.booking_id}</td>
                             <td>{invoice.amount}</td>

@@ -1,16 +1,15 @@
 from rest_framework import serializers
-from .models import ChatRoom
+from .models import RoomChat
 from userauths.models import User
 from OceanHotel.models import Branch
+from userauths.serializers import UserSerializer
 
 
-class ChatRoomCreateSerializer(serializers.ModelSerializer):
+class RoomChatSerializer(serializers.ModelSerializer):
     branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())
-    customer = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all()
-    )
+    sender = UserSerializer()
+    receiver = UserSerializer()
 
     class Meta:
-        model = ChatRoom
-        fields = ['branch', 'customer', 'created_at']
+        model = RoomChat
+        fields = ['id', 'branch', 'sender', 'receiver', 'created_at']

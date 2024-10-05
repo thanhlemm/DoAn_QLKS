@@ -16,6 +16,7 @@ const BookingForm = () => {
 	const [roomInfo, setRoomInfo] = useState({});
 	const [roomsInfo, setRoomsInfo] = useState([]);
 	const [couponCode, setCouponCode] = useState(""); 
+	const [count, setCount] = useState(1); 
 
 	const user = useContext(MyUserContext);
 
@@ -34,7 +35,8 @@ const BookingForm = () => {
 		total: 0,
 		saved: 0,
 		total_days: 0,
-		payment_status: "unpaid"
+		payment_status: "unpaid",
+		invoice: null,
 	})
 
 	const { roomId } = useParams()
@@ -67,6 +69,7 @@ const BookingForm = () => {
 			const availableRooms = rooms.filter(room => room.is_available);
 			if (availableRooms.length > 0) {
 				setRoomsInfo(availableRooms);
+				setCount(availableRooms.length)
 			}
 			const roomIdList = availableRooms.map(room => room.id);
 			 // setRoomsInfo(rooms);
@@ -110,12 +113,11 @@ const BookingForm = () => {
     useEffect(() => {
         fetchRoomData();
     }, [fetchRoomData]);
-
     const calculatePayment = useCallback(() => {
         const checkInDate = moment(booking.check_in_date);
         const checkOutDate = moment(booking.check_out_date);
         const diffInDays = checkOutDate.diff(checkInDate, "days");
-        const paymentPerDay = roomPrice ? roomPrice : 0;
+        const paymentPerDay = roomPrice ? roomPrice * count : 0;
 
         const beforeDiscount = diffInDays * paymentPerDay;
         const saved = booking.saved || 0; 

@@ -6,7 +6,7 @@ from . import views
 #
 
 r = routers.DefaultRouter()
-r.register(r'chat-rooms', views.ChatRoomViewSet, basename='chatroom')
+r.register(r'chat-rooms', views.RoomChatViewSet, basename='chatroom')
 
 urlpatterns = [
     path('', include(r.urls)),

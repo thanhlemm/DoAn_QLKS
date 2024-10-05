@@ -1,5 +1,5 @@
 from django.contrib import admin
-from addon.models import ChatRoom, Message
+from addon.models import RoomChat, Messages
 
-admin.site.register(ChatRoom)
-admin.site.register(Message)
+admin.site.register(RoomChat)
+admin.site.register(Messages)

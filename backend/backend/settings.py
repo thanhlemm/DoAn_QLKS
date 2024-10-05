@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-vo%o6ll8zsnlvr6k+4f$w)dwczr#2*^h*j(#f*nuxsv2t*-p)_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['oceanhotel.pythonanywhere.com', '127.0.0.1', 'oceanhotel.vercel.app']
+ALLOWED_HOSTS = ['oceanhotel.pythonanywhere.com', '127.0.0.1', 'oceanhotel.vercel.app', 'localhost']
 CORS_ALLOW_ALL_ORIGINS = True
 
 
@@ -102,6 +102,7 @@ INSTALLED_APPS = [
 
     # Chat
     'channels',
+    'channels_redis',
 
     # Google
     "sslserver",
@@ -158,8 +159,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
     },
 }
 
@@ -169,7 +173,7 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oceanhoteldb',
+        'NAME': 'oceanhoteldb1',
         'USER': 'root',
         'PASSWORD': 'Abcd1234',  # mk mysql
         'HOST': 'localhost',  # máy chủ cơ sở dữ liệu (mặc định là localhost)

@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Branch, RoomType, Room, Booking, Coupon, Feedback, Notification, Invoice
 from .serializers import (BranchSerializer, RoomTypeSerializer, RoomSerializer, RoomAvailabilitySerializer,
                           BookingSerializer, CouponSerializer, FeedbackSerializer, NotificationSerializer,
-                          InvoiceSerializer, InvoiceCreateSerializer)
+                          InvoiceSerializer, InvoiceCreateSerializer, BookingCreateSerializer)
+from userauths.serializers import UserSerializer
 from rest_framework.response import Response
 from django.conf import settings
 from userauths.models import User
@@ -33,6 +34,18 @@ class BranchViewSet(viewsets.ViewSet, generics.CreateAPIView,
         branch = get_object_or_404(Branch, pk=pk)
         room_types = RoomType.objects.filter(branch=branch)
         serializer = RoomTypeSerializer(room_types, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='receptionists')
+    def receptionists(self, request, pk=None):
+        branch = get_object_or_404(Branch, pk=pk)
+        receptionists = User.objects.filter(branch=branch,
+                                            role__name='Lễ tân')  # Assuming role name is 'Receptionist'
+        print(f"Number of receptionists found: {receptionists.count()}")
+        if not receptionists.exists():
+            return Response({"error": "No receptionists found for this branch."}, status=404)
+
+        serializer = UserSerializer(receptionists, many=True)  # Assuming you have a serializer for User
         return Response(serializer.data)
 
 
@@ -209,7 +222,7 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
         data['is_active'] = True
 
         # Tạo serializer với dữ liệu yêu cầu
-        serializer = BookingSerializer(data=data)
+        serializer = BookingCreateSerializer(data=data)
         if serializer.is_valid():
             booking = serializer.save()
             booking.room.set(rooms)  # Gán các phòng vào booking
@@ -343,6 +356,10 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
         booking.payment_status = new_status
         booking.save()
+        if hasattr(booking, 'invoice'):
+            invoice = booking.invoice
+            invoice.status = new_status
+            invoice.save()
 
         return Response({"message": "Booking payment status updated successfully", "status": new_status},
                         status=drf_status.HTTP_200_OK)
@@ -355,7 +372,13 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
 
     @action(detail=False, methods=['get'], url_path='checked-out')
     def get_checked_out_bookings(self, request):
-        checked_out_bookings = Booking.objects.filter(checked_out=False, is_active=True)
+        branch_id = request.query_params.get('branch')
+
+        if branch_id:
+            checked_out_bookings = Booking.objects.filter(checked_out=False, is_active=True, branch_id=branch_id)
+        else:
+            checked_out_bookings = Booking.objects.filter(checked_out=False, is_active=True)
+
         serializer = BookingSerializer(checked_out_bookings, many=True)
         return Response(serializer.data, status=drf_status.HTTP_200_OK)
 

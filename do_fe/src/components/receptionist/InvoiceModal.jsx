@@ -7,7 +7,6 @@ const InvoiceModal = ({ show, onHide, booking, invoice, onConfirmPayment }) => {
     const [guestFirstName, setGuestFirstName] = useState('');
     const [guestLastName, setGuestLastName] = useState('');
 
-
     useEffect(() => {
         if (booking && booking.user) {
             const fetchGuestName = async () => {

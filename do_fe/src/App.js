@@ -42,6 +42,7 @@ import Receptionist from './components/receptionist/Receptionist'
 import PaymentForm from './components/booking/PaymentForm'
 import PaymentResult from './components/booking/PaymentResult'
 import ExistingBill from './components/receptionist/ExistingBill'
+import ExistingMessage from './components/receptionist/ExistingMessage'
 
 
 import "./App.css"
@@ -160,6 +161,11 @@ function App() {
 						<Route path="/existing-bills" element={
 							<RequireReceptionist>
 								<ReceptionistLayout><ExistingBill /></ReceptionistLayout>
+							</RequireReceptionist>
+						} />
+						<Route path="/existing-messages" element={
+							<RequireReceptionist>
+								<ReceptionistLayout><ExistingMessage /></ReceptionistLayout>
 							</RequireReceptionist>
 						} />
 

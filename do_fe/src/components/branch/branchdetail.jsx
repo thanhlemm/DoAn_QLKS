@@ -1,12 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Card, Col, Form, Button, Row } from "react-bootstrap";
 import { useParams, useNavigate } from 'react-router-dom';
-import { getBranchDetails, getRoomTypesByBranchId, checkRoomAvailability } from '../utils/ApiFunctions';
+import { getBranchDetails, getRoomTypesByBranchId, checkRoomAvailability, api } from '../utils/ApiFunctions';
 import Header from "../common/Header";
 import BranchFeedback from './BranchFeedback';
 import ChatBubble from '../chat/ChatBubble';
+import { MyUserContext } from '../utils/MyContext';
+import ChatWebSocket from "../chat/ChatWebSocket";
+
 
 
 const BranchDetail = () => {
@@ -22,6 +25,51 @@ const BranchDetail = () => {
     checkout: '',
     roomType: '',
   });
+
+  const user = useContext(MyUserContext);
+  const [currentChatUser, setCurrentChatUser] = useState(null);
+  const [chatBoxOpen, setChatBoxOpen] = useState(false);
+
+  const fetchReceptionistForBranch = async (branchId) => {
+    try {
+        const response = await api.get(`/hotel/branch/${branchId}/receptionists/`);
+
+        const receptionists = response.data;
+
+        console.log("Receptionists:", receptionists);
+
+        if (receptionists.length > 0) {
+            return receptionists[Math.floor(Math.random() * receptionists.length)];
+        } else {
+            throw new Error("No receptionists found for this branch.");
+        }
+    } catch (error) {
+        console.error("Error fetching receptionists:", error);
+        throw error;
+    }
+};
+
+  const openChatBox = async () => {
+    if (!chatBoxOpen) {
+        try {
+            const user = await fetchReceptionistForBranch(id);
+            setCurrentChatUser(user);
+            setChatBoxOpen(true);
+        } catch (error) {
+            console.error("Failed to load receptionist:", error);
+        }
+    } else {
+        setChatBoxOpen(false);
+        setCurrentChatUser(null);
+    }
+  };
+
+  const closeChatBox = () => {
+    setChatBoxOpen(false);
+    setCurrentChatUser(null);
+  };
+
+  const { messages, sendMessage } = ChatWebSocket(currentChatUser, user, id);
 
   useEffect(() => {
     setIsLoading(true);
@@ -113,6 +161,7 @@ const BranchDetail = () => {
             <Tag key={tag}>{tag.trim()}</Tag>
           ))}
         </Tags>
+        
       </BranchInfo>
       <Row>
         <Col md={8}>
@@ -129,7 +178,7 @@ const BranchDetail = () => {
             </Col>
           ))}
         </Col>
-
+       
         <Col md={4} style={{ marginTop: '20px', marginBottom: '70px' }}>
           <Card className="shadow-lg">
             <Card.Body>
@@ -161,8 +210,29 @@ const BranchDetail = () => {
             </Card.Body>
           </Card>
         </Col>
+        <button
+          onClick={() => openChatBox(user)}
+          className="p-3 text-orange-700 hover:text-red-700 hover:underline cursor-pointer"
+        ></button>
+        
       </Row>
-      <ChatBubble branch={id}/>
+      {!chatBoxOpen && (
+      <div id="chat" className='max-w-[300px] fixed right-2 bottom-2 p-4 bg-orange-600 border boder-gray-300 rounded-xl' >
+          <div id="chat_icon">
+                <button id="chat_open" className='w-[25px] flex items-center' onClick={() => openChatBox(user)}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 text-white text-right">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                </svg>
+                </button>
+          </div>
+        </div>
+      )}
+      <ChatBubble 
+          currentChatUser={currentChatUser}
+          messages={messages}
+          sendMessage={sendMessage}
+          closeChatBox={closeChatBox}
+      />
       <Header title={"Feedbacks"} />
       <BranchFeedback branchId={id} />
     </Container>

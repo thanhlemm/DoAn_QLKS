@@ -9,24 +9,32 @@ const Bookings = () => {
 	const [bookingInfo, setBookingInfo] = useState([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState("")
+	const [branchId, setBranchId] = useState(null)
 	const user = useContext(MyUserContext);
-
+	
+	useEffect(() => {
+        if (user.branch) {
+            setBranchId(user.branch); 
+        }
+    }, [user]);
 
 	useEffect(() => {
         const fetchBookings = async () => {
-            try {
-                const data = await api.get('/hotel/booking/checked-out/');
-                const activeBookings = data.data;
-                setBookingInfo(activeBookings);
-                setIsLoading(false);
-            } catch (error) {
-                setError(error.message);
-                setIsLoading(false);
-            }
+			if (branchId) {
+				try {
+					const data = await api.get(`/hotel/booking/checked-out/?branch=${branchId}`);
+					const activeBookings = data.data;
+					setBookingInfo(activeBookings);
+					setIsLoading(false);
+				} catch (error) {
+					setError(error.message);
+					setIsLoading(false);
+				}
+			}
         };
 
         fetchBookings();
-    }, []);
+    }, [branchId]);
 
 	const handleBookingCancellation = async (bookingId) => {
 		try {

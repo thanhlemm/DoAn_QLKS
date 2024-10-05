@@ -10,7 +10,8 @@ const RoomTypeSelector = ({ handleRoomInputChange, newRoom, branchId }) => {
         if (branchId) {
             getRoomTypesByBranchId(branchId)
                 .then((types) => {
-                    setRoomTypes(types)
+                    const activeRoomTypes = types.filter(type => type.active === true);  // Only keep active room types
+                    setRoomTypes(activeRoomTypes);
                 })
                 .catch((error) => {
                     console.log(error)
