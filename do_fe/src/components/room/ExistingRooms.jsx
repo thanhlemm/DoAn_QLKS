@@ -59,15 +59,7 @@ const ExistingRooms = () => {
     }
   };
 
-  // const fetchRoomTypes = async (branchId) => {
-  //   try {
-  //     const response = await getRoomTypes(branchId); // Assume this function can take branchId as a parameter
-  //     setRoomTypes(response);
-  //     setFilteredRoomTypes(response); // Update filtered room types based on branch
-  //   } catch (error) {
-  //     console.error("Error fetching room types:", error);
-  //   }
-  // };
+  
   const fetchRoomTypes = async (branchId = null) => {
     try {
       let response;

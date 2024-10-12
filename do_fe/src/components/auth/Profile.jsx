@@ -197,6 +197,7 @@ const Profile = () => {
                         <thead>
                             <tr>
                                 <th scope="col">Booking ID</th>
+                                <th scope="col">Branch</th>
                                 <th scope="col">Room ID</th>
                                 <th scope="col">Room Type</th>
                                 <th scope="col">Check In Date</th>
@@ -209,6 +210,7 @@ const Profile = () => {
                             {bookings.map((booking, index) => (
                                 <tr key={index}>
                                     <td>{booking.id}</td>
+                                    <td>{booking.branch}</td>
                                     <td>{booking.room}</td>
                                     <td>{booking.room_type}</td>
                                     <td>{moment(booking.check_in_date).format('MMM Do, YYYY')}</td>

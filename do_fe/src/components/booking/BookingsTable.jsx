@@ -85,6 +85,7 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
 
     const handleCheckIn = async (bookingId) => {
         try {
+            console.log(bookingId)
             const booking = await api.post(endpoints.check_in(bookingId));
             const currentDate = new Date();
             const checkInDate = new Date(booking.data.check_in_date);
@@ -110,6 +111,11 @@ const BookingsTable = ({ bookingInfo, handleBookingCancellation }) => {
                 setFilteredBookings(activeBookings);
             }
         } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                alert(error.response.data.message);
+            } else {
+                alert('Đã xảy ra lỗi khi check-in.');
+            }            
             console.error('Error checking in:', error);
         }
     };

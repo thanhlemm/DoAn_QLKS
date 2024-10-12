@@ -43,15 +43,14 @@ import PaymentForm from './components/booking/PaymentForm'
 import PaymentResult from './components/booking/PaymentResult'
 import ExistingBill from './components/receptionist/ExistingBill'
 import ExistingMessage from './components/receptionist/ExistingMessage'
-
-
+import ExistingCustomers from "./components/customer/ExistingCustomers"
 import "./App.css"
 
 function App() {
-  const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
+	const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
 
 	return (
-			<BrowserRouter>
+		<BrowserRouter>
 			<MyUserContext.Provider value={user}>
 				<MyDispatchContext.Provider value={dispatch}>
 					<Routes>
@@ -131,7 +130,7 @@ function App() {
 								<MainLayout><Checkout /></MainLayout>
 							</RequireAuth>
 						} />
-						
+
 						<Route path="/existing-employees" element={
 							<RequireAdmin>
 								<AdminLayout><ExistingEmployees /></AdminLayout>
@@ -146,6 +145,12 @@ function App() {
 							<RequireAuth>
 								<MainLayout><Checkout /></MainLayout>
 							</RequireAuth>
+						} />
+
+						<Route path="/existing-customers" element={
+							<RequireAdmin>
+								<AdminLayout><ExistingCustomers /></AdminLayout>
+							</RequireAdmin>
 						} />
 
 						<Route path='/receptionist' element={
@@ -172,7 +177,7 @@ function App() {
 					</Routes>
 				</MyDispatchContext.Provider>
 			</MyUserContext.Provider>
-			</BrowserRouter>
+		</BrowserRouter>
 
 	)
 }

@@ -66,10 +66,10 @@ const RoomCard = ({ room }) => {
           </Card.Text>
           <Link
             to={`/book-room/${room.id}`}
-            className={`btn btn-primary btn-block ${!room.is_available ? "disabled" : ""}`}
+            className={`btn btn-primary btn-block`}
             onClick={handleBookingClick}
           >
-            {room.is_available ? "Book Now" : "Unavailable"}
+            Book Now
           </Link>
         </Card.Body>
       </Card>

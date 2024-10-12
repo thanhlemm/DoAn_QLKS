@@ -38,7 +38,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             messages = Messages.objects.filter(room=room).select_related('sender').order_by('timestamp')
             return [{
                 'message': msg.message,
-                'branch_id': room.branch.id,  # Change jobId to branchId
+                'branch_id': room.branch.id,
                 'sender': {
                     'id': msg.sender.id,
                     'username': msg.sender.username,

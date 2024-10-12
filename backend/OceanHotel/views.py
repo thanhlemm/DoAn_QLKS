@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from django.conf import settings
 from userauths.models import User
 from rest_framework import status as drf_status
+from datetime import date
 
 
 class BranchViewSet(viewsets.ViewSet, generics.CreateAPIView,
@@ -149,7 +150,7 @@ class RoomViewSet(viewsets.ViewSet, generics.CreateAPIView,
             available_rooms = Room.objects.filter(
                 branch_id=branch_id,
                 room_type_id=room_type_id,
-                is_available=True,
+                # is_available=True,
             ).exclude(
                 # Q(booking__check_in_date__lt=checkout,
                 #   booking__check_out_date__lte=checkout) |  # Phòng đã được đặt và kết thúc trước khi hoặc đúng thời gian bạn check-out.
@@ -303,12 +304,18 @@ class BookingViewSet(viewsets.ViewSet, generics.CreateAPIView,
     @action(detail=True, methods=['post'], url_path='check-in')
     def check_in_booking(self, request, pk=None):
         booking = self.get_object()
+        today = date.today()
+
         if not booking.is_active:
             return Response({'success': False, 'message': 'Booking đã bị hủy và không thể check-in.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if booking.checked_in:
             return Response({'success': False, 'message': 'Booking đã được check-in trước đó.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if today < booking.check_in_date:
+            return Response({'success': False, 'message': 'Chưa tới ngày check-in, không thể check-in.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         booking.checked_in = True

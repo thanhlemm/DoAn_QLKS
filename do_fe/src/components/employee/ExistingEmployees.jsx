@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { deleteEmployee, getAllEmployees, endpoints, api, authAPI } from "../utils/ApiFunctions"; //
+import { endpoints, api, authAPI } from "../utils/ApiFunctions"; //
 import { Col, Row } from "react-bootstrap";
 import EmployeeFilter from "./EmployeeFilter";
 // import EmployeePaginator from "../common/EmployeePaginator";
@@ -122,7 +122,7 @@ const ExistingEmployees = () => {
               >
                 <Link
                   to={"/add-employee"}
-                  className="btn btn-primary"
+                  className="bg-primary text-white rounded-md py-2 px-4 flex items-center"
                   style={{
                     backgroundColor: "#007bff",
                     borderColor: "#007bff",
@@ -139,26 +139,26 @@ const ExistingEmployees = () => {
               </Col>
             </Row>
 
-            <table className="table table-bordered table-hover">
+            <table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{borderRadius: "24px"}}>
               <thead>
-                <tr className="text-center">
-                  <th>ID</th>
-                  <th>User name</th>
-                  <th>First name</th>
-                  <th>Last name</th>
-                  <th>Role</th>
-                  <th>Actions</th>
+              <tr className="bg-neutral-100 border-b border-neutral-300">
+              <th className="p-4 text-center">ID</th>
+                  <th className="p-4 text-center">User name</th>
+                  <th className="p-4 text-center">First name</th>
+                  <th className="p-4 text-center">Last name</th>
+                  <th className="p-4 text-center">Role</th>
+                  <th className="p-4 text-center">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {currentEmployees.map((employee) => (
-                  <tr key={employee.id} className="text-center">
-                    <td>{employee.id}</td>
-                    <td>{employee.username}</td>
-                    <td>{employee.first_name}</td>
-                    <td>{employee.last_name}</td>
-                    <td>{employee.role?.name}</td>
+                  <tr key={employee.id} className="border-b border-neutral-300 hover:bg-neutral-100">
+                    <td className="p-4">{employee.id}</td>
+                    <td className="p-4">{employee.username}</td>
+                    <td className="p-4">{employee.first_name}</td>
+                    <td className="p-4">{employee.last_name}</td>
+                    <td className="p-4">{employee.role?.name}</td>
                     <td className="gap-2">
                       <Link to={`/edit-employee/${employee.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">

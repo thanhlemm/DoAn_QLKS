@@ -32,6 +32,12 @@ const Menu = () => {
         </Link>
       </li>
       <li className='menu--list-item'>
+        <Link to={"/existing-customers"}>
+          <FaUsersCog />
+           Customers
+        </Link>
+      </li>
+      <li className='menu--list-item'>
         <Link to={"/existing-coupons"}>
         <FaTag />
           Coupons

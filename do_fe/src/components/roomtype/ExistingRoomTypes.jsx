@@ -55,24 +55,24 @@ const ExistingRoomTypes = () => {
 
   const handleDelete = async (roomTypeId) => {
     try {
-        const result = await deleteRoomType(roomTypeId);
-        console.log(result);
+      const result = await deleteRoomType(roomTypeId);
+      console.log(result);
 
-        if (result.success) {
-            setSuccessMessage(`RoomType No ${roomTypeId} was deleted`);
-            fetchRoomTypes(); 
-        } else {
-            console.error(`Error deleting room type: ${result.message}`);
-            setErrorMessage(result.message);
-        }
+      if (result.success) {
+        setSuccessMessage(`RoomType No ${roomTypeId} was deleted`);
+        fetchRoomTypes();
+      } else {
+        console.error(`Error deleting room type: ${result.message}`);
+        setErrorMessage(result.message);
+      }
     } catch (error) {
-        setErrorMessage(error.message);
+      setErrorMessage(error.message);
     }
     setTimeout(() => {
-        setSuccessMessage("");
-        setErrorMessage("");
+      setSuccessMessage("");
+      setErrorMessage("");
     }, 3000);
-};
+  };
 
 
   const calculateTotalPages = (filteredRoomTypes, roomTypesPerPage, roomTypes) => {
@@ -107,9 +107,6 @@ const ExistingRoomTypes = () => {
             </div>
 
             <Row>
-              {/* <Col md={6} className="mb-2 md-mb-0">
-                <RoomFilter data={rooms} setFilteredData={setFilteredRooms} />
-              </Col> */}
 
               <Col
                 md={6}
@@ -117,7 +114,7 @@ const ExistingRoomTypes = () => {
               >
                 <Link
                   to={"/add-roomtype"}
-                  className="btn btn-primary"
+                  className="bg-primary text-white rounded-md py-2 px-4 flex items-center"
                   style={{
                     backgroundColor: "#007bff",
                     borderColor: "#007bff",
@@ -134,36 +131,36 @@ const ExistingRoomTypes = () => {
               </Col>
             </Row>
 
-            <table className="table table-bordered table-hover">
+            <table className="w-full border-collapse bg-neutral-50 shadow-md rounded-lg overflow-hidden" style={{ borderRadius: "24px" }}>
               <thead>
-                <tr className="text-center">
-                  <th>ID</th>
-                  <th>Name Room Type</th>
-                  <th> Price</th>
-                  <th> Bed </th>
-                  <th> Quantity</th>
-                  <th>Image</th>
-                  <th></th>
+                <tr className="bg-neutral-100 border-b border-neutral-300">
+                  <th className="p-4 text-center">ID</th>
+                  <th className="p-4 text-center">Name Room Type</th>
+                  <th className="p-4 text-center"> Price</th>
+                  <th className="p-4 text-center"> Bed </th>
+                  <th className="p-4 text-center"> Quantity</th>
+                  <th className="p-4 text-center">Image</th>
+                  <th className="p-4 text-center">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {currentRoomTypes.map((roomType) => (
-                  <tr key={roomType.id} className="text-center">
-                    <td>{roomType.id}</td>
-                    <td>{roomType.type}</td>
-                    <td>{roomType.price}</td>
-                    <td>{roomType.number_of_beds}</td>
-                    <td>{roomType.room_capacity}</td>
-                    <td>{roomType.image ? (
-                        <img
-                          src={roomType.image.replace("image/upload/", "")}
-                          alt={`Image of ${roomType.type}`}
-                          style={{ maxWidth: "100px", maxHeight: "100px" }}
-                        />
-                      ) : (
-                        "No Image"
-                      )}</td>
+                  <tr key={roomType.id} className="border-b border-neutral-300 hover:bg-neutral-100">
+                    <td className="p-4">{roomType.id}</td>
+                    <td className="p-4">{roomType.type}</td>
+                    <td className="p-4">{roomType.price}</td>
+                    <td className="p-4">{roomType.number_of_beds}</td>
+                    <td className="p-4">{roomType.room_capacity}</td>
+                    <td className="p-4">{roomType.image ? (
+                      <img
+                        src={roomType.image.replace("image/upload/", "")}
+                        alt={`Image of ${roomType.type}`}
+                        style={{ maxWidth: "100px", maxHeight: "100px" }}
+                      />
+                    ) : (
+                      "No Image"
+                    )}</td>
                     <td className="gap-2">
                       <Link to={`/edit-roomtype/${roomType.id}`} className="gap-2">
                         <span className="btn btn-info btn-sm">

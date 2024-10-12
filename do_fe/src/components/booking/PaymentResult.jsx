@@ -48,7 +48,6 @@ const PaymentResult = () => {
         const queryParams = new URLSearchParams(location.search);
         
         const result = queryParams.get('vnp_TransactionStatus');
-
         if (result) {
             const isSuccess = result === '00';
             setPaymentResult({

@@ -62,11 +62,12 @@ const Checkout = () => {
 				const roomIds = Object.keys(selectionData).filter(key => !isNaN(key)).map(key => parseInt(key));
 				const roomPromises = roomIds.map(id => getRoomById(id));
 				const rooms = await Promise.all(roomPromises);
+				setRoomsInfo(rooms);
 				// setRoomsInfo(rooms);
-				const availableRooms = rooms.filter(room => room.is_available);
-				if (availableRooms.length > 0) {
-					setRoomsInfo(availableRooms);
-				}
+				// const availableRooms = rooms.filter(room => room.is_available);
+				// if (availableRooms.length > 0) {
+					
+				// }
 				setIsLoading(false);
 			  }
 			} catch (err) {
