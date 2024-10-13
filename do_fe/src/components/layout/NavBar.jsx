@@ -49,7 +49,7 @@ const NavBar = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           // Lọc các thông báo có mark_as_read = True
-          const readNotifications = response.data.filter(notification => notification.mark_as_read === true);
+          const readNotifications = response.data.filter(notification => notification.seen === false);
 
           // Set các thông báo đã đọc vào state
           setNotifications(readNotifications);

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getBookingsByUserId, getUser, getFeedbacksByUser, deleteUser } from '../utils/ApiFunctions';
+import { getBookingsByUserId, getAllRooms, api, getFeedbacksByUser, deleteUser } from '../utils/ApiFunctions';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { MyUserContext } from '../utils/MyContext';
@@ -23,6 +23,63 @@ const Profile = () => {
     const [showPasswordModal, setShowPasswordModal] = useState(false); 
     const [isNewPassword, setIsNewPassword] = useState(false); 
     const [passwordStatus, setPasswordStatus] = useState(null);
+    const [rooms, setRooms] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [roomTypes, setRoomTypes] = useState([]);
+
+
+  useEffect(() => {
+    fetchRooms();
+    fetchBranches();
+    fetchRoomType();
+  }, []);
+
+  const fetchRooms = async () => {
+    try {
+      const result = await getAllRooms();
+      setRooms(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getRoomNumber = (roomId) => {
+    // Ensure that rooms are loaded before accessing them
+    if (!rooms || rooms.length === 0) {
+      return "Loading...";
+    }
+
+    const room = rooms.find((r) => r.id === roomId);
+    return room ? `${room.room_number}` : "Unknown";
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get("/hotel/branch/");
+      setBranches(response.data);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
+
+  const getBranchName = (id) => {
+    const branch = branches.find((branch) => branch.id === id);
+    return branch ? branch.name : "Unknown";
+  };
+
+  const fetchRoomType = async () => {
+    try {
+      const response = await api.get("/hotel/roomtypes/");
+      setRoomTypes(response.data);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
+
+  const getRoomTypeName = (id) => {
+    const rt = roomTypes.find((rt) => rt.id === id);
+    return rt ? rt.type : "Unknown";
+  };
 
     const handleFeedbackClose = () => setShowFeedbackModal(false);
     const handleFeedbackShow = (booking) => {
@@ -196,9 +253,9 @@ const Profile = () => {
                     <table className="table table-bordered table-hover shadow">
                         <thead>
                             <tr>
-                                <th scope="col">Booking ID</th>
+                                <th scope="col">Booking Confirmation Code</th>
                                 <th scope="col">Branch</th>
-                                <th scope="col">Room ID</th>
+                                <th scope="col">Room Number</th>
                                 <th scope="col">Room Type</th>
                                 <th scope="col">Check In Date</th>
                                 <th scope="col">Check Out Date</th>
@@ -209,10 +266,10 @@ const Profile = () => {
                         <tbody>
                             {bookings.map((booking, index) => (
                                 <tr key={index}>
-                                    <td>{booking.id}</td>
-                                    <td>{booking.branch}</td>
-                                    <td>{booking.room}</td>
-                                    <td>{booking.room_type}</td>
+                                    <td>{booking.confirmationCode}</td>
+                                    <td>{getBranchName(booking.branch)}</td>
+                                    <td>{Array.isArray(booking.room) ? booking.room.map(id => getRoomNumber(id)).join(', ') : getRoomNumber(booking.room)}</td>
+                                    <td>{getRoomTypeName(booking.room_type)}</td>
                                     <td>{moment(booking.check_in_date).format('MMM Do, YYYY')}</td>
                                     <td>{moment(booking.check_out_date).format('MMM Do, YYYY')}</td>
                                     <td className="text-success">{booking.payment_status}</td>

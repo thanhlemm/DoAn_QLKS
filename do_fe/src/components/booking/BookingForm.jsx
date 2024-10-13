@@ -93,7 +93,8 @@ const BookingForm = () => {
 				const roomPromises = roomIds.map(id => getRoomById(id));
 				const rooms = await Promise.all(roomPromises);
 				const availableRooms = rooms.filter(room => room.is_available);
-				if (availableRooms.length > 1) {
+				if (availableRooms.length > 0) {
+					console.log(availableRooms)
 					setRoomsInfo(availableRooms);
 					setCount(availableRooms.length)
 				}
@@ -124,6 +125,7 @@ const BookingForm = () => {
     useEffect(() => {
         fetchRoomData();
     }, [fetchRoomData]);
+
     const calculatePayment = useCallback(() => {
         const checkInDate = moment(booking.check_in_date);
         const checkOutDate = moment(booking.check_out_date);
@@ -155,7 +157,6 @@ const BookingForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const form = e.currentTarget;
-		console.log(booking)
 		if (form.checkValidity() === false || !isCheckOutDateValid()) {
 			e.stopPropagation();
 		} else {
@@ -171,27 +172,29 @@ const BookingForm = () => {
 	
 				const updatedBooking = { ...booking, before_discount: beforeDiscount };
 				let discountAmount = 0;
-	
 				if (couponCode) {
 					try {
 						const discountResponse = await api.post(endpoints.verify_coupon, { code: couponCode });
 						const discountData = discountResponse.data;
-				   
+						console.log(discountResponse.data)
 						discountAmount = discountData.type === 'percentage'
 							? (beforeDiscount * discountData.discount) / 100
 							: discountData.discount;
+						console.log(discountAmount)
 					} catch (error) {
 						setErrorMessage("Invalid coupon code.");
 					}
 				}
 	
 				const totalAmount = updatedBooking.before_discount - discountAmount;
-	
+				console.log(totalAmount)
 				setBooking(prevState => ({
 					...prevState,
 					saved: discountAmount,
 					total: totalAmount
 				}));
+
+				console.log(booking)
 	
 				setIsSubmitted(true);
 	
